@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { readManifestSync, summarizeManifest } from "../../../lib/manifest";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,8 @@ export async function GET(request) {
             ? pkg.tags.filter((t) => typeof t === "string")
             : [];
 
+          const manifest = summarizeManifest(readManifestSync(fullPath));
+
           results.push({
             id: file,
             name,
@@ -65,6 +68,7 @@ export async function GET(request) {
             description,
             tags,
             path: fullPath,
+            manifest,
           });
         }
       }
