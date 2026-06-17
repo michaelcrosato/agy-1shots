@@ -1,0 +1,18 @@
+{
+  "name": "notion-scraper",
+  "version": "1.0.0",
+  "description": "A web scraper that connects to the Notion API using the official client SDK to scrape URLs and update Notion databases.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js --test"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  },
+  "tags": [
+    "scraper",
+    "notion",
+    "backend"
+  ]
+}

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+jspm_packages/
+web_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Production build
+build/
+dist/
+
+# Logs and databases
+*.log
+*.sqlite
+stats.json
+stats.json.tmp.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Agent workspaces and execution logs
+.agents/
+
+# Local configuration files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
