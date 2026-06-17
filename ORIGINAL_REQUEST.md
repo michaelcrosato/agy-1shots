@@ -160,3 +160,65 @@ Integrity mode: development
 * **Family Photo Organizer**: Offline vision facial clustering app using Ollama.
 * **Recipe-to-Instacart Cart Mapper**: recipe-to-shopping cart quantity mapper.
 * **Offline Travel & Route Planner**: caches travel map layers for offline marine transit/hiking.
+
+## Follow-up — 2026-06-17T23:14:53Z
+
+Build enhanced backlog management, refactoring, and integration tools for the OneShotForge Ideas Registry. This includes a root-level IDEAS.md, prefix-based naming conventions, lifecycle tracking, promotion scripts to scaffold one-shots, and prompt generation utilities.
+
+Working directory: c:/dev/agy-1shots
+Integrity mode: development
+
+## Requirements
+
+### R1. Root IDEAS.md Backlog & ID Refactoring
+- Refactor the 51 existing ideas in `/ideas/registry.json` and `/ideas/README.md` to use prefix-based ID conventions:
+  - `AUTO-0XX` for Automotive & B2B Lead Generation Tools (e.g., AUTO-001 to AUTO-006)
+  - `LLM-0XX` for AI Development, Prompting, Routing & Evaluation Tools (e.g., LLM-001 to LLM-005)
+  - `AGENT-0XX` for Agent Orchestration, Governance & Sandbox Frameworks (e.g., AGENT-001 to AGENT-010)
+  - `CODE-0XX` for Codebase Engineering & Git Workflow Enhancers (e.g., CODE-001 to CODE-007)
+  - `DATA-0XX` for Data, Document & Workspace Productivity Tools (e.g., DATA-001 to DATA-010)
+  - `MICRO-0XX` for Micro-SaaS Templates & Personal Workflow Apps (e.g., MICRO-001 to MICRO-013)
+- Create a beautiful, comprehensive `IDEAS.md` file at the repository root, presenting all 51 ideas in a structured, readable backlog using the prefix IDs and category tables.
+- Add lifecycle fields to each idea's metadata in `/ideas/registry.json`:
+  - `status`: `"backlog"` (default), `"promoted"`, or `"archived"`. Set `status` for the Notion Scraper idea to `"promoted"`.
+  - `promoted_to`: `"notion-scraper"` for the Notion Scraper idea, `null` otherwise.
+  - `supersedes`: `null` (or ID of any superseded idea).
+
+### R2. Scaffolding Promotion CLI (`scripts/promote.py`)
+- Create a Python script `/scripts/promote.py` that automates promoting an idea from the backlog to a benchmark one-shot.
+- The script should:
+  - Take a prefix-based ID (e.g., `AUTO-001` or `notion-scraper`'s ID) as a parameter.
+  - Find the idea in `/ideas/registry.json`.
+  - Scaffold a new directory `/one-shots/<kebab-case-slug>/`.
+  - Initialize the directory with a compliant `oneshot.json` (seeding version, vision,createdAt, and first empty attempt), a basic `package.json`, a placeholder source file, a testing script, and a local `README.md` using the idea's specifications.
+  - Update the idea's status to `"promoted"` and set `promoted_to` to the newly created directory name in `/ideas/registry.json` (and automatically regenerate `/ideas/README.md` and root `IDEAS.md`).
+
+### R3. Variable-Substituting Prompt Generator (`scripts/prompt-gen.py`)
+- Create a Python script `/scripts/prompt-gen.py` to compile and substitute variables in task prompts.
+- The script should:
+  - Take an idea ID (e.g., `AUTO-001`) as a parameter.
+  - Accept optional variable overrides via CLI arguments (e.g., `--language python --framework playwright`).
+  - Retrieve the idea's standardized prompt, substitute template variables (like `{{LANGUAGE}}`, `{{FRAMEWORK}}`), and print the final prompt.
+  - Optionally copy the compiled prompt directly to the clipboard (using standard library or lightweight modules).
+
+### R4. Dashboard UI & API Integration
+- Update the `/api/ideas` GET and POST route handlers in `dashboard/app/api/ideas/route.js` and the mock E2E server in `tests/e2e/verify.js` to handle the new prefix-based IDs and lifecycle metadata (`status`, `promoted_to`, `supersedes`).
+- Modify the POST route so that new ideas submitted via the dashboard are automatically assigned the next sequential ID for their category (e.g. `AUTO-007` if there are 6 existing `AUTO` ideas) and default to `status: "backlog"`.
+- Update the Next.js dashboard UI (`dashboard/app/DashboardClient.jsx`) to display the prefix IDs, lifecycle statuses, and allow filtering or highlighting of ideas based on their promotion status.
+
+## Acceptance Criteria
+
+### Data & Scaffolding
+- [ ] `/ideas/registry.json`, `/ideas/README.md`, and root `IDEAS.md` all exist, are well-formed, and use prefix IDs (e.g. `AUTO-001`).
+- [ ] notion-scraper has its status set to `"promoted"` and `promoted_to` set to `"notion-scraper"`.
+
+### CLI Scripts
+- [ ] `/scripts/promote.py` runs successfully, creating the `/one-shots/` scaffold and updating the idea's status in `registry.json`.
+- [ ] `/scripts/prompt-gen.py` runs successfully, printing a substituted prompt with variables replaced.
+
+### API & UI
+- [ ] GET `/api/ideas` returns prefix IDs and lifecycle metadata.
+- [ ] POST `/api/ideas` generates the correct sequential prefix ID and saves status/metadata fields.
+- [ ] Dashboard UI compiles and displays prefix IDs and statuses.
+- [ ] Running E2E verification test suite (`node tests/e2e/verify.js`) passes successfully.
+

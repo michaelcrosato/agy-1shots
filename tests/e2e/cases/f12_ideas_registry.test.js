@@ -105,18 +105,18 @@ describe("F12: Ideas Registry API", () => {
 
     const data = await res.json();
     expect(data.title).toBe("Unique Test Idea X");
-    expect(data.id).toBe("unique-test-idea-x");
+    expect(data.id).toBe("MICRO-014");
 
     // Check files on disk
     const diskRegistry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
     const createdInDisk = diskRegistry.find(
-      (item) => item.id === "unique-test-idea-x",
+      (item) => item.id === "MICRO-014",
     );
     expect(createdInDisk).toExist();
     expect(createdInDisk.title).toBe("Unique Test Idea X");
 
     const diskReadme = fs.readFileSync(readmePath, "utf8");
-    expect(diskReadme.includes("unique-test-idea-x")).toBe(true);
+    expect(diskReadme.includes("MICRO-014")).toBe(true);
     expect(diskReadme.includes("Unique Test Idea X")).toBe(true);
   });
 
@@ -244,7 +244,7 @@ describe("F12: Ideas Registry API", () => {
     });
     expect(res1.status).toBe(200);
     const data1 = await res1.json();
-    expect(data1.id).toBe("duplicate-resolution-idea");
+    expect(data1.id).toBe("MICRO-015");
 
     // Second POST
     const res2 = await fetch(`${DASHBOARD_URL}/api/ideas`, {
@@ -254,7 +254,7 @@ describe("F12: Ideas Registry API", () => {
     });
     expect(res2.status).toBe(200);
     const data2 = await res2.json();
-    expect(data2.id).toBe("duplicate-resolution-idea-1");
+    expect(data2.id).toBe("MICRO-016");
 
     // Third POST
     const res3 = await fetch(`${DASHBOARD_URL}/api/ideas`, {
@@ -264,6 +264,6 @@ describe("F12: Ideas Registry API", () => {
     });
     expect(res3.status).toBe(200);
     const data3 = await res3.json();
-    expect(data3.id).toBe("duplicate-resolution-idea-2");
+    expect(data3.id).toBe("MICRO-017");
   });
 });

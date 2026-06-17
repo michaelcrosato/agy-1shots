@@ -13,7 +13,16 @@ const categories = [
   "Micro-SaaS Templates & Personal Workflow Apps",
 ];
 
-function generateReadme(ideas) {
+function generateIdeasReadme(ideas) {
+  const categoriesList = [
+    "Automotive & B2B Lead Generation Tools",
+    "AI Development, Prompting, Routing & Evaluation Tools",
+    "Agent Orchestration, Governance & Sandbox Frameworks",
+    "Codebase Engineering & Git Workflow Enhancers",
+    "Data, Document & Workspace Productivity Tools",
+    "Micro-SaaS Templates & Personal Workflow Apps",
+  ];
+
   let md = `# One-Shot Ideas Registry\n\n`;
   md += `Welcome to the One-Shot Ideas Registry. This repository stores, categories, and indexes ideas for standalone utilities, bots, and Micro-SaaS tools that can be generated in "one-shot" by developer agents.\n\n`;
   md += `## Registry Statistics\n`;
@@ -22,7 +31,7 @@ function generateReadme(ideas) {
   md += `---\n\n`;
   md += `## Ideas by Category\n\n`;
 
-  categories.forEach((category) => {
+  categoriesList.forEach((category) => {
     const categoryIdeas = ideas.filter((idea) => idea.category === category);
     md += `### ${category}\n\n`;
     md += `| ID | Title | Target Stack | Date Added |\n`;
@@ -40,10 +49,74 @@ function generateReadme(ideas) {
     md += `- **ID**: \`${idea.id}\`\n`;
     md += `- **Category**: ${idea.category}\n`;
     md += `- **Target Stack**: \`${idea.targetStack}\`\n`;
-    md += `- **Date Added**: ${idea.dateAdded}\n\n`;
+    md += `- **Date Added**: ${idea.dateAdded}\n`;
+    md += `- **Status**: \`${idea.status || "backlog"}\`\n`;
+    md += `- **Promoted To**: ${idea.promoted_to !== undefined && idea.promoted_to !== null ? idea.promoted_to : "null"}\n`;
+    md += `- **Supersedes**: ${idea.supersedes !== undefined && idea.supersedes !== null ? idea.supersedes : "null"}\n\n`;
     md += `#### Core Vision\n${idea.vision}\n\n`;
     md += `#### Technical Specifications\n${idea.techSpecs}\n\n`;
     md += `#### Standardized Task Prompt\n\`\`\`text\n${idea.readyToCopyTaskPrompt}\n\`\`\`\n\n`;
+    md += `---\n\n`;
+  });
+
+  return md;
+}
+
+function generateIdeasMd(ideas) {
+  const categoriesList = [
+    "Automotive & B2B Lead Generation Tools",
+    "AI Development, Prompting, Routing & Evaluation Tools",
+    "Agent Orchestration, Governance & Sandbox Frameworks",
+    "Codebase Engineering & Git Workflow Enhancers",
+    "Data, Document & Workspace Productivity Tools",
+    "Micro-SaaS Templates & Personal Workflow Apps",
+  ];
+
+  const promotedIdeas = ideas.filter((i) => i.status === "promoted");
+  const promotedTitles = promotedIdeas.map((i) => i.title);
+  const promotedStr = promotedTitles.length > 0 ? ` (${promotedTitles.join(", ")})` : "";
+  const backlogCount = ideas.filter((i) => i.status === "backlog").length;
+
+  let md = `# One-Shot Ideas Backlog\n\n`;
+  md += `This document lists all ideas available in the registry, including their current lifecycle status.\n\n`;
+  md += `## Backlog Statistics\n`;
+  md += `- **Stats**: ${ideas.length} total ideas, ${promotedIdeas.length} promoted${promotedStr}\n`;
+  md += `- **Backlog Ideas**: ${backlogCount}\n\n`;
+  md += `---\n\n`;
+  md += `## Category Summary\n\n`;
+
+  categoriesList.forEach((category) => {
+    const categoryIdeas = ideas.filter((idea) => idea.category === category);
+    md += `### ${category}\n\n`;
+    md += `| ID | Title | Target Stack | Status | Promoted To |\n`;
+    md += `| :--- | :--- | :--- | :--- | :--- |\n`;
+    categoryIdeas.forEach((idea) => {
+      const status = idea.status || "backlog";
+      const promoted_to = idea.promoted_to;
+      let promoted_to_val = "-";
+      if (status === "promoted" && promoted_to) {
+        promoted_to_val = `\`${promoted_to}\``;
+      }
+      md += `| \`${idea.id}\` | [${idea.title}](#${idea.id}) | \`${idea.targetStack}\` | \`${status}\` | ${promoted_to_val} |\n`;
+    });
+    md += `\n`;
+  });
+
+  md += `---\n\n## Backlog Details\n\n`;
+
+  ideas.forEach((idea) => {
+    md += `### <a name="${idea.id}"></a> ${idea.title}\n\n`;
+    md += `- **ID**: \`${idea.id}\`\n`;
+    md += `- **Category**: ${idea.category}\n`;
+    md += `- **Target Stack**: \`${idea.targetStack}\`\n`;
+    md += `- **Status**: \`${idea.status || "backlog"}\`\n`;
+    if (idea.status === "promoted" && idea.promoted_to) {
+      md += `- **Promoted To**: \`one-shots/${idea.promoted_to}/\`\n`;
+    }
+    md += `- **Date Added**: ${idea.dateAdded}\n\n`;
+    md += `#### Vision\n${idea.vision}\n\n`;
+    md += `#### Technical Specifications\n${idea.techSpecs}\n\n`;
+    md += `#### Task Prompt\n\`\`\`text\n${idea.readyToCopyTaskPrompt}\n\`\`\`\n\n`;
     md += `---\n\n`;
   });
 
@@ -58,7 +131,12 @@ export async function GET() {
       return NextResponse.json([], { status: 200 });
     }
     const data = fs.readFileSync(registryPath, "utf8");
-    const ideas = JSON.parse(data);
+    const ideas = JSON.parse(data).map(idea => ({
+      ...idea,
+      status: idea.status || "backlog",
+      promoted_to: idea.promoted_to !== undefined ? idea.promoted_to : null,
+      supersedes: idea.supersedes !== undefined ? idea.supersedes : null
+    }));
     return NextResponse.json(ideas, { status: 200 });
   } catch (error) {
     return NextResponse.json(
@@ -144,34 +222,11 @@ export async function POST(request) {
       }
     }
 
-    // Generate a safe id by slugifying title
-    let cleanId = title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-
-    if (!cleanId) {
-      return NextResponse.json(
-        {
-          error: "Validation Error: Title must contain alphanumeric characters",
-        },
-        { status: 400 },
-      );
-    }
-
-    // Ensure only [a-z0-9-] are present
-    if (!/^[a-z0-9-]+$/.test(cleanId)) {
-      return NextResponse.json(
-        { error: "Validation Error: ID contains invalid characters" },
-        { status: 400 },
-      );
-    }
-
     // Read existing registry
     const ideasDir = path.resolve(process.cwd(), "../ideas");
     const registryPath = path.join(ideasDir, "registry.json");
     const readmePath = path.join(ideasDir, "README.md");
+    const ideasMdPath = path.resolve(process.cwd(), "../IDEAS.md");
 
     let ideas = [];
     if (fs.existsSync(registryPath)) {
@@ -179,14 +234,19 @@ export async function POST(request) {
       ideas = JSON.parse(data);
     }
 
-    // Check for duplicate IDs
-    let finalId = cleanId;
-    let suffix = 1;
-    const existingIds = new Set(ideas.map((item) => item.id));
-    while (existingIds.has(finalId)) {
-      finalId = `${cleanId}-${suffix}`;
-      suffix++;
-    }
+    const prefixMap = {
+      "Automotive & B2B Lead Generation Tools": "AUTO",
+      "AI Development, Prompting, Routing & Evaluation Tools": "LLM",
+      "Agent Orchestration, Governance & Sandbox Frameworks": "AGENT",
+      "Codebase Engineering & Git Workflow Enhancers": "CODE",
+      "Data, Document & Workspace Productivity Tools": "DATA",
+      "Micro-SaaS Templates & Personal Workflow Apps": "MICRO",
+    };
+
+    const prefix = prefixMap[category];
+    const count = ideas.filter(idea => idea.category === category).length;
+    const nextIdNumber = count + 1;
+    const finalId = `${prefix}-${String(nextIdNumber).padStart(3, '0')}`;
 
     const dateAdded = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
@@ -199,15 +259,21 @@ export async function POST(request) {
       targetStack: targetStack.trim(),
       readyToCopyTaskPrompt: readyToCopyTaskPrompt.trim(),
       dateAdded,
+      status: "backlog",
+      promoted_to: null,
+      supersedes: null,
     };
 
     // Append new idea to registry.json
     ideas.push(newIdea);
     fs.writeFileSync(registryPath, JSON.stringify(ideas, null, 2), "utf8");
 
-    // Automatically regenerate README.md
-    const readmeContent = generateReadme(ideas);
+    // Automatically regenerate README.md and root IDEAS.md
+    const readmeContent = generateIdeasReadme(ideas);
     fs.writeFileSync(readmePath, readmeContent, "utf8");
+
+    const ideasMdContent = generateIdeasMd(ideas);
+    fs.writeFileSync(ideasMdPath, ideasMdContent, "utf8");
 
     return NextResponse.json(newIdea, { status: 200 });
   } catch (error) {

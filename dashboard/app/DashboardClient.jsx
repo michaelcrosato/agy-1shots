@@ -782,6 +782,7 @@ export default function DashboardClient({
   const [ideasSearchQuery, setIdeasSearchQuery] = useState("");
   const [selectedIdeaCategory, setSelectedIdeaCategory] = useState("");
   const [selectedIdeaStack, setSelectedIdeaStack] = useState("");
+  const [selectedIdeaStatus, setSelectedIdeaStatus] = useState("");
   const [selectedIdeaDetail, setSelectedIdeaDetail] = useState(null);
   const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
   const [addIdeaForm, setAddIdeaForm] = useState({
@@ -865,9 +866,18 @@ export default function DashboardClient({
             .toLowerCase()
             .includes(selectedIdeaStack.toLowerCase()));
 
-      return matchesSearch && matchesCategory && matchesStack;
+      const matchesStatus =
+        !selectedIdeaStatus || idea.status === selectedIdeaStatus;
+
+      return matchesSearch && matchesCategory && matchesStack && matchesStatus;
     });
-  }, [ideas, ideasSearchQuery, selectedIdeaCategory, selectedIdeaStack]);
+  }, [
+    ideas,
+    ideasSearchQuery,
+    selectedIdeaCategory,
+    selectedIdeaStack,
+    selectedIdeaStatus,
+  ]);
 
   // Load all unique tags from one-shots
   const allTags = React.useMemo(() => {
@@ -1126,6 +1136,17 @@ export default function DashboardClient({
                     </option>
                   ))}
                 </select>
+
+                <select
+                  value={selectedIdeaStatus}
+                  onChange={(e) => setSelectedIdeaStatus(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="backlog">Backlog</option>
+                  <option value="promoted">Promoted</option>
+                  <option value="archived">Archived</option>
+                </select>
               </div>
             </div>
 
@@ -1146,10 +1167,24 @@ export default function DashboardClient({
                     className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition-colors flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex justify-between items-start gap-2">
-                        <span className="text-xs bg-blue-955 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-semibold">
-                          {idea.category}
-                        </span>
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm font-bold text-blue-400">
+                            {idea.id}
+                          </span>
+                          <span className="text-xs bg-blue-955 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-semibold max-w-[150px] truncate" title={idea.category}>
+                            {idea.category}
+                          </span>
+                        </div>
+                        {idea.status === "promoted" ? (
+                          <span className="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-semibold">
+                            Promoted
+                          </span>
+                        ) : (
+                          <span className="text-xs bg-slate-900 text-slate-400 border border-slate-750 px-2 py-0.5 rounded-full font-semibold capitalize">
+                            {idea.status}
+                          </span>
+                        )}
                       </div>
                       <h3
                         onClick={() => setSelectedIdeaDetail(idea)}
@@ -1485,10 +1520,24 @@ export default function DashboardClient({
           <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
             <div className="p-6 border-b border-slate-700 flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold text-slate-100">
-                  {selectedIdeaDetail.title}
-                </h2>
-                <p className="text-xs text-blue-400 mt-1">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-mono text-sm font-bold text-blue-400 px-2 py-0.5 bg-slate-900 border border-slate-700 rounded">
+                    {selectedIdeaDetail.id}
+                  </span>
+                  <h2 className="text-xl font-bold text-slate-100">
+                    {selectedIdeaDetail.title}
+                  </h2>
+                  {selectedIdeaDetail.status === "promoted" ? (
+                    <span className="text-xs bg-emerald-955 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-full font-semibold">
+                      Promoted
+                    </span>
+                  ) : (
+                    <span className="text-xs bg-slate-900 text-slate-400 border border-slate-750 px-2.5 py-0.5 rounded-full font-semibold capitalize">
+                      {selectedIdeaDetail.status}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-blue-400 mt-1.5">
                   Category: {selectedIdeaDetail.category}
                 </p>
               </div>
@@ -1536,6 +1585,27 @@ export default function DashboardClient({
                   </p>
                 </div>
               </div>
+
+              {selectedIdeaDetail.status === "promoted" && selectedIdeaDetail.promoted_to && (
+                <div>
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Promoted To
+                  </h3>
+                  <div className="mt-1">
+                    <a
+                      href={`#${selectedIdeaDetail.promoted_to}`}
+                      onClick={() => {
+                        setActiveTab("dashboard");
+                        setSearchQuery(selectedIdeaDetail.promoted_to);
+                        setSelectedIdeaDetail(null);
+                      }}
+                      className="inline-block px-3 py-1.5 bg-emerald-955 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 rounded font-mono text-xs transition-colors"
+                    >
+                      /one-shots/{selectedIdeaDetail.promoted_to}
+                    </a>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <div className="flex justify-between items-center mb-1">

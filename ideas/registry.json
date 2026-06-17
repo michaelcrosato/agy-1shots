@@ -1,512 +1,678 @@
 [
   {
-    "id": "dealership-intelligence-scraper",
+    "id": "AUTO-001",
     "title": "Dealership Intelligence Scraper, Harvester & Census Builder",
     "category": "Automotive & B2B Lead Generation Tools",
     "vision": "Generates a comprehensive, region-based or radius-bounded dealer census. Automatically queries Google Maps Places API using a place_id-first architecture and enriches results via headless Playwright runs or Crawl4AI to scrape public sites.",
     "techSpecs": "Google Maps Places API (place_id architecture), Crawl4AI/Playwright, DMS hints, email extraction, CSV/JSON output.",
     "targetStack": "Python, Playwright, Crawl4AI",
     "readyToCopyTaskPrompt": "Build a Dealership Intelligence Scraper, Harvester & Census Builder. The tool must query the Google Maps Places API using a place_id-first architecture to build a region-based dealership census. Enrich the data by running headless Playwright or Crawl4AI instances to scrape public dealer sites. Extract GM, GSM, and Dealer Principal names, emails, social profiles, DMS hints, and inventory sizes. Output a ranked, deduplicated CSV/JSON file with evidence URLs.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "lead-scoring-prioritization-engine",
+    "id": "AUTO-002",
     "title": "Lead Scoring, Qualification & Prioritization Engine",
     "category": "Automotive & B2B Lead Generation Tools",
-    "vision": "Ingests raw dealership data or customer prospect CSV files and calculates a 1–10 'close probability' score using a hybrid model of weighted algorithmic rules and LLM evaluation.",
+    "vision": "Ingests raw dealership data or customer prospect CSV files and calculates a 1\u201310 'close probability' score using a hybrid model of weighted algorithmic rules and LLM evaluation.",
     "techSpecs": "CSV parsing, weighted logic scoring, LLM API client integration (Claude/GPT), prompt engineering for pain points and hooks.",
     "targetStack": "Node.js or Python",
-    "readyToCopyTaskPrompt": "Build a Lead Scoring, Qualification & Prioritization Engine. The script must ingest raw prospect CSV files containing budget, vehicle interest, and purchase timelines. Implement a hybrid scoring model using weighted algorithmic rules for speed, followed by LLM calls (Claude/GPT) to output a 1–10 'close probability' score, pain-point tags, qualitative prioritization commentary, and customized opening hooks.",
-    "dateAdded": "2026-06-17"
+    "readyToCopyTaskPrompt": "Build a Lead Scoring, Qualification & Prioritization Engine. The script must ingest raw prospect CSV files containing budget, vehicle interest, and purchase timelines. Implement a hybrid scoring model using weighted algorithmic rules for speed, followed by LLM calls (Claude/GPT) to output a 1\u201310 'close probability' score, pain-point tags, qualitative prioritization commentary, and customized opening hooks.",
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "adf-lead-parser-crm-webhook",
+    "id": "AUTO-003",
     "title": "ADF Lead Parser & CRM Webhook Auto-Enricher",
     "category": "Automotive & B2B Lead Generation Tools",
     "vision": "Accepts raw payloads or ADF/XML logs from third-party portals, normalizes customer data, and forwards it to CRM integrations.",
     "techSpecs": "FastAPI or Express, ADF/XML parser, IMAP email poller, webhook dispatch, HubSpot/Pipedrive API clients.",
     "targetStack": "FastAPI (Python) or Node.js",
     "readyToCopyTaskPrompt": "Build an ADF Lead Parser & CRM Webhook Auto-Enricher. Create a FastAPI or Node.js gateway that accepts raw endpoint payloads, email data via IMAP polling, or Auto Dealer Format (ADF/XML) logs. Parse and normalize phone numbers, URLs, and addresses into standard JSON. Flag anomalies and forward the enriched lead data directly to HubSpot/Pipedrive CRM endpoints.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "ai-cold-outreach-sequence-generator",
+    "id": "AUTO-004",
     "title": "AI Cold Outreach Sequence Generator & Response Classifier",
     "category": "Automotive & B2B Lead Generation Tools",
     "vision": "Generates 5-part email flows/scripts for dealerships, classifies replies (Interested, Not Now, Hard No, Referral) and recommends next actions.",
     "techSpecs": "LLM generation, classification logic, Interactive UI dashboard (React/Tailwind), copy-to-clipboard functionality.",
     "targetStack": "Next.js, React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build an AI Cold Outreach Sequence Generator & Response Classifier. Create a web UI that generates tailored outreach sequences (5-part email flow or scripts) for dealerships. Provide an interactive tool to paste/receive replies, classify them (Interested, Not Now, Hard No, Referral) using an LLM, and suggest immediate next-step response templates.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "competitor-price-monitor-incentive-bot",
+    "id": "AUTO-005",
     "title": "Competitor Price Monitor, Inventory Auditor & OEM Incentive Bot",
     "category": "Automotive & B2B Lead Generation Tools",
     "vision": "Scans competitor inventory pages and OEM press portals to audit vehicle counts, price drops, and incentives, saving to SQLite and notifying Slack.",
     "techSpecs": "Cron scheduling, Firecrawl Markdown/LLM-driven HTML scraping, SQLite storage, Slack webhook integration.",
     "targetStack": "Python, SQLite, Firecrawl",
     "readyToCopyTaskPrompt": "Build a Competitor Price Monitor, Inventory Auditor & OEM Incentive Bot. Write a Python script to scan OEM press portals and competitor web inventory pages on a cron schedule. Use LLM-driven HTML text parsing (via Firecrawl Markdown) to audit vehicle counts, price drops, and incentives. Save results to a local SQLite database and alert key changes via Slack webhooks.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "stale-dealership-lead-re-engagement",
+    "id": "AUTO-006",
     "title": "Stale Dealership Lead Re-Engagement Detector",
     "category": "Automotive & B2B Lead Generation Tools",
     "vision": "Analyzes customer records to identify stagnant leads in the 14-60 day zone and drafts personalized re-engagement SMS.",
     "techSpecs": "Database date calculations, engagement history parsing, SMS template generator, Twilio/SMS API hooks.",
     "targetStack": "Node.js, SQLite",
     "readyToCopyTaskPrompt": "Build a Stale Dealership Lead Re-Engagement Detector. Ingest CRM or local database records, calculate elapsed days since the last customer interaction, flag leads that fall in the 14-60 day stagnant window, and draft high-context, personalized re-engagement SMS messages ready for dispatch.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "multi-llm-prompt-ab-tester",
+    "id": "LLM-001",
     "title": "Multi-LLM Prompt A/B Tester & Side-by-Side Playground",
     "category": "AI Development, Prompting, Routing & Evaluation Tools",
     "vision": "A single-file static HTML/Tailwind playground to test prompts across Claude, GPT, Gemini, DeepSeek, MiniMax, and compare cost, latency, and output side-by-side.",
     "techSpecs": "API keys config, localStorage persistence, multi-model execution matrix, cost and latency estimation, Markdown renderers.",
     "targetStack": "HTML, Tailwind CSS, JavaScript",
     "readyToCopyTaskPrompt": "Build a Multi-LLM Prompt A/B Tester & Side-by-Side Playground as a single static HTML page styled with Tailwind. Save configuration and API keys in localStorage. Execute user prompts simultaneously across Claude, GPT, Gemini, DeepSeek, and MiniMax, displaying a side-by-side matrix of outputs, latency, tokens used, and estimated transaction costs.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "prompt-version-control-manager",
+    "id": "LLM-002",
     "title": "Prompt Version Control, \"Prompt Pack\" Compiler & Library Manager",
     "category": "AI Development, Prompting, Routing & Evaluation Tools",
     "vision": "A CLI tool or Python/SQLite app to version control, compile, and search prompts locally using semantic embeddings.",
     "techSpecs": "CLI interface (push, diff), SQLite DB, semantic search via Nomic embed / Ollama, Pydantic prompt schema definitions.",
     "targetStack": "Python, SQLite, Ollama",
     "readyToCopyTaskPrompt": "Build a Prompt Version Control, 'Prompt Pack' Compiler & Library Manager. Create a CLI tool supporting commands like 'prompt push' and 'prompt diff', backed by a local SQLite database. Implement local semantic search using Nomic embeddings through Ollama, and enforce prompt input/output specifications using Pydantic.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "model-cost-arbitrage-router",
+    "id": "LLM-003",
     "title": "Model Cost-Arbitrage Router, Gateway Proxy & Budget Interceptor",
     "category": "AI Development, Prompting, Routing & Evaluation Tools",
     "vision": "An asynchronous proxy that routes basic tasks to low-cost models and complex reasoning tasks to frontier models, enforcing budget limits and rate limits.",
     "techSpecs": "FastAPI/Go proxy, LiteLLM compatibility, task difficulty evaluator, token rate limiter, budget tracking with kill-switch, credential masking.",
     "targetStack": "FastAPI (Python) or Go",
     "readyToCopyTaskPrompt": "Build a Model Cost-Arbitrage Router, Gateway Proxy & Budget Interceptor. Implement an asynchronous LiteLLM-compatible API proxy in FastAPI or Go. Evaluate incoming request payloads to route formatting tasks to low-cost Flash models and complex reasoning tasks to frontier models. Implement token rate limiting, a budget kill-switch to prevent runaway costs, and API credential masking.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "llm-prompt-regression-harness",
+    "id": "LLM-004",
     "title": "LLM Prompt Regression Harness & Evaluation Framework",
     "category": "AI Development, Prompting, Routing & Evaluation Tools",
     "vision": "A testing suite to prevent regression in prompts using a golden/adversarial test suite and LLM-as-a-judge evaluation.",
     "techSpecs": "pytest integration, JSONL dataset loading, parallel API execution, Langfuse tracing, LLM-as-a-judge evaluation criteria, HTML report generator.",
     "targetStack": "Python, pytest, Langfuse",
     "readyToCopyTaskPrompt": "Build an LLM Prompt Regression Harness & Evaluation Framework. Create a pytest suite that processes a JSONL file of golden and adversarial test cases. Execute the prompts in parallel, track executions with Langfuse, use an LLM-as-a-judge setup to score outputs, and render a regression report summarizing performance changes.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "local-llm-benchmark-runner",
+    "id": "LLM-005",
     "title": "Local LLM Benchmark Runner",
     "category": "AI Development, Prompting, Routing & Evaluation Tools",
     "vision": "A CLI tool that measures TTFT (Time to First Token) and tokens/sec for local models running on Ollama, exporting a performance ranking.",
     "techSpecs": "Ollama API connection, async HTTP clients, YAML prompt list loading, metrics calculations (TTFT, throughput), CSV/JSON/Markdown export.",
     "targetStack": "Python (uv) or Node.js",
     "readyToCopyTaskPrompt": "Build a Local LLM Benchmark Runner. Write a script that reads benchmark prompts from a YAML file, sends asynchronous streaming requests to a local Ollama instance, measures Time to First Token (TTFT) and token throughput (tokens/second), and exports a ranked performance report to Markdown.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "agent-app-starter-kit",
+    "id": "AGENT-001",
     "title": "Agent App Starter Kit & Production Orchestration Boilerplate",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A comprehensive template using modern agent frameworks with user auth, Docker, background queues, and observability.",
     "techSpecs": "LangGraph/Pydantic AI/Mastra integration, Docker Compose, background worker queues (Celery/BullMQ), OpenTelemetry, human-in-the-loop gate.",
     "targetStack": "Python or TypeScript, Docker",
     "readyToCopyTaskPrompt": "Build an Agent App Starter Kit & Production Orchestration Boilerplate. The template must integrate LangGraph, Pydantic AI, or Mastra. Include user authentication, multi-container Docker Compose setup, background queues with custom retries, OpenTelemetry/Langfuse integrations, and a visual human-in-the-loop rollback/approval mechanism.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "mcp-server-boilerplates",
+    "id": "AGENT-002",
     "title": "Model Context Protocol (MCP) Boilerplates, Custom Servers & Exposers",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A collection of MCP servers to expose tools like local logs, databases, Linear, or Jira to LLMs using official SDKs.",
     "techSpecs": "MCP protocol (JSON-RPC over stdio/SSE), OpenAPI swagger conversion, Postgres connector, local log tailing tool, Linear/Jira OAuth.",
     "targetStack": "TypeScript (Node.js) or Python",
     "readyToCopyTaskPrompt": "Build Model Context Protocol (MCP) Boilerplates, Custom Servers & Exposers. Create a suite of MCP-compliant tools that expose system utilities (Swagger/OpenAPI schemas, PostgreSQL database schemas, local log file tailers, or Jira/Linear syncing APIs) to an LLM agent using official SDKs.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "mcp-security-scanner",
+    "id": "AGENT-003",
     "title": "MCP Server Hardening & Skill Supply-Chain Security Scanner",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A security auditor scanning MCP configurations, scripts, and inputs for prompt injection and command escapes.",
     "techSpecs": "OWASP LLM Top 10 auditing, static analysis for shell injections, parameter validation checking, runtime argument interception.",
     "targetStack": "Python or Node.js",
     "readyToCopyTaskPrompt": "Build an MCP Server Hardening & Skill Supply-Chain Security Scanner. The tool must parse MCP configuration schemas and source code scripts to audit for OWASP LLM Top 10 vulnerabilities, command injection risks, local filesystem escapes, and validate parameter validation sanitization.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "cursorrules-agents-generator",
+    "id": "AGENT-004",
     "title": "Strict Guardrails, .cursorrules, and AGENTS.md Code Generator",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A tool to generate tailored context configuration files and rules enforcing defensive coding practices.",
     "techSpecs": "Stack-specific rules template parsing, custom validation schema generators, AGENTS.md/CLAUDE.md standard templates.",
     "targetStack": "Node.js or Python",
     "readyToCopyTaskPrompt": "Build a Strict Guardrails, .cursorrules, and AGENTS.md Code Generator. The tool must generate stack-specific structural rules (.cursorrules, CLAUDE.md, AGENTS.md, SKILL.md) that enforce Zero Placeholder rules, defensive git commits, and precise data validation schemas.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "browser-workflow-recorder",
+    "id": "AGENT-005",
     "title": "Browser Workflow Recorder & Automation Sandbox",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A recorder capturing user browser interactions in a sandbox to generate robust Playwright scripts with visual assertions.",
     "techSpecs": "Playwright recorder integration, event listener mapping (keyboard/mouse), automatic locator selector generator, visual page assertions.",
     "targetStack": "Python, Playwright, Browser Use",
     "readyToCopyTaskPrompt": "Build a Browser Workflow Recorder & Automation Sandbox. Write a Playwright or Browser Use automation script that monitors keyboard, click, and scroll events in a sandboxed browser, translates these actions into clean automation scripts, and records visual bounding-box constraints and page state assertions.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "agent-control-center",
+    "id": "AGENT-006",
     "title": "Small-Team Agent Control Center & Local Dashboards",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A self-hosted management hub to monitor agent actions, token costs, context, and provide a human approval gate for file/shell executions.",
     "techSpecs": "Web dashboard UI, Ollama/Open WebUI integration API, execution queue, human gate approvals, cost tracking dashboard.",
     "targetStack": "Next.js, React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Small-Team Agent Control Center & Local Dashboard. Set up a local control panel connecting Ollama/Open WebUI. Render agent execution timelines, trace token consumption, inspect context state snapshots, and implement a visual human-in-the-loop gateway to intercept and approve shell commands or file writes.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "agent-memory-cron-daemon",
+    "id": "AGENT-007",
     "title": "Persistent Context & Daily Agent Memory Cron Daemon",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A background service summarizing git changes, meetings, and edits to build a persistent memory log for agents.",
     "techSpecs": "Git log parser, calendar integration (ics/API), text summarizer (local LLM), MEMORY.md updates.",
     "targetStack": "Node.js, Cron, Ollama",
     "readyToCopyTaskPrompt": "Build a Persistent Context & Daily Agent Memory Cron Daemon. Create a background cron service that monitors git logs, editor logs, and daily calendars. Summarize these daily events via a local LLM (e.g. Ollama) and commit a structured MEMORY.md file to help agents maintain context across sessions.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "agentic-task-decomposer",
+    "id": "AGENT-008",
     "title": "Agentic Task Decomposer",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "An interactive HTML/JS helper that decomposes high-level goals into step-by-step rollout plans and technical notes.",
     "techSpecs": "Local storage persistence, interactive checklist, prompt templates, markdown export (rollout documents, designs, NOTES.md).",
     "targetStack": "HTML, Tailwind CSS, JavaScript",
     "readyToCopyTaskPrompt": "Build an Agentic Task Decomposer. Create an interactive single-page utility in static HTML/JS/Tailwind that ingests a broad goal, decomposes it into step-by-step rollout checklists, drafts architecture notes, and allows downloading these directly as Markdown files (rollout documents, designs, NOTES.md).",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "voice-enabled-task-agent",
+    "id": "AGENT-009",
     "title": "Voice-Enabled Task Agent Template",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A template for voice-controlled agents leveraging speech-to-text and text-to-speech APIs linked to tool calling.",
     "techSpecs": "STT (Web Audio API / Whisper), TTS (Web Speech API / ElevenLabs), tool execution router, React hooks for audio visualization.",
     "targetStack": "Next.js, React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Voice-Enabled Task Agent Template. Implement a conversational web client using browser STT (Speech-to-Text) / TTS (Text-to-Speech) hooks. Connect these hooks to a backend tool-calling model, displaying audio visualizations and execution status as the agent responds vocally.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "vibe-to-infra-generator",
+    "id": "AGENT-010",
     "title": "Vibe-to-Infra Architecture Generator",
     "category": "Agent Orchestration, Governance & Sandbox Frameworks",
     "vision": "A conversational tool that maps natural language stack descriptions into Docker Compose files and Terraform plans.",
     "techSpecs": "Docker Compose schema generation, Terraform configuration builder, conversation state management, LLM parsing.",
     "targetStack": "Python or Node.js",
     "readyToCopyTaskPrompt": "Build a Vibe-to-Infra Architecture Generator. Create a CLI or lightweight chat interface that translates conversational stack definitions (e.g. 'I want a Node app with Redis and PostgreSQL') into fully configured Docker Compose files and baseline Terraform configuration files.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "codebase-context-packer",
+    "id": "CODE-001",
     "title": "Codebase Context Packer & Monorepo Collector",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "Scans directories using .gitignore rules to pack the codebase into a single markdown file, ranking files by recency or import centrality.",
     "techSpecs": ".gitignore parser, directory tree walker, file centrality ranker, output packing format, AST imports parser.",
     "targetStack": "Node.js (TypeScript) or Go",
     "readyToCopyTaskPrompt": "Build a Codebase Context Packer & Monorepo Collector. Write a script that scans local directories, respecting .gitignore filters, to pack the entire codebase into a single markdown file. Rank and order files by last modified timestamps or import centrality calculated via AST parsing.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "git-aware-coding-agent",
+    "id": "CODE-002",
     "title": "Git-Aware Coding Agent & Automated Pull Request Tracker",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "An agentic pipeline that pulls repository issues, plans modifications, runs static analysis, and submits structured PRs.",
     "techSpecs": "GitHub/GitLab API integration, local Git commands wrapper, Semgrep/Bandit security scanning, AI-generated PR descriptions.",
     "targetStack": "Python, GitHub Actions",
     "readyToCopyTaskPrompt": "Build a Git-Aware Coding Agent & Automated Pull Request Tracker. Create a script or GitHub Action that retrieves issues, outlines code changes, executes modifications inside a sandboxed CLI, runs validation tools (Semgrep/Bandit), and opens a pull request containing an AI-generated description from the diff.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "diff-to-test-generator",
+    "id": "CODE-003",
     "title": "Diff-to-Test Generator & Continuous Testing Loop Runner",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "Watches files for edits, extracts git diffs, writes matching unit tests (Vitest/Pytest), and runs tests in a loop until clean.",
     "techSpecs": "Chokidar/watchdog file watcher, Git diff analyzer, LLM test generator, test suite execution runner (Vitest/Pytest).",
     "targetStack": "TypeScript (Node.js) or Python",
     "readyToCopyTaskPrompt": "Build a Diff-to-Test Generator & Continuous Testing Loop Runner. Create a background service that watches local file changes, extracts git diffs, writes target unit tests in Vitest or pytest using an LLM, and loops test executions, automatically attempting to fix bugs until tests pass.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "smart-git-pre-commit-reviewer",
+    "id": "CODE-004",
     "title": "Smart Git Pre-Commit AI Reviewer",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "A Git pre-commit hook that checks staged diffs for syntax errors, logical bugs, and secrets/credential leaks using a local LLM.",
     "techSpecs": "Git hook script (bash/JS), diff extractor, regex-based secret scanner, local LLM evaluation via Ollama.",
     "targetStack": "Bash, JavaScript (Node.js)",
     "readyToCopyTaskPrompt": "Build a Smart Git Pre-Commit AI Reviewer. Implement a Git hook script that intercepts staged changes, runs regex checks for credentials/secrets, and forwards diffs to a local Ollama model to audit for syntax regressions, security risks, or logical anomalies before committing.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "threat-model-generator",
+    "id": "CODE-005",
     "title": "Threat Model Generator",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "Applies STRIDE/DREAD threat modeling to system architectures, generating threat checklists and Mermaid diagrams.",
     "techSpecs": "STRIDE/DREAD matrices, LLM-based architecture parsing, Mermaid.js code generation, markdown checklist exporter.",
     "targetStack": "Node.js, React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Threat Model Generator. The application must ingest system architecture descriptions or diagram documents, construct security threat matrices using STRIDE/DREAD methodologies, generate checklists, and render Mermaid.js data flow diagrams.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "sandbox-code-execution-api",
+    "id": "CODE-006",
     "title": "Sandbox Code Execution API",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "A secure API to run arbitrary code and return stdout/stderr, isolated using light virtualization tools.",
     "techSpecs": "FastAPI, gVisor or Firecracker integration, resource constraints (CPU/memory), timeout handling, standard output capturing.",
     "targetStack": "Python, FastAPI, gVisor/Docker",
     "readyToCopyTaskPrompt": "Build a Sandbox Code Execution API. Build a FastAPI service that accepts multi-language code snippets (Python, Node.js, Bash), runs them inside a secure container sandbox (like gVisor or Firecracker), imposes memory/CPU limits, and returns logs, stdout, and execution duration.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "visual-codebase-knowledge-graph",
+    "id": "CODE-007",
     "title": "Visual Codebase Knowledge Graph & History Visualizer",
     "category": "Codebase Engineering & Git Workflow Enhancers",
     "vision": "Builds interactive graphs mapping dependency networks and commit frequency/hotspots using D3 or Plotly.",
     "techSpecs": "AST parsing for imports, git commit history logs, network graph data formatting, D3.js or Plotly visualization canvas.",
     "targetStack": "Python (Flask/FastAPI) or Node.js, D3.js",
     "readyToCopyTaskPrompt": "Build a Visual Codebase Knowledge Graph & History Visualizer. Analyze code files, trace dependency networks by parsing import structures, index git commit history logs to locate codebase hot spots, and display a visual force-directed graph in D3.js.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "meeting-audio-transcription-vault",
+    "id": "DATA-001",
     "title": "Meeting-to-Execution & Audio Transcription Vault",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "An offline speech-to-text portal that transcribes audio files, extracts action items, and generates task links (Jira/Linear).",
     "techSpecs": "Whisper.cpp bindings, audio normalization, LLM summarization, task mapping, Markdown and CSV exports.",
     "targetStack": "Python, SQLite, Whisper.cpp",
     "readyToCopyTaskPrompt": "Build a Meeting-to-Execution & Audio Transcription Vault. Write a Python script to transcribe meeting audio offline using local Whisper.cpp bindings, structure the text into summary details and action items via an LLM, map these tasks into Jira/Linear schemas, and save the data in SQLite.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "b2b-research-brief-generator",
+    "id": "DATA-002",
     "title": "B2B Research Brief & Competitor Analysis Generator",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "Scrapes company domains to discover tech stacks, pricing, and services, generating briefs using search APIs.",
     "techSpecs": "Web scraper (Cheerio/Playwright), Tavily/Perplexity integration, domain metadata scraper, brief markdown compiler.",
     "targetStack": "Node.js, Tavily/Perplexity API",
     "readyToCopyTaskPrompt": "Build a B2B Research Brief & Competitor Analysis Generator. Create a Node.js utility that crawls domain landing pages, queries Tavily or Perplexity API nodes for tech stacks, target pricing, and competitors, and builds a formatted research brief with citation sources.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "support-ticket-macro-factory",
+    "id": "DATA-003",
     "title": "Support Ticket Macro Factory & Automated Resolver",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "Clusters support logs using text embeddings to auto-generate macros and validate solutions using mock environments.",
     "techSpecs": "Vector embeddings (Ollama/OpenAI), clustering algorithms (K-Means/DBScan), macro draft templates, mock API tests.",
     "targetStack": "Python, SQLite, Scikit-learn",
     "readyToCopyTaskPrompt": "Build a Support Ticket Macro Factory & Automated Resolver. Import support ticket databases, cluster records using sentence embeddings, auto-draft macro response templates, and test suggested ticket resolutions against mock API servers.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "n8n-workflow-blueprint-creator",
+    "id": "DATA-004",
     "title": "n8n Workflow Blueprint Creator & AI Automation Pack",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "Translates natural language automated workflows into importable n8n JSON schema blueprints.",
     "techSpecs": "n8n JSON schema parser, LLM translation prompts, node linkage logic generator, JSON output validator.",
     "targetStack": "Node.js, Express",
     "readyToCopyTaskPrompt": "Build an n8n Workflow Blueprint Creator & AI Automation Pack. Design an API endpoint and simple front-end that accepts a natural language automation requirement, maps it to standard n8n node types, and outputs a valid, copy-pasteable n8n workflow JSON blueprint.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "contract-policy-diff-explainer",
+    "id": "DATA-005",
     "title": "Contract, Policy & Document Diff Explainer",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "Performs OCR on PDFs of contracts/policies to highlight cost increases, high-risk clauses, and legal changes.",
     "techSpecs": "PDF parsing (PDF-parse/Tesseract OCR), diff checker engine, LLM risk auditor, side-by-side comparison UI.",
     "targetStack": "Python or Node.js",
     "readyToCopyTaskPrompt": "Build a Contract, Policy & Document Diff Explainer. Build an app to parse PDF/DOCX contract drafts, isolate revisions, audit terms against a custom LLM rulebook to flag cost increases or high-risk legal clauses, and render a side-by-side comparative diff.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "local-database-query-visualizer",
+    "id": "DATA-006",
     "title": "Local Database Query Visualizer & Interactive Playground",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "A browser-only sql.js playground with text-to-SQL querying and database schema visualizers.",
     "techSpecs": "sql.js (SQLite WASM), schema visualizer (Mermaid/Canvas), LLM Text-to-SQL translation, interactive SQL query console.",
     "targetStack": "React, sql.js, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Local Database Query Visualizer & Interactive Playground. Integrate sql.js inside a client-side React app. Let users import local SQLite files, visualize tables and schemas, translate natural language queries to SQL in real-time, and view query outputs.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "openapi-swagger-document-viewer",
+    "id": "DATA-007",
     "title": "OpenAPI / Swagger Document Viewer",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "A 3-column OpenAPI parser with interactive query consoles and copy-paste code snippets for multiple languages.",
     "techSpecs": "OpenAPI JSON/YAML parser, 3-column responsive UI layout, API request client, curl/JS/Python snippet generator.",
     "targetStack": "React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build an OpenAPI / Swagger Document Viewer. Parse OpenAPI JSON/YAML specs and display a 3-column layout. Column 1: API path list, Column 2: Endpoint details and parameter forms, Column 3: Ready-to-copy code snippets in curl, Javascript, and Python, along with a live request console.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "developer-rest-api-mocking",
+    "id": "DATA-008",
     "title": "Developer REST API Mocking Studio",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "A graphical tool to define REST paths, responses, status codes, and latency to generate FastAPI/Express.js mock servers.",
     "techSpecs": "Visual route constructor, payload template validator, mock server code generator, mock runtime exporter.",
     "targetStack": "Next.js, React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Developer REST API Mocking Studio. Create a web UI that allows developers to visually configure mock REST routes, define JSON payload layouts, select status codes and latency delays, and export a fully-formed Express.js or FastAPI server script.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "interactive-regex-playground",
+    "id": "DATA-009",
     "title": "Interactive Regex Playground",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "A visual regex tester showing capture groups, match indices, and step-by-step state charts.",
     "techSpecs": "Regex engine hooks, match visualizer (HTML tags highlights), state machine transitions chart.",
     "targetStack": "HTML, Tailwind CSS, JavaScript",
     "readyToCopyTaskPrompt": "Build an Interactive Regex Playground. Implement a responsive single-page web dashboard that highlights matching substrings, displays detailed capture groups and match indices, and plots a step-by-step regex matching state chart.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "custom-cron-job-visualizer",
+    "id": "DATA-010",
     "title": "Custom Cron Job Visualizer",
     "category": "Data, Document & Workspace Productivity Tools",
     "vision": "Converts crontab notation into visual execution calendars and timelines.",
     "techSpecs": "Cron expression parser (cron-parser), timeline mapping (SVG/Canvas), 12-month execution calendar plotter.",
     "targetStack": "React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Custom Cron Job Visualizer. Accept crontab strings, parse the cron schedule, plot an interactive execution timeline, and display a 12-month visual calendar highlighting execution dates and overlapping job run times.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "microsaas-auth-billing-scaffold",
+    "id": "DATA-011",
+    "title": "Notion Scraper",
+    "category": "Data, Document & Workspace Productivity Tools",
+    "vision": "A Notion-connected web scraper that extracts content and syncs to Notion databases.",
+    "techSpecs": "Notion API, web crawling, data normalization.",
+    "targetStack": "Node.js",
+    "readyToCopyTaskPrompt": "Build a sample one-shot piece under /one-shots/notion-scraper/ that implements a Notion-connected web scraper.",
+    "dateAdded": "2026-06-17",
+    "status": "promoted",
+    "promoted_to": "notion-scraper",
+    "supersedes": null
+  },
+  {
+    "id": "MICRO-001",
     "title": "Micro-SaaS Authentication, Billing & Form Endpoint Scaffolding",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A micro-SaaS boilerplate incorporating Auth, Stripe payments, Drizzle ORM, and form submissions routing to Google Sheets.",
     "techSpecs": "Lucia/Clerk Auth, Stripe webhook endpoints, Drizzle ORM config, Google Sheets API handler.",
     "targetStack": "Next.js, Drizzle, Stripe",
     "readyToCopyTaskPrompt": "Build a Micro-SaaS Authentication, Billing & Form Endpoint Scaffolding. Build a Next.js template including user registration/login, Stripe billing flows, database schema setup with Drizzle, and a webhook/endpoint that collects form data and logs it in Google Sheets.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "personal-local-storage-rag",
+    "id": "MICRO-002",
     "title": "Personal Local Storage RAG & Bookmark Read-Later Dashboard",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A local reading portal saving PDFs/bookmarks with Ollama integration to perform local vector-based semantic search.",
     "techSpecs": "Local storage indexer, vector DB (SQLite-VSS or memory index), Ollama API clients, browser reading view.",
     "targetStack": "Python or Node.js, SQLite",
     "readyToCopyTaskPrompt": "Build a Personal Local Storage RAG & Bookmark Read-Later Dashboard. Create a portal to save bookmarks and upload PDFs. Use a local vector database or simple SQLite indexer with Ollama embeddings to run local semantic searches and perform offline Q&A on your documents.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "resume-linkedin-fit-scorer",
+    "id": "MICRO-003",
     "title": "Resume / LinkedIn Fit Scorer & Tailor",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "Upload resumes and job postings to score match quality and generate optimized resume bullets.",
     "techSpecs": "PDF text extraction, keyword extraction, similarity scoring algorithm, LLM rewriting interface.",
     "targetStack": "Next.js, React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Resume / LinkedIn Fit Scorer & Tailor. Implement a web app that ingests job descriptions and uploads resume documents. Compute keyword match scores, estimate fit probability, and use an LLM to generate targeted, metric-backed resume bullet points.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "personal-expense-splitter",
+    "id": "MICRO-004",
     "title": "Personal Expense Splitter & Ledger",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "Mobile-first expense sharing ledger optimizing transactional settles between group members.",
     "techSpecs": "Expense ledger DB, split calculation algorithm (graph minimization), mobile-first responsive layout, offline mode (local storage).",
     "targetStack": "React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Personal Expense Splitter & Ledger. Design a mobile-friendly dashboard to track shared group expenses. Implement a transaction settlement graph-minimization algorithm that computes the optimal paths and minimal payments to resolve debts.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "digital-asset-sizer-exif",
+    "id": "MICRO-005",
     "title": "Digital Asset Sizer & EXIF Metadata Scrubber",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A web tool that strips EXIF data from images and resizes assets, exporting them in WebP or ZIP format.",
     "techSpecs": "Client-side image rendering, canvas resizing, EXIF parsing and removal (exif-js), WebP conversion, zip packaging.",
     "targetStack": "HTML, Tailwind CSS, JavaScript",
     "readyToCopyTaskPrompt": "Build a Digital Asset Sizer & EXIF Metadata Scrubber. Create a client-side utility in HTML/JS/Tailwind that strips EXIF geolocation and camera metadata, resizes uploaded image dimensions, converts them to WebP format, and downloads them as a single ZIP file.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "personal-knowledge-graph-mindmap",
+    "id": "MICRO-006",
     "title": "Personal Knowledge Graph & Mind-Mapper",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "An interactive mind-map tool to cross-link concepts, tag nodes, and visualize relations in a graph.",
     "techSpecs": "Force-directed layout graph (D3.js/vis.js), node schema definitions, Markdown node editor, search and filter tags.",
     "targetStack": "React, D3.js, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Personal Knowledge Graph & Mind-Mapper. Develop a visual node-link workspace to map ideas, concepts, or documents. Support descriptive node connections, Markdown text fields, and tag filtering, rendering the visualization using D3.js.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "gamified-pomodoro-habit-rpg",
+    "id": "MICRO-007",
     "title": "Gamified Pomodoro & Habit Tracker RPG",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A local Pomodoro timer and habit log that builds character experience points and levels stored locally.",
     "techSpecs": "Timer state machines, RPG leveling math, progress trackers, offline local storage integration.",
     "targetStack": "React, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Gamified Pomodoro & Habit Tracker RPG. Set up a dashboard featuring Pomodoro timers and habit checkboxes. Integrate local storage tracking to increment virtual player levels, experience, and unlock profile rewards upon timer completions.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "markdown-to-slide-presentation",
+    "id": "MICRO-008",
     "title": "Markdown-to-Slide Deck Presentation Engine",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A split-pane editor rendering markdown source directly into Reveal.js presentation slides in real-time.",
     "techSpecs": "Markdown parser, Reveal.js integration, side-by-side editor/preview panes, PDF exports, custom slide themes.",
     "targetStack": "React, Reveal.js, Tailwind CSS",
     "readyToCopyTaskPrompt": "Build a Markdown-to-Slide Deck Presentation Engine. Set up a web editor that renders markdown formatting directly to Reveal.js slideshow elements. Build a split-screen layout displaying the editor and slides side-by-side, supporting PDF exporting.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "css-glassmorphism-svg-blob",
+    "id": "MICRO-009",
     "title": "CSS Glassmorphism & SVG Blob Generator",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A range-slider styling tool generating ready-to-copy CSS rules and customized SVG path blobs.",
     "techSpecs": "Tailwind color palettes, CSS filter calculators, SVG path mathematical generator (random curves), clipboard API.",
     "targetStack": "HTML, Tailwind CSS, JavaScript",
     "readyToCopyTaskPrompt": "Build a CSS Glassmorphism & SVG Blob Generator. Create a design tool styled with Tailwind where range sliders customize opacity, blur, shadow, and blob curves. Provide direct copying of CSS filter syntax and SVG path XML details.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "invoice-automator",
+    "id": "MICRO-010",
     "title": "Invoice Automator",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A document parser that extracts tax and invoice line-items to map directly into QuickBooks integrations.",
     "techSpecs": "Optical text parser/regex mapping, QuickBooks OAuth/API endpoints, invoice JSON structuring, error reconciliation UI.",
     "targetStack": "Python or Node.js",
     "readyToCopyTaskPrompt": "Build an Invoice Automator. Implement a service that accepts invoice PDF uploads, extracts vendor names, totals, and GST/taxes via parsing, formats the extracted fields into standard accounting structure, and maps them to QuickBooks API sync points.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "family-photo-organizer",
+    "id": "MICRO-011",
     "title": "Family Photo Organizer",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "An offline application that clusters family photos by facial features using local Ollama/vision models.",
     "techSpecs": "Image directory scanner, facial detection/embeddings library, clustering logic (DBSCAN), tagging UI.",
     "targetStack": "Python, Ollama, SQLite",
     "readyToCopyTaskPrompt": "Build a Family Photo Organizer. Create an offline Python dashboard that scans local photo directories, processes facial features using Ollama or localized face detection, groups matching members using a clustering algorithm, and stores facial records in SQLite.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "recipe-to-instacart-mapper",
+    "id": "MICRO-012",
     "title": "Recipe-to-Instacart Cart Mapper",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "A quantity calculator that parses recipes and maps ingredients directly to Instacart shopping list categories.",
     "techSpecs": "Recipe ingredient parser (regex/LLM), quantity converter, Instacart category classification, checkout export format.",
     "targetStack": "Node.js or Python",
     "readyToCopyTaskPrompt": "Build a Recipe-to-Instacart Cart Mapper. Write a service to parse ingredient lists from recipes, normalize and sum item quantities, sort ingredients into grocery categories (Produce, Baking, etc.), and export a shopping cart schema.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   },
   {
-    "id": "offline-travel-route-planner",
+    "id": "MICRO-013",
     "title": "Offline Travel & Route Planner",
     "category": "Micro-SaaS Templates & Personal Workflow Apps",
     "vision": "An offline-first map client caching marine and hiking route layers using leaflet or local assets.",
     "techSpecs": "Leaflet.js mapping library, offline tile caching (Service Workers/IndexedDB), GPX route imports/exports, geolocation trackers.",
     "targetStack": "HTML, Tailwind CSS, Leaflet.js",
     "readyToCopyTaskPrompt": "Build an Offline Travel & Route Planner. Develop a mobile-friendly map dashboard using Leaflet.js. Let users pre-download map tile sets, import and modify GPX routes, and track coordinate positions fully offline using browser Service Workers.",
-    "dateAdded": "2026-06-17"
+    "dateAdded": "2026-06-17",
+    "status": "backlog",
+    "promoted_to": null,
+    "supersedes": null
   }
 ]
