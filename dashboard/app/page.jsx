@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
 import { getStats } from "../lib/stats";
+import {
+  readManifestSyncWithStatus,
+  summarizeManifest,
+} from "../lib/manifest";
 import DashboardClient from "./DashboardClient";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +55,10 @@ export default async function Page() {
                 ? pkg.tags.filter((t) => typeof t === "string")
                 : [];
 
+              const { manifest: parsedManifest, status: manifestStatus } =
+                readManifestSyncWithStatus(fullPath);
+              const manifest = summarizeManifest(parsedManifest, manifestStatus);
+
               items.push({
                 id: file,
                 name,
@@ -58,6 +66,7 @@ export default async function Page() {
                 description,
                 tags,
                 path: fullPath,
+                manifest,
               });
             }
           }

@@ -49,7 +49,9 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
   - `scripts`: Must define:
     - `start`: Command to run the piece (e.g. `node index.js`).
     - `test`: Command to run tests (e.g. `jest` or `node --test`).
+    - `verify` _(optional)_: A runnable acceptance test that exits `0` on pass / non-zero on fail. Used by the dashboard to objectively score "how close did we get to the vision?" for non-visual outputs.
 - **`README.md`**: Detailed instructions, setup variables, run scripts, and expected outputs.
+- **`oneshot.json`** _(recommended)_: The vision + metrics manifest (see [Vision & Metrics](#vision--metrics)).
 
 ### 2. REST API Endpoints (Dashboard Backend)
 
@@ -78,6 +80,49 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
     }
     ```
   - Returns: Real-time console logs or success status.
+- **`GET /api/scan/:id/manifest`**
+  - Returns the full `oneshot.json` (vision + attempt history), or a normalized empty default when none exists.
+- **`POST /api/manifest/spec`** `{ id, vision, acceptance? }`
+  - Creates the immutable vision. Write-once: returns **409** if a vision already exists.
+- **`POST /api/manifest/attempt`** `{ id, model?, environment?, build?, runtime? }`
+  - Appends a build attempt to the append-only history.
+- **`POST /api/manifest/evaluation`** `{ id, attemptId, fidelityScore?, feedback? }`
+  - Records a human fidelity evaluation for an existing attempt.
+- **`POST /api/manifest/verify`** `{ id, attemptId? }`
+  - Runs the one-shot's `verify` acceptance test and records the objective pass/fail.
+
+---
+
+## Vision & Metrics
+
+Each one-shot can carry a `oneshot.json` that turns it into a longitudinal benchmark — letting you measure whether better tools, models, prompting, and planning make you faster, cheaper, and more consistent over time.
+
+- **`spec` (write-once, never deleted)** — the `vision` (what success looks like) that every attempt is scored against, plus how to evaluate it (`acceptance.mode`: `human` or `program`).
+- **`attempts[]` (append-only)** — one entry per build/regeneration, capturing the generation cost (`build.tokens` / `build.durationMs`), the runtime cost (`runtime.*`), the `model`, the `environment` (tool build + OS build), and an `evaluation` (a `fidelityScore` 0–100 for human review, or `passed` for an automated `verify` test).
+
+```json
+{
+  "schemaVersion": 1,
+  "spec": {
+    "vision": "What success looks like.",
+    "createdAt": "2026-06-17T00:00:00.000Z",
+    "acceptance": { "mode": "human", "script": "verify", "successExitCode": 0 }
+  },
+  "attempts": [
+    {
+      "id": "att_1750000000000_abc123",
+      "timestamp": "2026-06-17T00:00:00.000Z",
+      "model": "Gemini 3.5 Flash (high)",
+      "environment": { "tool": "Antigravity", "toolBuild": "xxxx", "os": "Windows 11", "osBuild": "xxxx" },
+      "build": { "tokens": 123456, "durationMs": 845000 },
+      "runtime": { "tokens": 0, "durationMs": 1200 },
+      "evaluation": { "method": "human", "fidelityScore": 87, "passed": null, "feedback": "Mostly matched the vision.", "evaluatedAt": "2026-06-17T01:00:00.000Z" }
+    }
+  ]
+}
+```
+
+Open a one-shot's **Details** in the dashboard to read the vision, see the attempt history and trend lines, record a new attempt, and run/score the acceptance test. The vision and prior attempts are never overwritten — only appended to.
 
 ---
 
@@ -121,4 +166,5 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
 1. Create a subdirectory under `/one-shots/` using kebab-case (e.g. `/one-shots/my-awesome-script/`).
 2. Add a `package.json` with the required metadata fields (`name`, `description`, `version`, `tags`) and execution scripts (`start`, `test`).
 3. Add a `README.md` documenting usage, required environment variables, and visual previews/examples.
-4. Verify your piece appears in the Dashboard and passes local tests before submitting a PR.
+4. Add a `oneshot.json` with the `spec.vision` and a seed entry in `attempts[]` (see [Vision & Metrics](#vision--metrics)). For non-visual outputs, add a `scripts.verify` acceptance test and set `acceptance.mode` to `program`.
+5. Verify your piece appears in the Dashboard and passes local tests before submitting a PR.
