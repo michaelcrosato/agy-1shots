@@ -30,6 +30,52 @@ function rmDirRecursive(dirPath) {
   }
 }
 
+const categories = [
+  "Automotive & B2B Lead Generation Tools",
+  "AI Development, Prompting, Routing & Evaluation Tools",
+  "Agent Orchestration, Governance & Sandbox Frameworks",
+  "Codebase Engineering & Git Workflow Enhancers",
+  "Data, Document & Workspace Productivity Tools",
+  "Micro-SaaS Templates & Personal Workflow Apps",
+];
+
+function generateReadme(ideas) {
+  let md = `# One-Shot Ideas Registry\n\n`;
+  md += `Welcome to the One-Shot Ideas Registry. This repository stores, categories, and indexes ideas for standalone utilities, bots, and Micro-SaaS tools that can be generated in "one-shot" by developer agents.\n\n`;
+  md += `## Registry Statistics\n`;
+  md += `- **Total Ideas**: ${ideas.length}\n`;
+  md += `- **Categories**: 6 major technical domains\n\n`;
+  md += `---\n\n`;
+  md += `## Ideas by Category\n\n`;
+
+  categories.forEach((category) => {
+    const categoryIdeas = ideas.filter((idea) => idea.category === category);
+    md += `### ${category}\n\n`;
+    md += `| ID | Title | Target Stack | Date Added |\n`;
+    md += `| :--- | :--- | :--- | :--- |\n`;
+    categoryIdeas.forEach((idea) => {
+      md += `| \`${idea.id}\` | [${idea.title}](#${idea.id}) | \`${idea.targetStack}\` | ${idea.dateAdded} |\n`;
+    });
+    md += `\n`;
+  });
+
+  md += `---\n\n## Detailed Idea Specs\n\n`;
+
+  ideas.forEach((idea) => {
+    md += `### <a name="${idea.id}"></a> ${idea.title}\n\n`;
+    md += `- **ID**: \`${idea.id}\`\n`;
+    md += `- **Category**: ${idea.category}\n`;
+    md += `- **Target Stack**: \`${idea.targetStack}\`\n`;
+    md += `- **Date Added**: ${idea.dateAdded}\n\n`;
+    md += `#### Core Vision\n${idea.vision}\n\n`;
+    md += `#### Technical Specifications\n${idea.techSpecs}\n\n`;
+    md += `#### Standardized Task Prompt\n\`\`\`text\n${idea.readyToCopyTaskPrompt}\n\`\`\`\n\n`;
+    md += `---\n\n`;
+  });
+
+  return md;
+}
+
 // --- Mock Dashboard Server Implementation ---
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -1259,6 +1305,168 @@ const server = http.createServer((req, res) => {
           },
         ],
       });
+    });
+    return;
+  }
+
+  // GET /api/ideas
+  if (method === "GET" && url.pathname === "/api/ideas") {
+    const ideasDir = path.resolve(__dirname, "../../ideas");
+    const registryPath = path.join(ideasDir, "registry.json");
+    if (!fs.existsSync(registryPath)) {
+      sendJSON(200, []);
+      return;
+    }
+    try {
+      const data = fs.readFileSync(registryPath, "utf8");
+      const ideas = JSON.parse(data);
+      sendJSON(200, ideas);
+    } catch (error) {
+      sendJSON(500, { error: "Failed to read ideas registry" });
+    }
+    return;
+  }
+
+  // POST /api/ideas
+  if (method === "POST" && url.pathname === "/api/ideas") {
+    parseJSONBody(req, (err, body) => {
+      if (err || !body) {
+        sendJSON(400, { error: "Bad Request: Invalid JSON" });
+        return;
+      }
+
+      const {
+        title,
+        category,
+        vision,
+        techSpecs,
+        targetStack,
+        readyToCopyTaskPrompt,
+      } = body;
+
+      // Perform thorough input validation
+      if (
+        typeof title !== "string" ||
+        !title.trim() ||
+        typeof category !== "string" ||
+        !category.trim() ||
+        typeof vision !== "string" ||
+        !vision.trim() ||
+        typeof techSpecs !== "string" ||
+        !techSpecs.trim() ||
+        typeof targetStack !== "string" ||
+        !targetStack.trim() ||
+        typeof readyToCopyTaskPrompt !== "string" ||
+        !readyToCopyTaskPrompt.trim()
+      ) {
+        sendJSON(400, {
+          error:
+            "Validation Error: All fields are required and must be non-empty strings",
+        });
+        return;
+      }
+
+      // Enforce security checks: category validation
+      if (!categories.includes(category)) {
+        sendJSON(400, {
+          error:
+            "Validation Error: Category must be one of the allowed categories",
+        });
+        return;
+      }
+
+      // Enforce security checks: block directory traversal and prototype pollution in title and category
+      const checks = [title, category];
+      for (const val of checks) {
+        if (
+          val.includes("..") ||
+          val.includes("/") ||
+          val.includes("\\") ||
+          val.includes("__proto__") ||
+          val.includes("constructor") ||
+          val.includes("prototype")
+        ) {
+          sendJSON(400, {
+            error:
+              "Security Error: Directory traversal or prototype pollution patterns detected",
+          });
+          return;
+        }
+      }
+
+      // Generate a safe id by slugifying title
+      let cleanId = title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      if (!cleanId) {
+        sendJSON(400, {
+          error: "Validation Error: Title must contain alphanumeric characters",
+        });
+        return;
+      }
+
+      // Ensure only [a-z0-9-] are present
+      if (!/^[a-z0-9-]+$/.test(cleanId)) {
+        sendJSON(400, {
+          error: "Validation Error: ID contains invalid characters",
+        });
+        return;
+      }
+
+      // Read existing registry
+      const ideasDir = path.resolve(__dirname, "../../ideas");
+      const registryPath = path.join(ideasDir, "registry.json");
+      const readmePath = path.join(ideasDir, "README.md");
+
+      let ideas = [];
+      if (fs.existsSync(registryPath)) {
+        try {
+          const data = fs.readFileSync(registryPath, "utf8");
+          ideas = JSON.parse(data);
+        } catch (e) {
+          sendJSON(500, { error: "Failed to read ideas registry" });
+          return;
+        }
+      }
+
+      // Check for duplicate IDs
+      let finalId = cleanId;
+      let suffix = 1;
+      const existingIds = new Set(ideas.map((item) => item.id));
+      while (existingIds.has(finalId)) {
+        finalId = `${cleanId}-${suffix}`;
+        suffix++;
+      }
+
+      const dateAdded = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+      const newIdea = {
+        id: finalId,
+        title: title.trim(),
+        category: category.trim(),
+        vision: vision.trim(),
+        techSpecs: techSpecs.trim(),
+        targetStack: targetStack.trim(),
+        readyToCopyTaskPrompt: readyToCopyTaskPrompt.trim(),
+        dateAdded,
+      };
+
+      // Append new idea to registry.json
+      ideas.push(newIdea);
+      try {
+        fs.writeFileSync(registryPath, JSON.stringify(ideas, null, 2), "utf8");
+
+        // Automatically regenerate README.md
+        const readmeContent = generateReadme(ideas);
+        fs.writeFileSync(readmePath, readmeContent, "utf8");
+
+        sendJSON(200, newIdea);
+      } catch (error) {
+        sendJSON(500, { error: "Internal Server Error: " + error.message });
+      }
     });
     return;
   }

@@ -488,7 +488,8 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
                       verifyOut.passed ? "text-green-400" : "text-red-400"
                     }
                   >
-                    &gt; Acceptance test {verifyOut.passed ? "PASSED" : "FAILED"}
+                    &gt; Acceptance test{" "}
+                    {verifyOut.passed ? "PASSED" : "FAILED"}
                   </div>
                   <RunResult output={verifyOut} />
                 </div>
@@ -579,10 +580,10 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
             <>
               {data && data.manifestStatus === "corrupt" && (
                 <div className="bg-red-950/40 border border-red-800 rounded-lg p-4 text-red-300 text-sm">
-                  ⚠ This one-shot's <code>oneshot.json</code> is corrupt and could
-                  not be parsed. Recorded data is shown as empty, and writes are
-                  blocked to avoid overwriting it. Fix or remove the file to
-                  continue.
+                  ⚠ This one-shot's <code>oneshot.json</code> is corrupt and
+                  could not be parsed. Recorded data is shown as empty, and
+                  writes are blocked to avoid overwriting it. Fix or remove the
+                  file to continue.
                 </div>
               )}
 
@@ -725,10 +726,14 @@ function CardMetrics({ manifest }) {
         </span>
       )}
       {manifest.attemptCount > 0 && (
-        <span className="text-slate-400">↻ {manifest.attemptCount} attempts</span>
+        <span className="text-slate-400">
+          ↻ {manifest.attemptCount} attempts
+        </span>
       )}
       {typeof manifest.latestFidelity === "number" ? (
-        <span className={`font-semibold ${fidelityColor(manifest.latestFidelity)}`}>
+        <span
+          className={`font-semibold ${fidelityColor(manifest.latestFidelity)}`}
+        >
           ★ {manifest.latestFidelity}%
         </span>
       ) : typeof manifest.latestPassed === "boolean" ? (
@@ -769,6 +774,100 @@ export default function DashboardClient({
 
   // Metrics / Details Modal state
   const [detailItem, setDetailItem] = useState(null);
+
+  // Ideas Registry state
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [ideas, setIdeas] = useState([]);
+  const [loadingIdeas, setLoadingIdeas] = useState(false);
+  const [ideasSearchQuery, setIdeasSearchQuery] = useState("");
+  const [selectedIdeaCategory, setSelectedIdeaCategory] = useState("");
+  const [selectedIdeaStack, setSelectedIdeaStack] = useState("");
+  const [selectedIdeaDetail, setSelectedIdeaDetail] = useState(null);
+  const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
+  const [addIdeaForm, setAddIdeaForm] = useState({
+    title: "",
+    category: "",
+    vision: "",
+    techSpecs: "",
+    targetStack: "",
+    readyToCopyTaskPrompt: "",
+  });
+  const [addIdeaError, setAddIdeaError] = useState("");
+  const [addIdeaSuccess, setAddIdeaSuccess] = useState("");
+  const [submittingIdea, setSubmittingIdea] = useState(false);
+
+  const fetchIdeas = async () => {
+    setLoadingIdeas(true);
+    try {
+      const res = await fetch("/api/ideas");
+      if (res.ok) {
+        const data = await res.json();
+        setIdeas(data);
+      }
+    } catch (e) {
+      console.error("Error fetching ideas:", e);
+    } finally {
+      setLoadingIdeas(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIdeas();
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === "ideas") {
+      fetchIdeas();
+    }
+  };
+
+  const IDEAS_CATEGORIES = [
+    "Automotive & B2B Lead Generation Tools",
+    "AI Development, Prompting, Routing & Evaluation Tools",
+    "Agent Orchestration, Governance & Sandbox Frameworks",
+    "Codebase Engineering & Git Workflow Enhancers",
+    "Data, Document & Workspace Productivity Tools",
+    "Micro-SaaS Templates & Personal Workflow Apps",
+  ];
+
+  const allIdeaStacks = React.useMemo(() => {
+    const stacksSet = new Set();
+    ideas.forEach((idea) => {
+      if (idea.targetStack) {
+        idea.targetStack.split(",").forEach((s) => {
+          const trimmed = s.trim();
+          if (trimmed) {
+            stacksSet.add(trimmed);
+          }
+        });
+      }
+    });
+    return Array.from(stacksSet).sort();
+  }, [ideas]);
+
+  const filteredIdeas = React.useMemo(() => {
+    return ideas.filter((idea) => {
+      const q = ideasSearchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        (idea.title && idea.title.toLowerCase().includes(q)) ||
+        (idea.vision && idea.vision.toLowerCase().includes(q)) ||
+        (idea.id && idea.id.toLowerCase().includes(q));
+
+      const matchesCategory =
+        !selectedIdeaCategory || idea.category === selectedIdeaCategory;
+
+      const matchesStack =
+        !selectedIdeaStack ||
+        (idea.targetStack &&
+          idea.targetStack
+            .toLowerCase()
+            .includes(selectedIdeaStack.toLowerCase()));
+
+      return matchesSearch && matchesCategory && matchesStack;
+    });
+  }, [ideas, ideasSearchQuery, selectedIdeaCategory, selectedIdeaStack]);
 
   // Load all unique tags from one-shots
   const allTags = React.useMemo(() => {
@@ -901,12 +1000,26 @@ export default function DashboardClient({
           <div className="text-sm font-semibold uppercase text-slate-500 tracking-wider">
             Navigation
           </div>
-          <a
-            href="#"
-            className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
+          <button
+            onClick={() => handleTabChange("dashboard")}
+            className={`flex items-center space-x-2 w-full text-left px-3 py-2 rounded transition-colors ${
+              activeTab === "dashboard"
+                ? "bg-blue-600 text-white font-medium"
+                : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+            }`}
           >
             <span>Dashboard</span>
-          </a>
+          </button>
+          <button
+            onClick={() => handleTabChange("ideas")}
+            className={`flex items-center space-x-2 w-full text-left px-3 py-2 rounded transition-colors ${
+              activeTab === "ideas"
+                ? "bg-blue-600 text-white font-medium"
+                : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+            }`}
+          >
+            <span>Ideas Registry</span>
+          </button>
         </nav>
 
         {/* Stats Section */}
@@ -933,160 +1046,305 @@ export default function DashboardClient({
 
       {/* Main Content Area */}
       <main className="flex-1 p-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">
-              OneShotForge
-            </h1>
-            <p className="text-slate-400 mt-1">
-              Manage and run your isolated scripts and scraper tasks.
-            </p>
-          </div>
-          <div className="flex items-center space-x-4">
+        {addIdeaSuccess && (
+          <div className="mb-6 p-4 bg-green-900/50 border border-green-500 rounded text-green-200 text-sm flex justify-between items-center">
+            <span>{addIdeaSuccess}</span>
             <button
-              id="refresh"
-              onClick={handleRefresh}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
+              onClick={() => setAddIdeaSuccess("")}
+              className="text-green-200 hover:text-white font-semibold"
             >
-              Refresh Scan
+              ✕
             </button>
           </div>
-        </div>
+        )}
 
-        {/* Error Banner Container */}
-        <div
-          id="error-banner"
-          className={`${scanError ? "" : "hidden"} mb-6 p-4 bg-red-900/50 border border-red-500 rounded text-red-200`}
-        >
-          Error loading scan: Failed to read one-shots directory.
-        </div>
-
-        {/* Filters and Search Bar */}
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="w-full md:w-1/2">
-            <label htmlFor="search-input" className="sr-only">
-              Search
-            </label>
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Search one-shots..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="w-full md:w-auto flex items-center space-x-2 overflow-x-auto">
-            <span className="text-sm text-slate-400 whitespace-nowrap">
-              Filter Tags:
-            </span>
-            <button
-              onClick={() => setSelectedTag("")}
-              className={`px-3 py-1 text-xs rounded transition-colors border ${
-                selectedTag === ""
-                  ? "bg-blue-600 border-blue-500 text-white"
-                  : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
-              }`}
-            >
-              All
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1 text-xs rounded transition-colors border ${
-                  selectedTag === tag
-                    ? "bg-blue-600 border-blue-500 text-white"
-                    : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Grid layout for one-shots */}
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-12 bg-slate-800/50 border border-slate-800 rounded-lg">
-            <p className="text-slate-400">
-              No one-shots found matching your filters.
-            </p>
-          </div>
-        ) : null}
-
-        <div
-          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${filteredItems.length === 0 ? "hidden" : ""}`}
-        >
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              id={item.id}
-              className={`${item.id} bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition-colors flex flex-col justify-between`}
-            >
+        {activeTab === "ideas" ? (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
               <div>
-                <div className="flex items-start justify-between">
-                  <h3
-                    onClick={() => setDetailItem(item)}
-                    className="text-lg font-bold text-slate-100 cursor-pointer hover:text-blue-300 transition-colors"
-                    title="View vision & metrics"
-                  >
-                    {item.name}
-                  </h3>
-                  <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded font-mono">
-                    v{item.version}
-                  </span>
-                </div>
-                <p className="text-slate-400 text-sm mt-2 line-clamp-3">
-                  {item.description}
+                <h1 className="text-3xl font-extrabold tracking-tight text-white font-sans">
+                  Ideas Registry
+                </h1>
+                <p className="text-slate-400 mt-1">
+                  Explore, search, and manage standalone one-shot application
+                  ideas.
                 </p>
               </div>
-
-              <div className="mt-4">
-                <CardMetrics manifest={item.manifest} />
-
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {Array.isArray(item.tags) &&
-                    item.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        onClick={() => setSelectedTag(tag)}
-                        className="text-xs bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded cursor-pointer hover:bg-blue-900 transition-colors"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handlePreview(item)}
-                    className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-sm font-medium rounded transition-colors text-center"
-                  >
-                    Preview
-                  </button>
-                  <button
-                    onClick={() => setDetailItem(item)}
-                    className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-sm font-medium rounded transition-colors text-center"
-                  >
-                    Details
-                  </button>
-                  <button
-                    onClick={() => {
-                      setRunningItem(item);
-                      setRunAction("test");
-                      setRunOutput(null);
-                      setIsRunning(false);
-                    }}
-                    className="flex-1 py-1.5 bg-blue-600 hover:bg-blue-500 text-sm font-medium rounded transition-colors text-center"
-                  >
-                    Run
-                  </button>
-                </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  id="add-idea-btn"
+                  onClick={() => setShowAddIdeaModal(true)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-medium transition-colors text-sm"
+                >
+                  Add Idea
+                </button>
+                <button
+                  id="refresh-ideas-btn"
+                  onClick={fetchIdeas}
+                  disabled={loadingIdeas}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors text-sm"
+                >
+                  {loadingIdeas ? "Refreshing..." : "Refresh"}
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+
+            {/* Search & Filter Row */}
+            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="w-full md:w-1/3">
+                <input
+                  type="text"
+                  placeholder="Search ideas..."
+                  value={ideasSearchQuery}
+                  onChange={(e) => setIdeasSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                />
+              </div>
+              <div className="w-full md:w-auto flex flex-col md:flex-row gap-3">
+                <select
+                  value={selectedIdeaCategory}
+                  onChange={(e) => setSelectedIdeaCategory(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {IDEAS_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedIdeaStack}
+                  onChange={(e) => setSelectedIdeaStack(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">All Stacks</option>
+                  {allIdeaStacks.map((stack) => (
+                    <option key={stack} value={stack}>
+                      {stack}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Ideas Grid */}
+            {filteredIdeas.length === 0 ? (
+              <div className="text-center py-12 bg-slate-800/50 border border-slate-800 rounded-lg">
+                <p className="text-slate-400">
+                  {loadingIdeas
+                    ? "Loading ideas..."
+                    : "No ideas found matching your filters."}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredIdeas.map((idea) => (
+                  <div
+                    key={idea.id}
+                    className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition-colors flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="text-xs bg-blue-955 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-semibold">
+                          {idea.category}
+                        </span>
+                      </div>
+                      <h3
+                        onClick={() => setSelectedIdeaDetail(idea)}
+                        className="text-lg font-bold text-slate-100 cursor-pointer hover:text-blue-300 transition-colors mt-2"
+                      >
+                        {idea.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm mt-2 line-clamp-3">
+                        {idea.vision}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-2">
+                      <div className="flex justify-between text-xs text-slate-400">
+                        <span>Stack:</span>
+                        <span className="font-mono text-slate-300">
+                          {idea.targetStack}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-slate-400">
+                        <span>Added:</span>
+                        <span className="font-mono text-slate-300">
+                          {idea.dateAdded}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setSelectedIdeaDetail(idea)}
+                        className="w-full mt-2 py-1.5 bg-slate-700 hover:bg-slate-600 text-sm font-medium rounded transition-colors text-center text-white"
+                      >
+                        View Specifications
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-extrabold tracking-tight text-white font-sans">
+                  OneShotForge
+                </h1>
+                <p className="text-slate-400 mt-1">
+                  Manage and run your isolated scripts and scraper tasks.
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  id="refresh"
+                  onClick={handleRefresh}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
+                >
+                  Refresh Scan
+                </button>
+              </div>
+            </div>
+
+            {/* Error Banner Container */}
+            <div
+              id="error-banner"
+              className={`${scanError ? "" : "hidden"} mb-6 p-4 bg-red-900/50 border border-red-500 rounded text-red-200`}
+            >
+              Error loading scan: Failed to read one-shots directory.
+            </div>
+
+            {/* Filters and Search Bar */}
+            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="w-full md:w-1/2">
+                <label htmlFor="search-input" className="sr-only">
+                  Search
+                </label>
+                <input
+                  id="search-input"
+                  type="text"
+                  placeholder="Search one-shots..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="w-full md:w-auto flex items-center space-x-2 overflow-x-auto">
+                <span className="text-sm text-slate-400 whitespace-nowrap">
+                  Filter Tags:
+                </span>
+                <button
+                  onClick={() => setSelectedTag("")}
+                  className={`px-3 py-1 text-xs rounded transition-colors border ${
+                    selectedTag === ""
+                      ? "bg-blue-600 border-blue-500 text-white"
+                      : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
+                  }`}
+                >
+                  All
+                </button>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={`px-3 py-1 text-xs rounded transition-colors border ${
+                      selectedTag === tag
+                        ? "bg-blue-600 border-blue-500 text-white"
+                        : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Grid layout for one-shots */}
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-12 bg-slate-800/50 border border-slate-800 rounded-lg">
+                <p className="text-slate-400">
+                  No one-shots found matching your filters.
+                </p>
+              </div>
+            ) : null}
+
+            <div
+              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${filteredItems.length === 0 ? "hidden" : ""}`}
+            >
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  id={item.id}
+                  className={`${item.id} bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition-colors flex flex-col justify-between`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <h3
+                        onClick={() => setDetailItem(item)}
+                        className="text-lg font-bold text-slate-100 cursor-pointer hover:text-blue-300 transition-colors"
+                        title="View vision & metrics"
+                      >
+                        {item.name}
+                      </h3>
+                      <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded font-mono">
+                        v{item.version}
+                      </span>
+                    </div>
+                    <p className="text-slate-400 text-sm mt-2 line-clamp-3">
+                      {item.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <CardMetrics manifest={item.manifest} />
+
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {Array.isArray(item.tags) &&
+                        item.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            onClick={() => setSelectedTag(tag)}
+                            className="text-xs bg-blue-955 text-blue-300 border border-blue-800 px-2 py-0.5 rounded cursor-pointer hover:bg-blue-900 transition-colors"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handlePreview(item)}
+                        className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-sm font-medium rounded transition-colors text-center"
+                      >
+                        Preview
+                      </button>
+                      <button
+                        onClick={() => setDetailItem(item)}
+                        className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-sm font-medium rounded transition-colors text-center"
+                      >
+                        Details
+                      </button>
+                      <button
+                        onClick={() => {
+                          setRunningItem(item);
+                          setRunAction("test");
+                          setRunOutput(null);
+                          setIsRunning(false);
+                        }}
+                        className="flex-1 py-1.5 bg-blue-600 hover:bg-blue-500 text-sm font-medium rounded transition-colors text-center"
+                      >
+                        Run
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </main>
 
       {/* Preview Modal */}
@@ -1215,6 +1473,336 @@ export default function DashboardClient({
                 disabled={isRunning}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {selectedIdeaDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-slate-700 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold text-slate-100">
+                  {selectedIdeaDetail.title}
+                </h2>
+                <p className="text-xs text-blue-400 mt-1">
+                  Category: {selectedIdeaDetail.category}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedIdeaDetail(null)}
+                className="text-slate-400 hover:text-white text-lg font-semibold"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-4 text-slate-300 text-sm">
+              <div>
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                  Core Vision
+                </h3>
+                <p className="mt-1 bg-slate-900/50 p-3 border border-slate-700/50 rounded whitespace-pre-wrap">
+                  {selectedIdeaDetail.vision}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                  Technical Specifications
+                </h3>
+                <p className="mt-1 bg-slate-900/50 p-3 border border-slate-700/50 rounded whitespace-pre-wrap">
+                  {selectedIdeaDetail.techSpecs}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Target Language / Stack
+                  </h3>
+                  <p className="mt-1 bg-slate-900/50 p-2 border border-slate-700/50 rounded font-mono text-xs">
+                    {selectedIdeaDetail.targetStack}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Date Added
+                  </h3>
+                  <p className="mt-1 bg-slate-900/50 p-2 border border-slate-700/50 rounded font-mono text-xs">
+                    {selectedIdeaDetail.dateAdded}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Standardized Task Prompt
+                  </h3>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        selectedIdeaDetail.readyToCopyTaskPrompt,
+                      );
+                      alert("Prompt copied to clipboard!");
+                    }}
+                    className="px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded flex items-center gap-1 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre className="p-3 bg-black rounded font-mono text-xs text-green-400 overflow-x-auto whitespace-pre-wrap max-h-48 border border-slate-900">
+                  {selectedIdeaDetail.readyToCopyTaskPrompt}
+                </pre>
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-700 flex justify-end">
+              <button
+                onClick={() => setSelectedIdeaDetail(null)}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded font-medium transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Idea Modal */}
+      {showAddIdeaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-slate-700 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold text-slate-100">
+                  Add New Idea
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Submit a new standalone one-shot application idea to the
+                  registry.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAddIdeaModal(false);
+                  setAddIdeaError("");
+                }}
+                className="text-slate-400 hover:text-white text-lg font-semibold"
+                disabled={submittingIdea}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              {addIdeaError && (
+                <div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 text-sm">
+                  {addIdeaError}
+                </div>
+              )}
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. My Awesome Scraper"
+                  value={addIdeaForm.title}
+                  onChange={(e) =>
+                    setAddIdeaForm({ ...addIdeaForm, title: e.target.value })
+                  }
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                  disabled={submittingIdea}
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                  Category
+                </label>
+                <select
+                  value={addIdeaForm.category}
+                  onChange={(e) =>
+                    setAddIdeaForm({ ...addIdeaForm, category: e.target.value })
+                  }
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 focus:outline-none focus:border-blue-500 text-sm"
+                  disabled={submittingIdea}
+                >
+                  <option value="">Select Category</option>
+                  {IDEAS_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                  Core Vision
+                </label>
+                <textarea
+                  placeholder="What does this one-shot build and why?"
+                  value={addIdeaForm.vision}
+                  onChange={(e) =>
+                    setAddIdeaForm({ ...addIdeaForm, vision: e.target.value })
+                  }
+                  rows={3}
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                  disabled={submittingIdea}
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                  Technical Specifications
+                </label>
+                <textarea
+                  placeholder="Provide technical library usage details, constraints..."
+                  value={addIdeaForm.techSpecs}
+                  onChange={(e) =>
+                    setAddIdeaForm({
+                      ...addIdeaForm,
+                      techSpecs: e.target.value,
+                    })
+                  }
+                  rows={3}
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                  disabled={submittingIdea}
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                  Target Language / Stack
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Python, SQLite, Playwright"
+                  value={addIdeaForm.targetStack}
+                  onChange={(e) =>
+                    setAddIdeaForm({
+                      ...addIdeaForm,
+                      targetStack: e.target.value,
+                    })
+                  }
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                  disabled={submittingIdea}
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                  Task Prompt
+                </label>
+                <textarea
+                  placeholder="The standardized instructions given to an agent to build the application."
+                  value={addIdeaForm.readyToCopyTaskPrompt}
+                  onChange={(e) =>
+                    setAddIdeaForm({
+                      ...addIdeaForm,
+                      readyToCopyTaskPrompt: e.target.value,
+                    })
+                  }
+                  rows={4}
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                  disabled={submittingIdea}
+                />
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-700 flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddIdeaModal(false);
+                  setAddIdeaError("");
+                }}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded font-medium transition-colors text-sm"
+                disabled={submittingIdea}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setAddIdeaError("");
+                  if (
+                    !addIdeaForm.title.trim() ||
+                    !addIdeaForm.category.trim() ||
+                    !addIdeaForm.vision.trim() ||
+                    !addIdeaForm.techSpecs.trim() ||
+                    !addIdeaForm.targetStack.trim() ||
+                    !addIdeaForm.readyToCopyTaskPrompt.trim()
+                  ) {
+                    setAddIdeaError("All fields are required.");
+                    return;
+                  }
+
+                  const invalidPatterns = [
+                    "/",
+                    "\\",
+                    "..",
+                    "__proto__",
+                    "constructor",
+                    "prototype",
+                  ];
+                  for (const pattern of invalidPatterns) {
+                    if (addIdeaForm.title.includes(pattern)) {
+                      setAddIdeaError(
+                        `Title cannot contain "${pattern}" due to directory security policies.`,
+                      );
+                      return;
+                    }
+                    if (addIdeaForm.category.includes(pattern)) {
+                      setAddIdeaError(
+                        `Category cannot contain "${pattern}" due to directory security policies.`,
+                      );
+                      return;
+                    }
+                  }
+
+                  setSubmittingIdea(true);
+                  try {
+                    const res = await fetch("/api/ideas", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(addIdeaForm),
+                    });
+                    if (res.ok) {
+                      const newIdea = await res.json();
+                      setAddIdeaSuccess(
+                        `Successfully added idea "${newIdea.title}"!`,
+                      );
+                      setAddIdeaForm({
+                        title: "",
+                        category: "",
+                        vision: "",
+                        techSpecs: "",
+                        targetStack: "",
+                        readyToCopyTaskPrompt: "",
+                      });
+                      setShowAddIdeaModal(false);
+                      await fetchIdeas();
+                      setTimeout(() => setAddIdeaSuccess(""), 5000);
+                    } else {
+                      const errData = await res.json();
+                      setAddIdeaError(
+                        errData.error || "Failed to submit new idea.",
+                      );
+                    }
+                  } catch (e) {
+                    setAddIdeaError("Network error while submitting idea.");
+                  } finally {
+                    setSubmittingIdea(false);
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition-colors text-sm flex items-center space-x-1"
+                disabled={submittingIdea}
+              >
+                <span>{submittingIdea ? "Submitting..." : "Submit"}</span>
               </button>
             </div>
           </div>

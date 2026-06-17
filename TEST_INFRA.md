@@ -18,6 +18,10 @@
 | 6   | Dashboard UI Filter  | ORIGINAL_REQUEST §R2 |      5 tests      |      5 tests      |           ✓            |          ✓          |
 | 7   | Dashboard UI Preview | ORIGINAL_REQUEST §R2 |      5 tests      |      5 tests      |           ✓            |          ✓          |
 | 8   | Dashboard UI Actions | ORIGINAL_REQUEST §R2 |      5 tests      |      5 tests      |           ✓            |          ✓          |
+| 9   | Manifest API         | M3 Requirement       |      5 tests      |      5 tests      |           ✓            |          ✓          |
+| 10  | Manifest Verify      | M3 Requirement       |      5 tests      |      2 tests      |           ✓            |          ✓          |
+| 11  | Full Lifecycle       | M3 Requirement       |      1 test       |      0 tests      |           ✓            |          ✓          |
+| 12  | Ideas Registry       | M4 Requirement       |      5 tests      |      5 tests      |           ✓            |          ✓          |
 
 ## Test Architecture
 
@@ -44,8 +48,8 @@
 
 ## Coverage Thresholds
 
-- **Tier 1 (Feature Coverage)**: ≥5 tests per feature (Total: 40 tests)
-- **Tier 2 (Boundary & Edge Cases)**: ≥5 tests per feature (Total: 40 tests)
+- **Tier 1 (Feature Coverage)**: ≥5 tests per feature (Total: 45 tests)
+- **Tier 2 (Boundary & Edge Cases)**: ≥5 tests per feature (Total: 45 tests)
 - **Tier 3 (Cross-Feature Combinations)**: Pairwise coverage of major features (Total: 10 tests)
 - **Tier 4 (Real-World Scenarios)**: Real developer and user lifecycles (Total: 10 tests)
-- **Total Minimum Threshold**: ~11 \* 8 + max(5, 4) = 93 tests. Actual implemented: **100 tests**.
+- **Total Minimum Threshold**: ~11 \* 8 + max(5, 4) = 93 tests. Actual implemented: **110 tests** (and 134 total test assertions in the active test runner).

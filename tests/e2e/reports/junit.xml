@@ -1,26 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="OneShotForge E2E Tests" tests="124" failures="0" time="3.895">
+<testsuites name="OneShotForge E2E Tests" tests="134" failures="0" time="3.979">
   <testsuite name="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" tests="7" failures="0" errors="0" time="1.296">
-    <testcase name="F10_1: verify with an exit-0 acceptance test reports passed:true" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.088">
+    <testcase name="F10_1: verify with an exit-0 acceptance test reports passed:true" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.077">
     </testcase>
-    <testcase name="F10_2: verify with a non-zero acceptance test reports passed:false" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.041">
+    <testcase name="F10_2: verify with a non-zero acceptance test reports passed:false" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.043">
     </testcase>
-    <testcase name="F10_3: verify records the result onto a given attempt" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.041">
+    <testcase name="F10_3: verify records the result onto a given attempt" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.040">
     </testcase>
-    <testcase name="F10_4: verify when acceptance mode is &apos;human&apos; returns 400" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.002">
+    <testcase name="F10_4: verify when acceptance mode is &apos;human&apos; returns 400" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.001">
     </testcase>
-    <testcase name="F10_5: verify with no verify script returns 400" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.002">
+    <testcase name="F10_5: verify with no verify script returns 400" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.001">
     </testcase>
-    <testcase name="F10_6: verify protects against path traversal / injection in id" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.002">
+    <testcase name="F10_6: verify protects against path traversal / injection in id" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="0.001">
     </testcase>
-    <testcase name="F10_7: verify terminates an infinite-loop acceptance test via timeout" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="1.120">
-    </testcase>
-  </testsuite>
-  <testsuite name="f11_lifecycle.test.js &gt; F11: Full one-shot lifecycle (vision -&gt; attempt -&gt; verify -&gt; summary)" tests="1" failures="0" errors="0" time="0.048">
-    <testcase name="F11_1: a one-shot can be created, specced, attempted, verified, and reflected in the scan" classname="f11_lifecycle.test.js &gt; F11: Full one-shot lifecycle (vision -&gt; attempt -&gt; verify -&gt; summary)" time="0.048">
+    <testcase name="F10_7: verify terminates an infinite-loop acceptance test via timeout" classname="f10_manifest_verify.test.js &gt; F10: Manifest Acceptance Test (verify)" time="1.133">
     </testcase>
   </testsuite>
-  <testsuite name="f1_monorepo.test.js &gt; F1: Monorepo Structure" tests="10" failures="0" errors="0" time="0.021">
+  <testsuite name="f11_lifecycle.test.js &gt; F11: Full one-shot lifecycle (vision -&gt; attempt -&gt; verify -&gt; summary)" tests="1" failures="0" errors="0" time="0.046">
+    <testcase name="F11_1: a one-shot can be created, specced, attempted, verified, and reflected in the scan" classname="f11_lifecycle.test.js &gt; F11: Full one-shot lifecycle (vision -&gt; attempt -&gt; verify -&gt; summary)" time="0.046">
+    </testcase>
+  </testsuite>
+  <testsuite name="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" tests="10" failures="0" errors="0" time="0.031">
+    <testcase name="F12_1: GET /api/ideas returns 200 OK status" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.001">
+    </testcase>
+    <testcase name="F12_2: GET /api/ideas returns application/json content-type" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.001">
+    </testcase>
+    <testcase name="F12_3: GET /api/ideas returns a JSON array" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.001">
+    </testcase>
+    <testcase name="F12_4: GET /api/ideas returns at least 51 items" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.002">
+    </testcase>
+    <testcase name="F12_5: GET /api/ideas items contain all required registry fields" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.001">
+    </testcase>
+    <testcase name="F12_6: POST /api/ideas creating a valid idea returns 200 and updates files on disk" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.002">
+    </testcase>
+    <testcase name="F12_7: POST /api/ideas returns 400 Bad Request if fields are missing or empty" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.001">
+    </testcase>
+    <testcase name="F12_8: POST /api/ideas returns 400 Bad Request if category is not in allowed list" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.000">
+    </testcase>
+    <testcase name="F12_9: POST /api/ideas returns 400 Bad Request if inputs contain traversal or prototype pollution keywords" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.001">
+    </testcase>
+    <testcase name="F12_10: POST /api/ideas duplicates resolution automatically appends numeric suffix" classname="f12_ideas_registry.test.js &gt; F12: Ideas Registry API" time="0.021">
+    </testcase>
+  </testsuite>
+  <testsuite name="f1_monorepo.test.js &gt; F1: Monorepo Structure" tests="10" failures="0" errors="0" time="0.022">
     <testcase name="F1_1: Root contains one-shots directory" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.000">
     </testcase>
     <testcase name="F1_2: Root contains dashboard directory" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.000">
@@ -33,16 +55,16 @@
     </testcase>
     <testcase name="F1_6: All items under one-shots are directories or gitkeep" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.000">
     </testcase>
-    <testcase name="F1_7: All one-shot subdirectories match kebab-case naming format" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.000">
+    <testcase name="F1_7: All one-shot subdirectories match kebab-case naming format" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.001">
     </testcase>
-    <testcase name="F1_8: Each one-shot directory contains a valid package.json file if it is not empty" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.001">
+    <testcase name="F1_8: Each one-shot directory contains a valid package.json file if it is not empty" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.000">
     </testcase>
     <testcase name="F1_9: Each one-shot package.json name matches its directory name" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.000">
     </testcase>
-    <testcase name="F1_10: No files under one-shots cross-import sibling one-shots" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.020">
+    <testcase name="F1_10: No files under one-shots cross-import sibling one-shots" classname="f1_monorepo.test.js &gt; F1: Monorepo Structure" time="0.021">
     </testcase>
   </testsuite>
-  <testsuite name="f2_notion.test.js &gt; F2: Notion Scraper" tests="10" failures="0" errors="0" time="0.238">
+  <testsuite name="f2_notion.test.js &gt; F2: Notion Scraper" tests="10" failures="0" errors="0" time="0.239">
     <testcase name="F2_1: notion-scraper directory exists under one-shots" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.000">
     </testcase>
     <testcase name="F2_2: notion-scraper contains package.json" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.000">
@@ -53,7 +75,7 @@
     </testcase>
     <testcase name="F2_5: notion-scraper README.md contains Notion configuration instructions" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.000">
     </testcase>
-    <testcase name="F2_6: notion-scraper has index.js or main entry point" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.001">
+    <testcase name="F2_6: notion-scraper has index.js or main entry point" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.000">
     </testcase>
     <testcase name="F2_7: notion-scraper package.json contains client dependency" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.000">
     </testcase>
@@ -61,7 +83,7 @@
     </testcase>
     <testcase name="F2_9: notion-scraper package.json declares start script" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.000">
     </testcase>
-    <testcase name="F2_10: notion-scraper runs mock tests or dry run successfully" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.237">
+    <testcase name="F2_10: notion-scraper runs mock tests or dry run successfully" classname="f2_notion.test.js &gt; F2: Notion Scraper" time="0.239">
     </testcase>
   </testsuite>
   <testsuite name="f3_api_scan.test.js &gt; F3: Dashboard API Scan" tests="10" failures="0" errors="0" time="0.010">
@@ -77,19 +99,19 @@
     </testcase>
     <testcase name="F3_6: GET /api/scan dynamically scans new one-shots added to disk" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.001">
     </testcase>
-    <testcase name="F3_7: GET /api/scan dynamically removes deleted one-shots" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.001">
+    <testcase name="F3_7: GET /api/scan dynamically removes deleted one-shots" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.002">
     </testcase>
-    <testcase name="F3_8: GET /api/scan handles corrupt package.json gracefully" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.002">
+    <testcase name="F3_8: GET /api/scan handles corrupt package.json gracefully" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.001">
     </testcase>
     <testcase name="F3_9: GET /api/scan ignores non-directory files in one-shots folder" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.001">
     </testcase>
     <testcase name="F3_10: GET /api/scan ignores directories without package.json" classname="f3_api_scan.test.js &gt; F3: Dashboard API Scan" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="f4_api_run.test.js &gt; F4: Dashboard API Run" tests="10" failures="0" errors="0" time="1.241">
-    <testcase name="F4_1: POST /api/run requires POST method" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.001">
+  <testsuite name="f4_api_run.test.js &gt; F4: Dashboard API Run" tests="10" failures="0" errors="0" time="1.266">
+    <testcase name="F4_1: POST /api/run requires POST method" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.000">
     </testcase>
-    <testcase name="F4_2: POST /api/run with missing payload returns 400 Bad Request" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.000">
+    <testcase name="F4_2: POST /api/run with missing payload returns 400 Bad Request" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.001">
     </testcase>
     <testcase name="F4_3: POST /api/run with non-existent script ID returns 404 Not Found" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.001">
     </testcase>
@@ -97,69 +119,69 @@
     </testcase>
     <testcase name="F4_5: POST /api/run runs simple command and returns success" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.043">
     </testcase>
-    <testcase name="F4_6: POST /api/run execution returns output, success, and exit code details" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.042">
+    <testcase name="F4_6: POST /api/run execution returns output, success, and exit code details" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.045">
     </testcase>
-    <testcase name="F4_7: POST /api/run handles execution failure (exits non-zero)" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.042">
+    <testcase name="F4_7: POST /api/run handles execution failure (exits non-zero)" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.055">
     </testcase>
-    <testcase name="F4_8: POST /api/run terminates infinite loop scripts via timeout" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="1.111">
+    <testcase name="F4_8: POST /api/run terminates infinite loop scripts via timeout" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="1.119">
     </testcase>
-    <testcase name="F4_9: POST /api/run protects against shell injection in script ID" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.000">
+    <testcase name="F4_9: POST /api/run protects against shell injection in script ID" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.001">
     </testcase>
     <testcase name="F4_10: POST /api/run protects against path traversal in script ID" classname="f4_api_run.test.js &gt; F4: Dashboard API Run" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" tests="10" failures="0" errors="0" time="0.004">
+  <testsuite name="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" tests="10" failures="0" errors="0" time="0.005">
     <testcase name="F5_1: GET / page loads successfully with 200 status" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
     </testcase>
     <testcase name="F5_2: GET / response has text/html content-type" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
     </testcase>
-    <testcase name="F5_3: GET / HTML contains Next.js markers" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
+    <testcase name="F5_3: GET / HTML contains Next.js markers" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
     </testcase>
-    <testcase name="F5_4: GET / HTML contains brand name OneShotForge" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
+    <testcase name="F5_4: GET / HTML contains brand name OneShotForge" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
     </testcase>
-    <testcase name="F5_5: GET / HTML lists notion-scraper if it exists" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
+    <testcase name="F5_5: GET / HTML lists notion-scraper if it exists" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
     </testcase>
-    <testcase name="F5_6: GET / HTML contains stats layout components" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
+    <testcase name="F5_6: GET / HTML contains stats layout components" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
     </testcase>
     <testcase name="F5_7: GET / HTML contains sidebar element container" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
     </testcase>
-    <testcase name="F5_8: GET / HTML contains refresh/rescan button" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
+    <testcase name="F5_8: GET / HTML contains refresh/rescan button" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
     </testcase>
-    <testcase name="F5_9: GET / HTML displays error banner state if scan fails" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
+    <testcase name="F5_9: GET / HTML displays error banner state if scan fails" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
     </testcase>
-    <testcase name="F5_10: GET / HTML uses responsive tailwind grid layout classes" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.000">
+    <testcase name="F5_10: GET / HTML uses responsive tailwind grid layout classes" classname="f5_page_scan.test.js &gt; F5: Dashboard Page Scanning/Listing" time="0.001">
     </testcase>
   </testsuite>
   <testsuite name="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" tests="10" failures="0" errors="0" time="0.007">
     <testcase name="F6_1: GET /api/scan?search=notion returns matching item" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
-    <testcase name="F6_2: GET /api/scan?search=NOTION is case-insensitive" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.000">
+    <testcase name="F6_2: GET /api/scan?search=NOTION is case-insensitive" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
-    <testcase name="F6_3: GET /api/scan?search=  notion   trims whitespace" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
+    <testcase name="F6_3: GET /api/scan?search=  notion   trims whitespace" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.000">
     </testcase>
     <testcase name="F6_4: GET /api/scan?search=nonexistent returns empty/filtered array" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
     <testcase name="F6_5: GET /api/scan?tag=scraper returns scraper-tagged items" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
-    <testcase name="F6_6: GET /api/scan?tag=test-tag returns both items" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.000">
+    <testcase name="F6_6: GET /api/scan?tag=test-tag returns both items" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
-    <testcase name="F6_7: GET /api/scan?tag=nonexistent returns no matching items" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
+    <testcase name="F6_7: GET /api/scan?tag=nonexistent returns no matching items" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.000">
     </testcase>
     <testcase name="F6_8: GET /api/scan with search and tag combined (intersection)" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
-    <testcase name="F6_9: GET /api/scan search handles regex special characters safely" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.000">
+    <testcase name="F6_9: GET /api/scan search handles regex special characters safely" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
     </testcase>
-    <testcase name="F6_10: GET /api/scan returns sorted results by name alphabetically" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.001">
+    <testcase name="F6_10: GET /api/scan returns sorted results by name alphabetically" classname="f6_search_filter.test.js &gt; F6: Dashboard Search/Filter" time="0.000">
     </testcase>
   </testsuite>
-  <testsuite name="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" tests="10" failures="0" errors="0" time="0.005">
-    <testcase name="F7_1: GET /api/scan/temp-preview-standard returns metadata successfully" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
+  <testsuite name="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" tests="10" failures="0" errors="0" time="0.004">
+    <testcase name="F7_1: GET /api/scan/temp-preview-standard returns metadata successfully" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
     </testcase>
-    <testcase name="F7_2: GET /api/scan/temp-preview-standard/readme returns README content" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
+    <testcase name="F7_2: GET /api/scan/temp-preview-standard/readme returns README content" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
     </testcase>
-    <testcase name="F7_3: GET /api/scan/nonexistent-id returns 404" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
+    <testcase name="F7_3: GET /api/scan/nonexistent-id returns 404" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
     </testcase>
-    <testcase name="F7_4: GET /api/scan/nonexistent-id/readme returns 404" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
+    <testcase name="F7_4: GET /api/scan/nonexistent-id/readme returns 404" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
     </testcase>
     <testcase name="F7_5: GET /api/scan/temp-preview-missing-readme/readme handles missing README file gracefully" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
     </testcase>
@@ -167,17 +189,17 @@
     </testcase>
     <testcase name="F7_7: GET /api/scan/../dashboard prevents path traversal for metadata" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
     </testcase>
-    <testcase name="F7_8: GET /api/scan/../dashboard/readme prevents path traversal for readme" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
+    <testcase name="F7_8: GET /api/scan/../dashboard/readme prevents path traversal for readme" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
     </testcase>
-    <testcase name="F7_9: GET /api/scan/temp-preview-standard metadata includes tags and path details" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
+    <testcase name="F7_9: GET /api/scan/temp-preview-standard metadata includes tags and path details" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
     </testcase>
-    <testcase name="F7_10: GET /api/scan/temp-preview-standard/readme parses Markdown into HTML" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.001">
+    <testcase name="F7_10: GET /api/scan/temp-preview-standard/readme parses Markdown into HTML" classname="f7_preview_metadata.test.js &gt; F7: Dashboard Preview/Metadata" time="0.000">
     </testcase>
   </testsuite>
   <testsuite name="f8_actions.test.js &gt; F8: Dashboard Actions" tests="10" failures="0" errors="0" time="0.006">
-    <testcase name="F8_1: POST /api/export requires POST method" classname="f8_actions.test.js &gt; F8: Dashboard Actions" time="0.001">
+    <testcase name="F8_1: POST /api/export requires POST method" classname="f8_actions.test.js &gt; F8: Dashboard Actions" time="0.000">
     </testcase>
-    <testcase name="F8_2: POST /api/export with invalid ID returns 404" classname="f8_actions.test.js &gt; F8: Dashboard Actions" time="0.000">
+    <testcase name="F8_2: POST /api/export with invalid ID returns 404" classname="f8_actions.test.js &gt; F8: Dashboard Actions" time="0.001">
     </testcase>
     <testcase name="F8_3: POST /api/export with valid ID returns zip archive" classname="f8_actions.test.js &gt; F8: Dashboard Actions" time="0.001">
     </testcase>
@@ -196,36 +218,36 @@
     <testcase name="F8_10: POST /api/suggest returns suggestions structure successfully" classname="f8_actions.test.js &gt; F8: Dashboard Actions" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" tests="11" failures="0" errors="0" time="0.015">
+  <testsuite name="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" tests="11" failures="0" errors="0" time="0.017">
     <testcase name="F9_1: GET manifest for a one-shot with no manifest returns hasManifest:false" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.001">
     </testcase>
     <testcase name="F9_2: POST /api/manifest/spec creates a vision (write-once 200 then 409)" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
     </testcase>
-    <testcase name="F9_3: POST /api/manifest/attempt appends to append-only history" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
+    <testcase name="F9_3: POST /api/manifest/attempt appends to append-only history" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.003">
     </testcase>
-    <testcase name="F9_4: POST /api/manifest/evaluation records fidelity on an existing attempt" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.003">
+    <testcase name="F9_4: POST /api/manifest/evaluation records fidelity on an existing attempt" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
     </testcase>
     <testcase name="F9_5: evaluation for a missing attempt returns 404" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.001">
     </testcase>
-    <testcase name="F9_6: spec rejects prototype-pollution keys with 400" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.001">
+    <testcase name="F9_6: spec rejects prototype-pollution keys with 400" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
     </testcase>
-    <testcase name="F9_7: invalid id (path traversal) returns 404" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.001">
+    <testcase name="F9_7: invalid id (path traversal) returns 404" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.000">
     </testcase>
     <testcase name="F9_8: spec for a non-existent one-shot returns 404" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.000">
     </testcase>
     <testcase name="F9_9: corrupt oneshot.json is surfaced as &apos;corrupt&apos; (not a 500, not silent)" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
     </testcase>
-    <testcase name="F9_11: writes to a corrupt manifest are refused (no silent data loss)" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.001">
+    <testcase name="F9_11: writes to a corrupt manifest are refused (no silent data loss)" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
     </testcase>
-    <testcase name="F9_10: GET /api/scan attaches a manifest summary to items" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.001">
+    <testcase name="F9_10: GET /api/scan attaches a manifest summary to items" classname="f9_manifest_api.test.js &gt; F9: Manifest API (vision + metrics)" time="0.002">
     </testcase>
   </testsuite>
   <testsuite name="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" tests="10" failures="0" errors="0" time="0.156">
     <testcase name="T3_1: New One-Shot Creation to API Scan Reflection (F1 &lt;-&gt; F3)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.001">
     </testcase>
-    <testcase name="T3_2: Deleted One-Shot Clean Up (F1 &lt;-&gt; F3 &lt;-&gt; F6)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.002">
+    <testcase name="T3_2: Deleted One-Shot Clean Up (F1 &lt;-&gt; F3 &lt;-&gt; F6)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.003">
     </testcase>
-    <testcase name="T3_3: Run/Test Failure Updates Sidebar Success Stats (F8 &lt;-&gt; F4 &lt;-&gt; F5)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.043">
+    <testcase name="T3_3: Run/Test Failure Updates Sidebar Success Stats (F8 &lt;-&gt; F4 &lt;-&gt; F5)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.046">
     </testcase>
     <testcase name="T3_4: Search/Filter Persistence During Preview Toggle (F6 &lt;-&gt; F7)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.001">
     </testcase>
@@ -235,41 +257,41 @@
     </testcase>
     <testcase name="T3_7: Invalid Monorepo Structure Causes Scan Warning (F1 &lt;-&gt; F3 &lt;-&gt; F5)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.001">
     </testcase>
-    <testcase name="T3_8: Run Action Terminal Stream with Preview Toggle (F8 &lt;-&gt; F7)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.042">
+    <testcase name="T3_8: Run Action Terminal Stream with Preview Toggle (F8 &lt;-&gt; F7)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.044">
     </testcase>
-    <testcase name="T3_9: Add New One-Shot, Search for it, and Run its Test (F1 &lt;-&gt; F6 &lt;-&gt; F4)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.047">
+    <testcase name="T3_9: Add New One-Shot, Search for it, and Run its Test (F1 &lt;-&gt; F6 &lt;-&gt; F4)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.042">
     </testcase>
-    <testcase name="T3_10: Create, Polish, Scan, Run, and Export Lifecycle (F1 &lt;-&gt; F8 &lt;-&gt; F3 &lt;-&gt; F4)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.015">
+    <testcase name="T3_10: Create, Polish, Scan, Run, and Export Lifecycle (F1 &lt;-&gt; F8 &lt;-&gt; F3 &lt;-&gt; F4)" classname="tier3_cross_feature.test.js &gt; Tier 3: Cross-Feature Integration Tests" time="0.014">
     </testcase>
   </testsuite>
-  <testsuite name="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" tests="10" failures="0" errors="0" time="0.826">
-    <testcase name="T4_1: Full User Journey - Onboarding and Running Scraper" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.055">
+  <testsuite name="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" tests="10" failures="0" errors="0" time="0.848">
+    <testcase name="T4_1: Full User Journey - Onboarding and Running Scraper" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.056">
     </testcase>
-    <testcase name="T4_2: Multi-step Monorepo Growth Scenario" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.044">
+    <testcase name="T4_2: Multi-step Monorepo Growth Scenario" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.045">
     </testcase>
     <testcase name="T4_3: Error Resilience and Recovery Workflow" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.072">
     </testcase>
-    <testcase name="T4_4: AI-driven Improvement and Polish Loop" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.002">
+    <testcase name="T4_4: AI-driven Improvement and Polish Loop" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.003">
     </testcase>
-    <testcase name="T4_5: Concurrent Executions and System Load Management" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.556">
+    <testcase name="T4_5: Concurrent Executions and System Load Management" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.558">
     </testcase>
     <testcase name="T4_6: Clean Monorepo Migration and Export Lifecycle" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.001">
     </testcase>
     <testcase name="T4_7: Security Isolation - check one-shot execution cannot write outside one-shots" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.002">
     </testcase>
-    <testcase name="T4_8: Scale Scanning - check scanner handles 50 temporary folders efficiently" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.021">
+    <testcase name="T4_8: Scale Scanning - check scanner handles 50 temporary folders efficiently" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.023">
     </testcase>
-    <testcase name="T4_9: Standalone Export Validation - verify exported package package.json exists" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.001">
+    <testcase name="T4_9: Standalone Export Validation - verify exported package package.json exists" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.002">
     </testcase>
-    <testcase name="T4_10: Buggy script recovery cycle - run, fail, edit, run, pass" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.072">
+    <testcase name="T4_10: Buggy script recovery cycle - run, fail, edit, run, pass" classname="tier4_real_world.test.js &gt; Tier 4: Real-World Scenario Tests" time="0.086">
     </testcase>
   </testsuite>
-  <testsuite name="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" tests="5" failures="0" errors="0" time="0.007">
+  <testsuite name="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" tests="5" failures="0" errors="0" time="0.006">
     <testcase name="T5_1: /api/scan/[id] crash resilience with null package.json" classname="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" time="0.001">
     </testcase>
     <testcase name="T5_2: /api/polish value type validation to prevent package.json corruption" classname="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" time="0.002">
     </testcase>
-    <testcase name="T5_3: /api/run command injection bypass with absolute path arguments" classname="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" time="0.002">
+    <testcase name="T5_3: /api/run command injection bypass with absolute path arguments" classname="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" time="0.001">
     </testcase>
     <testcase name="T5_4: /api/run command injection bypass with absolute root prefix" classname="tier5_adversarial.test.js &gt; Tier 5: White-Box Adversarial Hardening" time="0.001">
     </testcase>
