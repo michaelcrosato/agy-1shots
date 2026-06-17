@@ -18,6 +18,17 @@ describe("Milestone 3: CLI Scripts", () => {
     // Back up the files on disk
     if (fs.existsSync(registryPath)) {
       registryBackup = fs.readFileSync(registryPath, "utf8");
+      try {
+        const registry = JSON.parse(registryBackup);
+        const auto003 = registry.find(item => item.id === "AUTO-003");
+        if (auto003 && auto003.status !== "backlog") {
+          auto003.status = "backlog";
+          auto003.promoted_to = null;
+          fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2), "utf8");
+        }
+      } catch (err) {
+        // Ignore json parse error here
+      }
     }
     if (fs.existsSync(readmePath)) {
       readmeBackup = fs.readFileSync(readmePath, "utf8");
@@ -46,7 +57,26 @@ describe("Milestone 3: CLI Scripts", () => {
     ];
     for (const p of pathsToClean) {
       if (fs.existsSync(p)) {
-        fs.rmSync(p, { recursive: true, force: true });
+        let attempts = 0;
+        while (attempts < 5) {
+          try {
+            fs.rmSync(p, { recursive: true, force: true });
+            break;
+          } catch (err) {
+            if (err.code === "EPERM" || err.code === "EBUSY") {
+              attempts++;
+              if (attempts >= 5) throw err;
+              try {
+                Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+              } catch (e) {
+                const start = Date.now();
+                while (Date.now() - start < 100) {}
+              }
+            } else {
+              throw err;
+            }
+          }
+        }
       }
     }
   });

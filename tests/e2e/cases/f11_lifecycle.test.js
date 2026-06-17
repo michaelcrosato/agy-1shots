@@ -11,7 +11,27 @@ describe("F11: Full one-shot lifecycle (vision -> attempt -> verify -> summary)"
   const tempPath = path.join(oneShotsDir, name);
 
   function rmDirRecursive(dirPath) {
-    if (fs.existsSync(dirPath)) fs.rmSync(dirPath, { recursive: true, force: true });
+    if (!fs.existsSync(dirPath)) return;
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        fs.rmSync(dirPath, { recursive: true, force: true });
+        break;
+      } catch (err) {
+        if (err.code === "EPERM" || err.code === "EBUSY") {
+          attempts++;
+          if (attempts >= 5) throw err;
+          try {
+            Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+          } catch (e) {
+            const start = Date.now();
+            while (Date.now() - start < 100) {}
+          }
+        } else {
+          throw err;
+        }
+      }
+    }
   }
 
   afterEach(() => rmDirRecursive(tempPath));
