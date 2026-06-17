@@ -98,17 +98,44 @@ export async function readManifest(targetDir) {
 
 // Synchronous read, for the sync scan/page code paths.
 export function readManifestSync(targetDir) {
+  return readManifestSyncWithStatus(targetDir).manifest;
+}
+
+// Read + classify: "missing" (no file), "valid", or "corrupt" (unparseable).
+// Surfacing "corrupt" instead of silently returning empty matters because the
+// whole point of the manifest is that recorded data is never lost unnoticed.
+export function readManifestSyncWithStatus(targetDir) {
   const manifestPath = path.join(targetDir, MANIFEST_FILENAME);
+  let raw;
   try {
-    const raw = fs.readFileSync(manifestPath, "utf8");
-    return normalizeManifest(JSON.parse(raw));
+    raw = fs.readFileSync(manifestPath, "utf8");
   } catch (e) {
-    return emptyManifest();
+    return { manifest: emptyManifest(), status: "missing" };
+  }
+  try {
+    return { manifest: normalizeManifest(JSON.parse(raw)), status: "valid" };
+  } catch (e) {
+    return { manifest: emptyManifest(), status: "corrupt" };
+  }
+}
+
+export async function readManifestWithStatus(targetDir) {
+  const manifestPath = path.join(targetDir, MANIFEST_FILENAME);
+  let raw;
+  try {
+    raw = await fsp.readFile(manifestPath, "utf8");
+  } catch (e) {
+    return { manifest: emptyManifest(), status: "missing" };
+  }
+  try {
+    return { manifest: normalizeManifest(JSON.parse(raw)), status: "valid" };
+  } catch (e) {
+    return { manifest: emptyManifest(), status: "corrupt" };
   }
 }
 
 // Compact summary attached to scan results / cards.
-export function summarizeManifest(m) {
+export function summarizeManifest(m, status = "valid") {
   const spec = m && m.spec;
   const attempts = m && Array.isArray(m.attempts) ? m.attempts : [];
   const hasVision = !!(
@@ -122,6 +149,7 @@ export function summarizeManifest(m) {
 
   return {
     hasManifest: hasVision || attemptCount > 0,
+    manifestStatus: status,
     hasVision,
     attemptCount,
     latestFidelity:
@@ -144,10 +172,15 @@ const writeQueues = new Map();
 function runInQueue(key, fn) {
   const prev = writeQueues.get(key) || Promise.resolve();
   const next = prev.then(fn);
-  writeQueues.set(
-    key,
-    next.catch(() => {}),
-  );
+  const settled = next.catch(() => {});
+  writeQueues.set(key, settled);
+  // Evict the key once this op drains and nothing newer chained after it,
+  // so the map stays flat instead of growing one entry per manifest path.
+  settled.then(() => {
+    if (writeQueues.get(key) === settled) {
+      writeQueues.delete(key);
+    }
+  });
   return next;
 }
 
@@ -195,7 +228,13 @@ async function atomicWrite(manifestPath, data) {
 // cycle runs inside the per-path queue so concurrent appends never race.
 export function updateManifest(targetDir, manifestPath, mutator) {
   return runInQueue(manifestPath, async () => {
-    const current = await readManifest(targetDir);
+    const { manifest: current, status } = await readManifestWithStatus(targetDir);
+    if (status === "corrupt") {
+      throw new ManifestError(
+        409,
+        "Manifest file is unreadable (corrupt JSON); refusing to overwrite to avoid data loss. Fix or remove oneshot.json and retry.",
+      );
+    }
     const updated = await mutator(current);
     await atomicWrite(manifestPath, updated);
     return updated;

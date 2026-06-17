@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   resolveOneShot,
-  readManifest,
+  readManifestWithStatus,
   summarizeManifest,
 } from "../../../../../lib/manifest";
 
@@ -21,8 +21,8 @@ export async function GET(request, { params }) {
     });
   }
 
-  const manifest = await readManifest(resolved.targetDir);
-  const summary = summarizeManifest(manifest);
+  const { manifest, status } = await readManifestWithStatus(resolved.targetDir);
+  const summary = summarizeManifest(manifest, status);
 
   return NextResponse.json({
     id,

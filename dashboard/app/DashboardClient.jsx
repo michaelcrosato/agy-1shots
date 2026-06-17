@@ -577,6 +577,15 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
             </div>
           ) : (
             <>
+              {data && data.manifestStatus === "corrupt" && (
+                <div className="bg-red-950/40 border border-red-800 rounded-lg p-4 text-red-300 text-sm">
+                  ⚠ This one-shot's <code>oneshot.json</code> is corrupt and could
+                  not be parsed. Recorded data is shown as empty, and writes are
+                  blocked to avoid overwriting it. Fix or remove the file to
+                  continue.
+                </div>
+              )}
+
               {/* Vision */}
               {spec && spec.vision ? (
                 <div className="bg-blue-950/40 border border-blue-800/60 rounded-lg p-4">
@@ -694,6 +703,13 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
 // Compact metrics summary shown on each card.
 function CardMetrics({ manifest }) {
   if (!manifest) return null;
+  if (manifest.manifestStatus === "corrupt") {
+    return (
+      <div className="text-xs text-red-400 mb-3 font-semibold">
+        ⚠ manifest unreadable (corrupt)
+      </div>
+    );
+  }
   if (!manifest.hasManifest) {
     return (
       <div className="text-xs text-slate-600 mb-3 italic">

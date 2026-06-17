@@ -195,14 +195,32 @@ describe("F9: Manifest API (vision + metrics)", () => {
     expect(res.status).toBe(404);
   });
 
-  test("F9_9: corrupt oneshot.json is treated as empty (not a 500)", async () => {
+  test("F9_9: corrupt oneshot.json is surfaced as 'corrupt' (not a 500, not silent)", async () => {
     const name = "temp-f9-corrupt";
     makeFixture(name, { manifest: '{ not valid json' });
     const res = await fetch(`${DASHBOARD_URL}/api/scan/${name}/manifest`);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.hasManifest).toBe(false);
+    expect(data.manifestStatus).toBe("corrupt");
     expect(Array.isArray(data.attempts)).toBe(true);
+  });
+
+  test("F9_11: writes to a corrupt manifest are refused (no silent data loss)", async () => {
+    const name = "temp-f9-corrupt-write";
+    makeFixture(name, { manifest: '{ broken' });
+    const res = await fetch(`${DASHBOARD_URL}/api/manifest/attempt`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: name, model: "m" }),
+    });
+    expect(res.status).toBe(409);
+    // The corrupt file must be left untouched, not overwritten.
+    const onDisk = fs.readFileSync(
+      path.join(oneShotsDir, name, "oneshot.json"),
+      "utf8",
+    );
+    expect(onDisk).toBe("{ broken");
   });
 
   test("F9_10: GET /api/scan attaches a manifest summary to items", async () => {

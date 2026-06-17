@@ -10,6 +10,8 @@ if (!global.runLocks) {
 }
 
 // Per-one-shot mutex: serializes concurrent executions of the same id.
+// The returned release() also evicts the key once the chain drains, so the
+// map stays flat instead of accumulating one entry per id forever.
 export async function acquireLock(id) {
   const currentPromise = global.runLocks.get(id) || Promise.resolve();
   let release;
@@ -18,7 +20,12 @@ export async function acquireLock(id) {
   });
   global.runLocks.set(id, nextPromise);
   await currentPromise;
-  return release;
+  return () => {
+    release();
+    if (global.runLocks.get(id) === nextPromise) {
+      global.runLocks.delete(id);
+    }
+  };
 }
 
 const DANGEROUS_ENV_KEYS = [
@@ -103,7 +110,10 @@ export function normalizeTimeout(timeout) {
 //   { success, exitCode, stdout, stderr, error, timedOut }
 export async function runScript({ id, targetDir, cmd, timeout, env }) {
   const processEnv = { ...process.env, ...sanitizeEnv(env) };
-  const execOptions = { cwd: targetDir, env: processEnv };
+  // On POSIX, run the child in its own process group so a timeout can reap the
+  // whole tree (the script plus anything it spawned), not just the shell.
+  const isWin = process.platform === "win32";
+  const execOptions = { cwd: targetDir, env: processEnv, detached: !isWin };
   const execTimeout = normalizeTimeout(timeout);
 
   const release = await acquireLock(id);
@@ -139,17 +149,23 @@ export async function runScript({ id, targetDir, cmd, timeout, env }) {
         timer = setTimeout(() => {
           killed = true;
 
-          if (process.platform === "win32") {
+          if (isWin) {
             try {
               exec(`taskkill /f /pid ${child.pid} /t`, () => {});
             } catch (e) {
               // Ignore kill errors
             }
           } else {
+            // Kill the whole process group (negative pid); fall back to the
+            // direct child if the group signal fails.
             try {
-              child.kill("SIGKILL");
+              process.kill(-child.pid, "SIGKILL");
             } catch (e) {
-              // Ignore kill errors
+              try {
+                child.kill("SIGKILL");
+              } catch (e2) {
+                // Ignore kill errors
+              }
             }
           }
 
