@@ -50,6 +50,20 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify(data));
   };
 
+  const parseJSONBody = (req, callback) => {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+    req.on("end", () => {
+      try {
+        callback(null, JSON.parse(body));
+      } catch (err) {
+        callback(err, null);
+      }
+    });
+  };
+
   const sendHTML = (statusCode, html) => {
     res.writeHead(statusCode, { "Content-Type": "text/html" });
     res.end(html);
@@ -103,6 +117,35 @@ const server = http.createServer((req, res) => {
           try {
             const pkgContent = fs.readFileSync(pkgPath, "utf8");
             const pkg = JSON.parse(pkgContent);
+
+            const manifestPath = path.join(fullPath, "oneshot.json");
+            let manifest = { schemaVersion: 1, spec: null, attempts: [] };
+            let manifestStatus = "missing";
+
+            if (fs.existsSync(manifestPath)) {
+              try {
+                const raw = fs.readFileSync(manifestPath, "utf8");
+                manifest = JSON.parse(raw);
+                manifestStatus = "valid";
+              } catch (e) {
+                manifestStatus = "corrupt";
+              }
+            }
+
+            const spec = manifest.spec;
+            const attempts = Array.isArray(manifest.attempts)
+              ? manifest.attempts
+              : [];
+            const hasVision = !!(
+              spec &&
+              typeof spec.vision === "string" &&
+              spec.vision.trim()
+            );
+            const attemptCount = attempts.length;
+            const latest = attemptCount > 0 ? attempts[attemptCount - 1] : null;
+            const evaluation =
+              latest && latest.evaluation ? latest.evaluation : null;
+
             results.push({
               id: file,
               name: pkg.name || file,
@@ -110,6 +153,24 @@ const server = http.createServer((req, res) => {
               description: pkg.description || "",
               tags: pkg.tags || [],
               path: fullPath,
+              manifest: {
+                hasManifest: hasVision || attemptCount > 0,
+                manifestStatus,
+                hasVision,
+                attemptCount,
+                latestFidelity:
+                  evaluation && typeof evaluation.fidelityScore === "number"
+                    ? evaluation.fidelityScore
+                    : null,
+                latestPassed:
+                  evaluation && typeof evaluation.passed === "boolean"
+                    ? evaluation.passed
+                    : null,
+                latestModel:
+                  latest && typeof latest.model === "string"
+                    ? latest.model
+                    : null,
+              },
             });
           } catch (e) {
             // Gracefully handled corrupt package.json
@@ -228,19 +289,616 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const parseJSONBody = (req, callback) => {
-    let body = "";
-    req.on("data", (chunk) => {
-      body += chunk.toString();
-    });
-    req.on("end", () => {
+  // GET /api/scan/:id/manifest
+  const manifestMatch = url.pathname.match(/^\/api\/scan\/([^/]+)\/manifest$/);
+  if (method === "GET" && manifestMatch) {
+    const id = decodeURIComponent(manifestMatch[1]);
+
+    if (id.includes("..") || id.includes("/") || id.includes("\\")) {
+      sendJSON(404, { error: "Not Found" });
+      return;
+    }
+
+    const fullPath = path.join(oneShotsDir, id);
+    if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+      sendJSON(404, { error: "Not Found" });
+      return;
+    }
+
+    const manifestPath = path.join(fullPath, "oneshot.json");
+    let manifest = { schemaVersion: 1, spec: null, attempts: [] };
+    let manifestStatus = "missing";
+
+    if (fs.existsSync(manifestPath)) {
       try {
-        callback(null, JSON.parse(body));
-      } catch (err) {
-        callback(err, null);
+        const raw = fs.readFileSync(manifestPath, "utf8");
+        manifest = JSON.parse(raw);
+        manifestStatus = "valid";
+      } catch (e) {
+        manifestStatus = "corrupt";
+      }
+    }
+
+    const spec = manifest.spec;
+    const attempts = Array.isArray(manifest.attempts) ? manifest.attempts : [];
+    const hasVision = !!(
+      spec &&
+      typeof spec.vision === "string" &&
+      spec.vision.trim()
+    );
+    const attemptCount = attempts.length;
+    const latest = attemptCount > 0 ? attempts[attemptCount - 1] : null;
+    const evaluation = latest && latest.evaluation ? latest.evaluation : null;
+
+    sendJSON(200, {
+      id,
+      schemaVersion: manifest.schemaVersion || 1,
+      spec: manifest.spec,
+      attempts: manifest.attempts || [],
+      hasManifest: hasVision || attemptCount > 0,
+      manifestStatus,
+      hasVision,
+      attemptCount,
+      latestFidelity:
+        evaluation && typeof evaluation.fidelityScore === "number"
+          ? evaluation.fidelityScore
+          : null,
+      latestPassed:
+        evaluation && typeof evaluation.passed === "boolean"
+          ? evaluation.passed
+          : null,
+      latestModel:
+        latest && typeof latest.model === "string" ? latest.model : null,
+    });
+    return;
+  }
+
+  // POST /api/manifest/spec
+  if (url.pathname === "/api/manifest/spec") {
+    if (method !== "POST") {
+      res.writeHead(405);
+      res.end("Method Not Allowed");
+      return;
+    }
+
+    parseJSONBody(req, (err, body) => {
+      if (
+        err ||
+        !body ||
+        typeof body.id !== "string" ||
+        typeof body.vision !== "string" ||
+        !body.vision.trim()
+      ) {
+        sendJSON(400, { error: "Bad Request" });
+        return;
+      }
+
+      const protoKeys = ["__proto__", "constructor", "prototype"];
+      for (const k of Object.keys(body)) {
+        if (protoKeys.includes(k)) {
+          sendJSON(400, { error: "Prototype pollution detected" });
+          return;
+        }
+      }
+      if (body.acceptance && typeof body.acceptance === "object") {
+        for (const k of Object.keys(body.acceptance)) {
+          if (protoKeys.includes(k)) {
+            sendJSON(400, { error: "Prototype pollution detected" });
+            return;
+          }
+        }
+      }
+
+      const id = body.id;
+      if (
+        id.includes("..") ||
+        id.includes("/") ||
+        id.includes("\\") ||
+        /[;&|`$]/.test(id)
+      ) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const fullPath = path.join(oneShotsDir, id);
+      if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const manifestPath = path.join(fullPath, "oneshot.json");
+      let manifest = { schemaVersion: 1, spec: null, attempts: [] };
+      let manifestStatus = "missing";
+
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const raw = fs.readFileSync(manifestPath, "utf8");
+          manifest = JSON.parse(raw);
+          manifestStatus = "valid";
+        } catch (e) {
+          manifestStatus = "corrupt";
+        }
+      }
+
+      if (manifestStatus === "corrupt") {
+        sendJSON(409, { error: "Manifest is corrupt" });
+        return;
+      }
+
+      if (
+        manifest.spec &&
+        typeof manifest.spec.vision === "string" &&
+        manifest.spec.vision.trim()
+      ) {
+        sendJSON(409, { error: "Vision already set; spec is write-once" });
+        return;
+      }
+
+      let mode = "human";
+      let script = "verify";
+      let successExitCode = 0;
+
+      if (body.acceptance && typeof body.acceptance === "object") {
+        const a = body.acceptance;
+        if (a.mode !== undefined) {
+          const validModes = ["human", "program", "none"];
+          if (!validModes.includes(a.mode)) {
+            sendJSON(400, { error: "Invalid acceptance.mode" });
+            return;
+          }
+          mode = a.mode;
+        }
+        if (a.script !== undefined && a.script !== null) {
+          if (typeof a.script !== "string" || !a.script.trim()) {
+            sendJSON(400, { error: "Invalid acceptance.script" });
+            return;
+          }
+          script = a.script.trim();
+        }
+        if (a.successExitCode !== undefined && a.successExitCode !== null) {
+          const code = Number(a.successExitCode);
+          if (!Number.isInteger(code)) {
+            sendJSON(400, { error: "Invalid acceptance.successExitCode" });
+            return;
+          }
+          successExitCode = code;
+        }
+      }
+
+      manifest.spec = {
+        vision: body.vision.trim(),
+        createdAt: new Date().toISOString(),
+        acceptance: { mode, script, successExitCode },
+      };
+
+      try {
+        fs.writeFileSync(
+          manifestPath,
+          JSON.stringify(manifest, null, 2),
+          "utf8",
+        );
+        sendJSON(200, { success: true, spec: manifest.spec });
+      } catch (e) {
+        sendJSON(500, { error: "Failed to write manifest" });
       }
     });
-  };
+    return;
+  }
+
+  // POST /api/manifest/attempt
+  if (url.pathname === "/api/manifest/attempt") {
+    if (method !== "POST") {
+      res.writeHead(405);
+      res.end("Method Not Allowed");
+      return;
+    }
+
+    parseJSONBody(req, (err, body) => {
+      if (err || !body || typeof body.id !== "string") {
+        sendJSON(400, { error: "Bad Request" });
+        return;
+      }
+
+      const protoKeys = ["__proto__", "constructor", "prototype"];
+      for (const k of Object.keys(body)) {
+        if (protoKeys.includes(k)) {
+          sendJSON(400, { error: "Prototype pollution detected" });
+          return;
+        }
+      }
+
+      const id = body.id;
+      if (
+        id.includes("..") ||
+        id.includes("/") ||
+        id.includes("\\") ||
+        /[;&|`$]/.test(id)
+      ) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const fullPath = path.join(oneShotsDir, id);
+      if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const manifestPath = path.join(fullPath, "oneshot.json");
+      let manifest = { schemaVersion: 1, spec: null, attempts: [] };
+      let manifestStatus = "missing";
+
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const raw = fs.readFileSync(manifestPath, "utf8");
+          manifest = JSON.parse(raw);
+          manifestStatus = "valid";
+        } catch (e) {
+          manifestStatus = "corrupt";
+        }
+      }
+
+      if (manifestStatus === "corrupt") {
+        sendJSON(409, { error: "Manifest is corrupt" });
+        return;
+      }
+
+      const attemptId = `att_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const attempt = {
+        id: attemptId,
+        timestamp: new Date().toISOString(),
+        model: body.model || "",
+        environment: body.environment || {
+          tool: "",
+          toolBuild: "",
+          os: "",
+          osBuild: "",
+        },
+        build: body.build || { tokens: null, durationMs: null },
+        runtime: body.runtime || { tokens: null, durationMs: null },
+        evaluation: body.evaluation || {
+          method: "none",
+          fidelityScore: null,
+          passed: null,
+          feedback: "",
+          evaluatedAt: null,
+        },
+      };
+
+      if (!Array.isArray(manifest.attempts)) {
+        manifest.attempts = [];
+      }
+      manifest.attempts.push(attempt);
+
+      try {
+        fs.writeFileSync(
+          manifestPath,
+          JSON.stringify(manifest, null, 2),
+          "utf8",
+        );
+        sendJSON(200, { success: true, attempt });
+      } catch (e) {
+        sendJSON(500, { error: "Failed to write manifest" });
+      }
+    });
+    return;
+  }
+
+  // POST /api/manifest/evaluation
+  if (url.pathname === "/api/manifest/evaluation") {
+    if (method !== "POST") {
+      res.writeHead(405);
+      res.end("Method Not Allowed");
+      return;
+    }
+
+    parseJSONBody(req, (err, body) => {
+      if (
+        err ||
+        !body ||
+        typeof body.id !== "string" ||
+        typeof body.attemptId !== "string" ||
+        !body.attemptId
+      ) {
+        sendJSON(400, { error: "Bad Request" });
+        return;
+      }
+
+      const protoKeys = ["__proto__", "constructor", "prototype"];
+      for (const k of Object.keys(body)) {
+        if (protoKeys.includes(k)) {
+          sendJSON(400, { error: "Prototype pollution detected" });
+          return;
+        }
+      }
+
+      const id = body.id;
+      if (
+        id.includes("..") ||
+        id.includes("/") ||
+        id.includes("\\") ||
+        /[;&|`$]/.test(id)
+      ) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const fullPath = path.join(oneShotsDir, id);
+      if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const manifestPath = path.join(fullPath, "oneshot.json");
+      let manifest = { schemaVersion: 1, spec: null, attempts: [] };
+      let manifestStatus = "missing";
+
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const raw = fs.readFileSync(manifestPath, "utf8");
+          manifest = JSON.parse(raw);
+          manifestStatus = "valid";
+        } catch (e) {
+          manifestStatus = "corrupt";
+        }
+      }
+
+      if (manifestStatus === "corrupt") {
+        sendJSON(409, { error: "Manifest is corrupt" });
+        return;
+      }
+
+      const attempt = Array.isArray(manifest.attempts)
+        ? manifest.attempts.find((a) => a.id === body.attemptId)
+        : null;
+      if (!attempt) {
+        sendJSON(404, { error: "Attempt not found" });
+        return;
+      }
+
+      let fidelityScore = null;
+      if (
+        body.fidelityScore !== undefined &&
+        body.fidelityScore !== null &&
+        body.fidelityScore !== ""
+      ) {
+        const n = Number(body.fidelityScore);
+        if (!Number.isFinite(n) || n < 0 || n > 100) {
+          sendJSON(400, { error: "Invalid fidelityScore" });
+          return;
+        }
+        fidelityScore = Math.round(n);
+      }
+
+      let passed = null;
+      if (body.passed !== undefined && body.passed !== null) {
+        if (typeof body.passed !== "boolean") {
+          sendJSON(400, { error: "passed must be a boolean" });
+          return;
+        }
+        passed = body.passed;
+      }
+
+      let feedback = "";
+      if (body.feedback !== undefined && body.feedback !== null) {
+        if (typeof body.feedback !== "string") {
+          sendJSON(400, { error: "feedback must be a string" });
+          return;
+        }
+        feedback = body.feedback;
+      }
+
+      let methodVal = "human";
+      if (body.method !== undefined && body.method !== null) {
+        const validEvalMethods = ["human", "program", "none"];
+        if (!validEvalMethods.includes(body.method)) {
+          sendJSON(400, { error: "Invalid evaluation.method" });
+          return;
+        }
+        methodVal = body.method;
+      }
+
+      attempt.evaluation = {
+        method: methodVal,
+        fidelityScore,
+        passed,
+        feedback,
+        evaluatedAt: new Date().toISOString(),
+      };
+
+      try {
+        fs.writeFileSync(
+          manifestPath,
+          JSON.stringify(manifest, null, 2),
+          "utf8",
+        );
+        sendJSON(200, { success: true, evaluation: attempt.evaluation });
+      } catch (e) {
+        sendJSON(500, { error: "Failed to write manifest" });
+      }
+    });
+    return;
+  }
+
+  // POST /api/manifest/verify
+  if (url.pathname === "/api/manifest/verify") {
+    if (method !== "POST") {
+      res.writeHead(405);
+      res.end("Method Not Allowed");
+      return;
+    }
+
+    parseJSONBody(req, (err, body) => {
+      if (err || !body || typeof body.id !== "string") {
+        sendJSON(400, { error: "Bad Request" });
+        return;
+      }
+
+      const id = body.id;
+      if (
+        id.includes("..") ||
+        id.includes("/") ||
+        id.includes("\\") ||
+        /[;&|`$]/.test(id)
+      ) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const fullPath = path.join(oneShotsDir, id);
+      if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+        sendJSON(404, { error: "Not Found" });
+        return;
+      }
+
+      const manifestPath = path.join(fullPath, "oneshot.json");
+      let manifest = { schemaVersion: 1, spec: null, attempts: [] };
+      let manifestStatus = "missing";
+
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const raw = fs.readFileSync(manifestPath, "utf8");
+          manifest = JSON.parse(raw);
+          manifestStatus = "valid";
+        } catch (e) {
+          manifestStatus = "corrupt";
+        }
+      }
+
+      const acceptance = manifest.spec && manifest.spec.acceptance;
+      if (!acceptance || acceptance.mode !== "program") {
+        sendJSON(400, {
+          error: "Bad Request: acceptance.mode must be 'program'",
+        });
+        return;
+      }
+
+      const scriptKey =
+        typeof acceptance.script === "string" && acceptance.script.trim()
+          ? acceptance.script.trim()
+          : "verify";
+      const successExitCode = Number.isInteger(acceptance.successExitCode)
+        ? acceptance.successExitCode
+        : 0;
+
+      const attemptId =
+        typeof body.attemptId === "string" && body.attemptId
+          ? body.attemptId
+          : null;
+      if (
+        attemptId &&
+        (!Array.isArray(manifest.attempts) ||
+          !manifest.attempts.some((a) => a.id === attemptId))
+      ) {
+        sendJSON(404, { error: "Attempt not found" });
+        return;
+      }
+
+      const pkgPath = path.join(fullPath, "package.json");
+      let pkg = {};
+      try {
+        pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      } catch (e) {
+        sendJSON(404, { error: "package.json not found" });
+        return;
+      }
+
+      if (!pkg.scripts || !pkg.scripts[scriptKey]) {
+        sendJSON(400, {
+          error: `Bad Request: '${scriptKey}' not found in scripts`,
+        });
+        return;
+      }
+
+      const cmd = pkg.scripts[scriptKey];
+
+      if (
+        cmd.includes("..") ||
+        (path.isAbsolute(cmd) && !cmd.startsWith(fullPath))
+      ) {
+        sendJSON(400, {
+          error:
+            "Security violation: command attempts to access paths outside target directory",
+        });
+        return;
+      }
+
+      const processEnv = { ...process.env };
+      const execOptions = { cwd: fullPath, env: processEnv };
+
+      let timer = null;
+      let killed = false;
+
+      const child = exec(cmd, execOptions, (error, stdout, stderr) => {
+        if (timer) clearTimeout(timer);
+
+        let exitCode = 0;
+        let success = true;
+
+        if (error || killed) {
+          exitCode = error && error.code !== undefined ? error.code : 1;
+          success = false;
+          if (killed) {
+            exitCode = null;
+          }
+        }
+
+        const passed = exitCode === successExitCode;
+
+        if (attemptId) {
+          const feedback = [stdout, stderr].join("\n").slice(0, 4000);
+          const attempt = manifest.attempts.find((a) => a.id === attemptId);
+          if (attempt) {
+            attempt.evaluation = {
+              method: "program",
+              fidelityScore: null,
+              passed,
+              feedback,
+              evaluatedAt: new Date().toISOString(),
+            };
+            try {
+              fs.writeFileSync(
+                manifestPath,
+                JSON.stringify(manifest, null, 2),
+                "utf8",
+              );
+            } catch (e) {}
+          }
+        }
+
+        const payload = {
+          success,
+          passed,
+          exitCode,
+          stdout,
+          stderr,
+          recorded: !!attemptId,
+        };
+        if (killed) {
+          payload.error = "timeout occurred during execution";
+        } else if (error) {
+          payload.error = error.message;
+        }
+
+        sendJSON(200, payload);
+      });
+
+      const timeoutVal = body.timeout || 10000;
+      timer = setTimeout(() => {
+        killed = true;
+        if (process.platform === "win32") {
+          try {
+            require("child_process").execSync(
+              `taskkill /f /pid ${child.pid} /t`,
+            );
+          } catch (e) {}
+        } else {
+          child.kill("SIGTERM");
+        }
+      }, timeoutVal);
+    });
+    return;
+  }
 
   // POST /api/run
   if (url.pathname === "/api/run") {
