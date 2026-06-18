@@ -1,4 +1,7 @@
-# OneShotForge Monorepo & Intelligent Dashboard v2.0
+# OneShotForge Monorepo & Intelligent Dashboard (Alpha v0.01)
+
+> [!NOTE]
+> This project is currently in **Alpha (v0.01)**. Features, specifications, and architecture are under active development.
 
 OneShotForge is a developer-focused monorepo designed to house independent, self-contained "one-shot" scripts and applications under `/one-shots/`, and manage them via an intelligent, single-page dashboard application built in `/dashboard/`.
 
