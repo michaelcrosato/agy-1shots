@@ -5,14 +5,14 @@
  * Path: c:\dev\agy-1shots\tests\e2e\runner.js
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 // --- Custom Assertion Error ---
 class AssertionError extends Error {
   constructor(message, expected, actual) {
     super(message);
-    this.name = "AssertionError";
+    this.name = 'AssertionError';
     this.expected = expected;
     this.actual = actual;
   }
@@ -21,13 +21,7 @@ class AssertionError extends Error {
 // --- Deep Equality Helper ---
 function deepEqual(a, b) {
   if (Object.is(a, b)) return true;
-  if (
-    typeof a !== "object" ||
-    a === null ||
-    typeof b !== "object" ||
-    b === null
-  )
-    return false;
+  if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) return false;
   if (a.constructor !== b.constructor) return false;
   if (a instanceof Date) return a.getTime() === b.getTime();
   if (a instanceof RegExp) return a.toString() === b.toString();
@@ -48,17 +42,13 @@ const expect = (actual) => ({
       throw new AssertionError(
         `Expected ${JSON.stringify(actual)} to be ${JSON.stringify(expected)}`,
         expected,
-        actual,
+        actual
       );
     }
   },
   toBeNull() {
     if (actual !== null) {
-      throw new AssertionError(
-        `Expected ${JSON.stringify(actual)} to be null`,
-        null,
-        actual,
-      );
+      throw new AssertionError(`Expected ${JSON.stringify(actual)} to be null`, null, actual);
     }
   },
   toEqual(expected) {
@@ -66,67 +56,59 @@ const expect = (actual) => ({
       throw new AssertionError(
         `Expected ${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`,
         expected,
-        actual,
+        actual
       );
     }
   },
   toContain(expected) {
-    if (typeof actual === "string" || Array.isArray(actual)) {
+    if (typeof actual === 'string' || Array.isArray(actual)) {
       if (!actual.includes(expected)) {
         throw new AssertionError(
           `Expected ${JSON.stringify(actual)} to contain ${JSON.stringify(expected)}`,
           expected,
-          actual,
+          actual
         );
       }
     } else {
       throw new AssertionError(
         `Expected ${JSON.stringify(actual)} to be a string or array to check containment of ${JSON.stringify(expected)}`,
         expected,
-        actual,
+        actual
       );
     }
   },
   toBeGreaterThan(expected) {
-    if (typeof actual !== "number" || typeof expected !== "number") {
+    if (typeof actual !== 'number' || typeof expected !== 'number') {
       throw new AssertionError(
         `Expected both arguments to be numbers, got ${typeof actual} and ${typeof expected}`,
         expected,
-        actual,
+        actual
       );
     }
     if (actual <= expected) {
       throw new AssertionError(
         `Expected ${actual} to be greater than ${expected}`,
         expected,
-        actual,
+        actual
       );
     }
   },
   toExist() {
     if (actual === undefined || actual === null || actual === false) {
-      throw new AssertionError(
-        `Expected ${actual} to exist`,
-        "existent value",
-        actual,
-      );
+      throw new AssertionError(`Expected ${actual} to exist`, 'existent value', actual);
     }
   },
   toNotExist() {
     if (actual !== undefined && actual !== null && actual !== false) {
-      throw new AssertionError(
-        `Expected ${actual} to not exist`,
-        "falsy/null/undefined",
-        actual,
-      );
+      throw new AssertionError(`Expected ${actual} to not exist`, 'falsy/null/undefined', actual);
     }
   },
   toThrow(expectedError) {
-    if (typeof actual !== "function") {
+    if (typeof actual !== 'function') {
       throw new AssertionError(
         `Expected actual value to be a function to check throwing, but got ${typeof actual}`,
-        "function",
-        actual,
+        'function',
+        actual
       );
     }
     let threw = false;
@@ -140,17 +122,17 @@ const expect = (actual) => ({
     if (!threw) {
       throw new AssertionError(
         `Expected function to throw an error, but it did not`,
-        "error",
-        "no error",
+        'error',
+        'no error'
       );
     }
     if (expectedError !== undefined) {
-      if (typeof expectedError === "string") {
+      if (typeof expectedError === 'string') {
         if (!thrownError.message.includes(expectedError)) {
           throw new AssertionError(
             `Expected error message to contain "${expectedError}", but got "${thrownError.message}"`,
             expectedError,
-            thrownError.message,
+            thrownError.message
           );
         }
       } else if (expectedError instanceof RegExp) {
@@ -158,15 +140,15 @@ const expect = (actual) => ({
           throw new AssertionError(
             `Expected error message to match ${expectedError}, but got "${thrownError.message}"`,
             expectedError.toString(),
-            thrownError.message,
+            thrownError.message
           );
         }
-      } else if (typeof expectedError === "function") {
+      } else if (typeof expectedError === 'function') {
         if (!(thrownError instanceof expectedError)) {
           throw new AssertionError(
             `Expected error to be instance of ${expectedError.name}, but got ${thrownError.name}`,
             expectedError.name,
-            thrownError.name,
+            thrownError.name
           );
         }
       }
@@ -210,7 +192,7 @@ global.describe = (name, fn) => {
 
 global.it = global.test = (name, fn) => {
   if (!currentSuite) {
-    global.describe("Default Suite", () => {
+    global.describe('Default Suite', () => {
       currentSuite.tests.push({ name, fn });
     });
   } else {
@@ -242,7 +224,7 @@ function getTestFiles(dir) {
     const stat = fs.statSync(fullPath);
     if (stat && stat.isDirectory()) {
       results = results.concat(getTestFiles(fullPath));
-    } else if (file.endsWith(".test.js")) {
+    } else if (file.endsWith('.test.js')) {
       results.push(fullPath);
     }
   });
@@ -251,23 +233,23 @@ function getTestFiles(dir) {
 
 // --- Helper to escape XML ---
 function escapeXml(unsafe) {
-  if (!unsafe) return "";
+  if (!unsafe) return '';
   return unsafe.toString().replace(/[<>&'"\r\n]/g, (c) => {
     switch (c) {
-      case "<":
-        return "&lt;";
-      case ">":
-        return "&gt;";
-      case "&":
-        return "&amp;";
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '&':
+        return '&amp;';
       case "'":
-        return "&apos;";
+        return '&apos;';
       case '"':
-        return "&quot;";
-      case "\r":
-        return "&#13;";
-      case "\n":
-        return "&#10;";
+        return '&quot;';
+      case '\r':
+        return '&#13;';
+      case '\n':
+        return '&#10;';
       default:
         return c;
     }
@@ -299,20 +281,20 @@ function generateJUnitReport(results, totalTime, outputPath) {
     suiteResults.forEach((r) => {
       xml += `    <testcase name="${escapeXml(r.testName)}" classname="${escapeXml(suiteName)}" time="${((r.duration || 0) / 1000).toFixed(3)}">\n`;
       if (r.error) {
-        xml += `      <failure message="${escapeXml(r.error.message)}" type="${escapeXml(r.error.name || "Error")}">\n`;
+        xml += `      <failure message="${escapeXml(r.error.message)}" type="${escapeXml(r.error.name || 'Error')}">\n`;
         xml += escapeXml(r.error.stack || r.error.message);
-        xml += "\n      </failure>\n";
+        xml += '\n      </failure>\n';
       }
-      xml += "    </testcase>\n";
+      xml += '    </testcase>\n';
     });
 
-    xml += "  </testsuite>\n";
+    xml += '  </testsuite>\n';
   }
 
-  xml += "</testsuites>\n";
+  xml += '</testsuites>\n';
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, xml, "utf8");
+  fs.writeFileSync(outputPath, xml, 'utf8');
   console.log(`\nJUnit XML report written to: ${outputPath}`);
 }
 
@@ -321,18 +303,17 @@ const allResults = [];
 let totalPassed = 0;
 let totalFailed = 0;
 let startTime = Date.now();
-let reportPath =
-  process.env.JUNIT_REPORT_PATH || path.join(__dirname, "reports", "junit.xml");
+let reportPath = process.env.JUNIT_REPORT_PATH || path.join(__dirname, 'reports', 'junit.xml');
 
 function handleUncaught(err) {
-  console.error("\n!!! Gracefully handling unhandled error/rejection !!!");
+  console.error('\n!!! Gracefully handling unhandled error/rejection !!!');
   console.error(err);
 
   const errorObj = err instanceof Error ? err : new Error(String(err));
   allResults.push({
-    fileName: "GlobalProcess",
-    suiteName: "ProcessHooks",
-    testName: "Unhandled Exception or Rejection",
+    fileName: 'GlobalProcess',
+    suiteName: 'ProcessHooks',
+    testName: 'Unhandled Exception or Rejection',
     duration: Date.now() - startTime,
     error: errorObj,
   });
@@ -340,23 +321,16 @@ function handleUncaught(err) {
   try {
     generateJUnitReport(allResults, Date.now() - startTime, reportPath);
   } catch (writeErr) {
-    console.error(
-      `Failed to write JUnit report from process trap: ${writeErr.message}`,
-    );
+    console.error(`Failed to write JUnit report from process trap: ${writeErr.message}`);
   }
 
   process.exit(1);
 }
 
-process.on("uncaughtException", handleUncaught);
-process.on("unhandledRejection", handleUncaught);
+process.on('uncaughtException', handleUncaught);
+process.on('unhandledRejection', handleUncaught);
 
-async function runSuite(
-  suite,
-  fileName,
-  parentBeforeEach = [],
-  parentAfterEach = [],
-) {
+async function runSuite(suite, fileName, parentBeforeEach = [], parentAfterEach = []) {
   const suiteBeforeEach = [...parentBeforeEach, ...suite.beforeEach];
   const suiteAfterEach = [...suite.afterEach, ...parentAfterEach];
 
@@ -368,10 +342,7 @@ async function runSuite(
       await hook();
     }
   } catch (err) {
-    console.error(
-      `  ✗ beforeAll hook failed in suite "${suite.name}":`,
-      err.message,
-    );
+    console.error(`  ✗ beforeAll hook failed in suite "${suite.name}":`, err.message);
     beforeAllFailed = true;
     beforeAllError = err;
   }
@@ -381,9 +352,7 @@ async function runSuite(
     let testError = null;
 
     if (beforeAllFailed) {
-      testError = new Error(
-        `Skipped due to beforeAll failure: ${beforeAllError.message}`,
-      );
+      testError = new Error(`Skipped due to beforeAll failure: ${beforeAllError.message}`);
     } else {
       let beforeEachFailed = false;
       try {
@@ -391,10 +360,7 @@ async function runSuite(
           await hook();
         }
       } catch (err) {
-        console.error(
-          `  ✗ beforeEach hook failed for test "${testCase.name}":`,
-          err.message,
-        );
+        console.error(`  ✗ beforeEach hook failed for test "${testCase.name}":`, err.message);
         testError = err;
         beforeEachFailed = true;
       }
@@ -412,10 +378,7 @@ async function runSuite(
           await hook();
         }
       } catch (err) {
-        console.error(
-          `  ✗ afterEach hook failed for test "${testCase.name}":`,
-          err.message,
-        );
+        console.error(`  ✗ afterEach hook failed for test "${testCase.name}":`, err.message);
         if (!testError) {
           testError = err;
         }
@@ -440,10 +403,10 @@ async function runSuite(
       if (testError.stack) {
         console.log(
           `    Stack:\n${testError.stack
-            .split("\n")
+            .split('\n')
             .slice(1, 4)
-            .map((l) => "      " + l.trim())
-            .join("\n")}`,
+            .map((l) => '      ' + l.trim())
+            .join('\n')}`
         );
       }
     } else {
@@ -461,23 +424,20 @@ async function runSuite(
       await hook();
     }
   } catch (err) {
-    console.error(
-      `  ✗ afterAll hook failed in suite "${suite.name}":`,
-      err.message,
-    );
+    console.error(`  ✗ afterAll hook failed in suite "${suite.name}":`, err.message);
   }
 }
 
 async function main() {
-  const casesDir = path.join(__dirname, "cases");
+  const casesDir = path.join(__dirname, 'cases');
 
   // Pre-run cleanup of leftover temp directories in one-shots
   try {
-    const oneShotsDir = path.resolve(__dirname, "../../one-shots");
+    const oneShotsDir = path.resolve(__dirname, '../../one-shots');
     if (fs.existsSync(oneShotsDir)) {
       const items = fs.readdirSync(oneShotsDir);
       for (const item of items) {
-        if (item.startsWith("temp-")) {
+        if (item.startsWith('temp-')) {
           const itemPath = path.join(oneShotsDir, item);
           if (fs.statSync(itemPath).isDirectory()) {
             fs.rmSync(itemPath, { recursive: true, force: true });
@@ -486,21 +446,18 @@ async function main() {
       }
     }
   } catch (e) {
-    console.warn(
-      "Warning: Failed to clean up leftover temp folders:",
-      e.message,
-    );
+    console.warn('Warning: Failed to clean up leftover temp folders:', e.message);
   }
 
-  console.log("==================================================");
-  console.log("OneShotForge E2E Custom BDD Test Runner");
-  console.log("Cases Directory:", casesDir);
-  console.log("==================================================\n");
+  console.log('==================================================');
+  console.log('OneShotForge E2E Custom BDD Test Runner');
+  console.log('Cases Directory:', casesDir);
+  console.log('==================================================\n');
 
   const testFiles = getTestFiles(casesDir).sort();
   console.log(`Discovered ${testFiles.length} test files:\n`);
   testFiles.forEach((f) => console.log(`  - ${path.relative(casesDir, f)}`));
-  console.log("\nStarting test run...\n");
+  console.log('\nStarting test run...\n');
 
   startTime = Date.now();
 
@@ -519,8 +476,8 @@ async function main() {
       console.error(err);
       allResults.push({
         fileName: relativePath,
-        suiteName: "Initialization",
-        testName: "Load File",
+        suiteName: 'Initialization',
+        testName: 'Load File',
         duration: 0,
         error: err,
       });
@@ -536,18 +493,16 @@ async function main() {
   }
 
   const totalTime = Date.now() - startTime;
-  console.log("\n==================================================");
-  console.log("Test Execution Summary");
-  console.log("==================================================");
+  console.log('\n==================================================');
+  console.log('Test Execution Summary');
+  console.log('==================================================');
   console.log(`Total Tests: ${totalPassed + totalFailed}`);
   console.log(`Passed:      ${totalPassed}`);
   console.log(`Failed:      ${totalFailed}`);
   console.log(`Time:        ${(totalTime / 1000).toFixed(2)}s`);
-  console.log("==================================================\n");
+  console.log('==================================================\n');
 
-  reportPath =
-    process.env.JUNIT_REPORT_PATH ||
-    path.join(__dirname, "reports", "junit.xml");
+  reportPath = process.env.JUNIT_REPORT_PATH || path.join(__dirname, 'reports', 'junit.xml');
 
   try {
     generateJUnitReport(allResults, totalTime, reportPath);
@@ -564,7 +519,7 @@ async function main() {
 
 if (require.main === module) {
   main().catch((err) => {
-    console.error("Runner Crashed:", err);
+    console.error('Runner Crashed:', err);
     process.exit(1);
   });
 }

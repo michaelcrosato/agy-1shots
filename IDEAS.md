@@ -3,8 +3,8 @@
 This document lists all ideas available in the registry, including their current lifecycle status.
 
 ## Backlog Statistics
-- **Stats**: 52 total ideas, 1 promoted (Notion Scraper)
-- **Backlog Ideas**: 51
+- **Stats**: 56 total ideas, 2 promoted (ADF Lead Parser & CRM Webhook Auto-Enricher, Notion Scraper)
+- **Backlog Ideas**: 54
 
 ---
 
@@ -16,7 +16,7 @@ This document lists all ideas available in the registry, including their current
 | :--- | :--- | :--- | :--- | :--- |
 | `AUTO-001` | [Dealership Intelligence Scraper, Harvester & Census Builder](#AUTO-001) | `Python, Playwright, Crawl4AI` | `backlog` | - |
 | `AUTO-002` | [Lead Scoring, Qualification & Prioritization Engine](#AUTO-002) | `Node.js or Python` | `backlog` | - |
-| `AUTO-003` | [ADF Lead Parser & CRM Webhook Auto-Enricher](#AUTO-003) | `FastAPI (Python) or Node.js` | `backlog` | - |
+| `AUTO-003` | [ADF Lead Parser & CRM Webhook Auto-Enricher](#AUTO-003) | `FastAPI (Python) or Node.js` | `promoted` | `adf-lead-parser-crm-webhook-auto-enricher` |
 | `AUTO-004` | [AI Cold Outreach Sequence Generator & Response Classifier](#AUTO-004) | `Next.js, React, Tailwind CSS` | `backlog` | - |
 | `AUTO-005` | [Competitor Price Monitor, Inventory Auditor & OEM Incentive Bot](#AUTO-005) | `Python, SQLite, Firecrawl` | `backlog` | - |
 | `AUTO-006` | [Stale Dealership Lead Re-Engagement Detector](#AUTO-006) | `Node.js, SQLite` | `backlog` | - |
@@ -91,6 +91,10 @@ This document lists all ideas available in the registry, including their current
 | `MICRO-011` | [Family Photo Organizer](#MICRO-011) | `Python, Ollama, SQLite` | `backlog` | - |
 | `MICRO-012` | [Recipe-to-Instacart Cart Mapper](#MICRO-012) | `Node.js or Python` | `backlog` | - |
 | `MICRO-013` | [Offline Travel & Route Planner](#MICRO-013) | `HTML, Tailwind CSS, Leaflet.js` | `backlog` | - |
+| `MICRO-014` | [Unique Test Idea X](#MICRO-014) | `React, WASM` | `backlog` | - |
+| `MICRO-015` | [Duplicate Resolution Idea](#MICRO-015) | `React` | `backlog` | - |
+| `MICRO-016` | [Duplicate Resolution Idea](#MICRO-016) | `React` | `backlog` | - |
+| `MICRO-017` | [Duplicate Resolution Idea](#MICRO-017) | `React` | `backlog` | - |
 
 ---
 
@@ -143,7 +147,8 @@ Build a Lead Scoring, Qualification & Prioritization Engine. The script must ing
 - **ID**: `AUTO-003`
 - **Category**: Automotive & B2B Lead Generation Tools
 - **Target Stack**: `FastAPI (Python) or Node.js`
-- **Status**: `backlog`
+- **Status**: `promoted`
+- **Promoted To**: `one-shots/adf-lead-parser-crm-webhook-auto-enricher/`
 - **Date Added**: 2026-06-17
 
 #### Vision
@@ -1185,6 +1190,90 @@ Leaflet.js mapping library, offline tile caching (Service Workers/IndexedDB), GP
 #### Task Prompt
 ```text
 Build an Offline Travel & Route Planner. Develop a mobile-friendly map dashboard using Leaflet.js. Let users pre-download map tile sets, import and modify GPX routes, and track coordinate positions fully offline using browser Service Workers.
+```
+
+---
+
+### <a name="MICRO-014"></a> Unique Test Idea X
+
+- **ID**: `MICRO-014`
+- **Category**: Micro-SaaS Templates & Personal Workflow Apps
+- **Target Stack**: `React, WASM`
+- **Status**: `backlog`
+- **Date Added**: 2026-06-18
+
+#### Vision
+A test vision for unique test idea X
+
+#### Technical Specifications
+WASM, SQLite, React
+
+#### Task Prompt
+```text
+Build Unique Test Idea X with WASM, SQLite and React.
+```
+
+---
+
+### <a name="MICRO-015"></a> Duplicate Resolution Idea
+
+- **ID**: `MICRO-015`
+- **Category**: Micro-SaaS Templates & Personal Workflow Apps
+- **Target Stack**: `React`
+- **Status**: `backlog`
+- **Date Added**: 2026-06-18
+
+#### Vision
+First instance
+
+#### Technical Specifications
+WASM
+
+#### Task Prompt
+```text
+Build duplicate.
+```
+
+---
+
+### <a name="MICRO-016"></a> Duplicate Resolution Idea
+
+- **ID**: `MICRO-016`
+- **Category**: Micro-SaaS Templates & Personal Workflow Apps
+- **Target Stack**: `React`
+- **Status**: `backlog`
+- **Date Added**: 2026-06-18
+
+#### Vision
+First instance
+
+#### Technical Specifications
+WASM
+
+#### Task Prompt
+```text
+Build duplicate.
+```
+
+---
+
+### <a name="MICRO-017"></a> Duplicate Resolution Idea
+
+- **ID**: `MICRO-017`
+- **Category**: Micro-SaaS Templates & Personal Workflow Apps
+- **Target Stack**: `React`
+- **Status**: `backlog`
+- **Date Added**: 2026-06-18
+
+#### Vision
+First instance
+
+#### Technical Specifications
+WASM
+
+#### Task Prompt
+```text
+Build duplicate.
 ```
 
 ---

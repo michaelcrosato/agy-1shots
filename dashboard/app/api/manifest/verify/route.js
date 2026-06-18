@@ -1,23 +1,23 @@
-import fs from "fs";
-import { NextResponse } from "next/server";
+import fs from 'fs';
+import { NextResponse } from 'next/server';
 import {
   resolveOneShot,
   readManifest,
   updateManifest,
   ManifestError,
-} from "../../../../lib/manifest";
-import { runScript, detectCommandEscape } from "../../../../lib/exec";
+} from '../../../../lib/manifest';
+import { runScript, detectCommandEscape } from '../../../../lib/exec';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return new NextResponse("Method Not Allowed", { status: 405 });
+  return new NextResponse('Method Not Allowed', { status: 405 });
 }
 
 function jsonError(status, message) {
   return new NextResponse(JSON.stringify({ error: message }), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
@@ -31,60 +31,56 @@ export async function POST(request) {
   try {
     body = await request.json();
   } catch (e) {
-    return jsonError(400, "Bad Request");
+    return jsonError(400, 'Bad Request');
   }
-  if (!body || typeof body.id !== "string") {
-    return jsonError(400, "Bad Request");
+  if (!body || typeof body.id !== 'string') {
+    return jsonError(400, 'Bad Request');
   }
 
   const resolved = resolveOneShot(body.id);
   if (!resolved.ok) {
-    return jsonError(resolved.status, "Not Found");
+    return jsonError(resolved.status, 'Not Found');
   }
 
   const manifest = await readManifest(resolved.targetDir);
   const acceptance = manifest.spec && manifest.spec.acceptance;
-  if (!acceptance || acceptance.mode !== "program") {
+  if (!acceptance || acceptance.mode !== 'program') {
     return jsonError(
       400,
-      "Bad Request: acceptance.mode must be 'program' to run a verification test",
+      "Bad Request: acceptance.mode must be 'program' to run a verification test"
     );
   }
   const scriptKey =
-    typeof acceptance.script === "string" && acceptance.script.trim()
+    typeof acceptance.script === 'string' && acceptance.script.trim()
       ? acceptance.script.trim()
-      : "verify";
+      : 'verify';
   const successExitCode = Number.isInteger(acceptance.successExitCode)
     ? acceptance.successExitCode
     : 0;
 
   // If recording against an attempt, confirm it exists before running.
-  const attemptId =
-    typeof body.attemptId === "string" && body.attemptId ? body.attemptId : null;
+  const attemptId = typeof body.attemptId === 'string' && body.attemptId ? body.attemptId : null;
   if (attemptId && !manifest.attempts.some((a) => a.id === attemptId)) {
-    return jsonError(404, "Attempt not found");
+    return jsonError(404, 'Attempt not found');
   }
 
   // Load the script command from package.json.
   let pkg;
   try {
-    pkg = JSON.parse(fs.readFileSync(resolved.pkgPath, "utf8"));
-    if (pkg === null || typeof pkg !== "object") pkg = {};
+    pkg = JSON.parse(fs.readFileSync(resolved.pkgPath, 'utf8'));
+    if (pkg === null || typeof pkg !== 'object') pkg = {};
   } catch (e) {
-    return jsonError(404, "Not Found");
+    return jsonError(404, 'Not Found');
   }
   if (!pkg.scripts || !pkg.scripts[scriptKey]) {
-    return jsonError(
-      400,
-      `Bad Request: '${scriptKey}' not found in scripts`,
-    );
+    return jsonError(400, `Bad Request: '${scriptKey}' not found in scripts`);
   }
 
   const cmd = pkg.scripts[scriptKey];
   if (detectCommandEscape(cmd, resolved.targetDir)) {
     return jsonError(
       400,
-      "Security violation: command attempts to access paths outside target directory",
+      'Security violation: command attempts to access paths outside target directory'
     );
   }
 
@@ -101,32 +97,28 @@ export async function POST(request) {
     const feedbackParts = [];
     if (result.stdout) feedbackParts.push(result.stdout);
     if (result.stderr) feedbackParts.push(result.stderr);
-    let feedback = feedbackParts.join("\n").slice(0, 4000);
+    let feedback = feedbackParts.join('\n').slice(0, 4000);
 
     try {
-      await updateManifest(
-        resolved.targetDir,
-        resolved.manifestPath,
-        (current) => {
-          const attempt = current.attempts.find((a) => a.id === attemptId);
-          if (!attempt) {
-            throw new ManifestError(404, "Attempt not found");
-          }
-          attempt.evaluation = {
-            method: "program",
-            fidelityScore: null,
-            passed,
-            feedback,
-            evaluatedAt: new Date().toISOString(),
-          };
-          return current;
-        },
-      );
+      await updateManifest(resolved.targetDir, resolved.manifestPath, (current) => {
+        const attempt = current.attempts.find((a) => a.id === attemptId);
+        if (!attempt) {
+          throw new ManifestError(404, 'Attempt not found');
+        }
+        attempt.evaluation = {
+          method: 'program',
+          fidelityScore: null,
+          passed,
+          feedback,
+          evaluatedAt: new Date().toISOString(),
+        };
+        return current;
+      });
     } catch (e) {
       if (e instanceof ManifestError) {
         return jsonError(e.status, e.message);
       }
-      return jsonError(500, "Internal Server Error");
+      return jsonError(500, 'Internal Server Error');
     }
   }
 

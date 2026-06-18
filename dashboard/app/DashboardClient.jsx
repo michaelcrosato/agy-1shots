@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 // --- Small presentational helpers (shared across modals) ---
 
 function fidelityColor(score) {
-  if (typeof score !== "number") return "text-slate-400";
-  if (score >= 80) return "text-green-400";
-  if (score >= 50) return "text-amber-400";
-  return "text-red-400";
+  if (typeof score !== 'number') return 'text-slate-400';
+  if (score >= 80) return 'text-green-400';
+  if (score >= 50) return 'text-amber-400';
+  return 'text-red-400';
 }
 
 function fmtMs(ms) {
-  if (typeof ms !== "number" || !isFinite(ms)) return "—";
+  if (typeof ms !== 'number' || !isFinite(ms)) return '—';
   if (ms < 1000) return `${ms}ms`;
   const s = ms / 1000;
   if (s < 60) return `${s.toFixed(1)}s`;
@@ -22,7 +22,7 @@ function fmtMs(ms) {
 }
 
 function fmtNum(n) {
-  if (typeof n !== "number" || !isFinite(n)) return "—";
+  if (typeof n !== 'number' || !isFinite(n)) return '—';
   return n.toLocaleString();
 }
 
@@ -31,23 +31,19 @@ function RunResult({ output }) {
   if (!output) return null;
   return (
     <div className="space-y-2">
-      <div className={output.success ? "text-green-400" : "text-red-400"}>
-        &gt; Execution finished with exit code:{" "}
-        {output.exitCode !== null ? output.exitCode : "Killed/Timeout"}
+      <div className={output.success ? 'text-green-400' : 'text-red-400'}>
+        &gt; Execution finished with exit code:{' '}
+        {output.exitCode !== null ? output.exitCode : 'Killed/Timeout'}
       </div>
 
-      {output.error && (
-        <div className="text-red-500 font-bold">[ERROR]: {output.error}</div>
-      )}
+      {output.error && <div className="text-red-500 font-bold">[ERROR]: {output.error}</div>}
 
       {output.stdout && (
         <div>
           <div className="text-slate-400 border-b border-slate-800 pb-1 mb-1 font-semibold">
             stdout:
           </div>
-          <pre className="whitespace-pre-wrap text-slate-300">
-            {output.stdout}
-          </pre>
+          <pre className="whitespace-pre-wrap text-slate-300">{output.stdout}</pre>
         </div>
       )}
 
@@ -56,9 +52,7 @@ function RunResult({ output }) {
           <div className="text-red-400 border-b border-slate-800 pb-1 mb-1 font-semibold">
             stderr:
           </div>
-          <pre className="whitespace-pre-wrap text-red-300">
-            {output.stderr}
-          </pre>
+          <pre className="whitespace-pre-wrap text-red-300">{output.stderr}</pre>
         </div>
       )}
     </div>
@@ -66,8 +60,8 @@ function RunResult({ output }) {
 }
 
 // Zero-dependency trend line (no charting library, matching the project ethos).
-function Sparkline({ values, stroke = "#60a5fa", width = 160, height = 32 }) {
-  const valid = values.filter((v) => typeof v === "number" && isFinite(v));
+function Sparkline({ values, stroke = '#60a5fa', width = 160, height = 32 }) {
+  const valid = values.filter((v) => typeof v === 'number' && isFinite(v));
   if (valid.length < 2) {
     return <span className="text-slate-600 text-xs">not enough data</span>;
   }
@@ -77,19 +71,14 @@ function Sparkline({ values, stroke = "#60a5fa", width = 160, height = 32 }) {
   const denom = values.length > 1 ? values.length - 1 : 1;
   const pts = [];
   values.forEach((v, i) => {
-    if (typeof v !== "number" || !isFinite(v)) return;
+    if (typeof v !== 'number' || !isFinite(v)) return;
     const x = (i / denom) * width;
     const y = height - ((v - min) / range) * height;
     pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
   });
   return (
     <svg width={width} height={height} className="block">
-      <polyline
-        points={pts.join(" ")}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="1.5"
-      />
+      <polyline points={pts.join(' ')} fill="none" stroke={stroke} strokeWidth="1.5" />
     </svg>
   );
 }
@@ -97,32 +86,32 @@ function Sparkline({ values, stroke = "#60a5fa", width = 160, height = 32 }) {
 // --- Forms ---
 
 function SetVisionForm({ id, onCreated }) {
-  const [vision, setVision] = useState("");
-  const [mode, setMode] = useState("human");
+  const [vision, setVision] = useState('');
+  const [mode, setMode] = useState('human');
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const submit = async () => {
     if (!vision.trim()) {
-      setError("Vision text is required.");
+      setError('Vision text is required.');
       return;
     }
     setSaving(true);
-    setError("");
+    setError('');
     try {
-      const res = await fetch("/api/manifest/spec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/manifest/spec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, vision, acceptance: { mode } }),
       });
       const data = await res.json();
       if (res.ok) {
         onCreated();
       } else {
-        setError(data.error || "Failed to save vision.");
+        setError(data.error || 'Failed to save vision.');
       }
     } catch (e) {
-      setError("Network error saving vision.");
+      setError('Network error saving vision.');
     } finally {
       setSaving(false);
     }
@@ -131,13 +120,10 @@ function SetVisionForm({ id, onCreated }) {
   return (
     <div className="bg-slate-900/60 border border-blue-900/60 rounded-lg p-4 space-y-3">
       <div>
-        <h3 className="text-sm font-semibold text-blue-300">
-          Set the Vision (write-once)
-        </h3>
+        <h3 className="text-sm font-semibold text-blue-300">Set the Vision (write-once)</h3>
         <p className="text-xs text-slate-400 mt-1">
-          Describe what success looks like. Once saved this is permanent and
-          never deleted — it is the benchmark every future attempt is measured
-          against.
+          Describe what success looks like. Once saved this is permanent and never deleted — it is
+          the benchmark every future attempt is measured against.
         </p>
       </div>
       <textarea
@@ -162,7 +148,7 @@ function SetVisionForm({ id, onCreated }) {
           disabled={saving}
           className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white text-sm font-medium rounded transition-colors"
         >
-          {saving ? "Saving…" : "Save Vision"}
+          {saving ? 'Saving…' : 'Save Vision'}
         </button>
       </div>
       {error && <div className="text-xs text-red-400">{error}</div>}
@@ -171,68 +157,58 @@ function SetVisionForm({ id, onCreated }) {
 }
 
 function RecordAttemptForm({ id, onAdded }) {
-  const [model, setModel] = useState("");
-  const [tool, setTool] = useState("");
-  const [toolBuild, setToolBuild] = useState("");
-  const [os, setOs] = useState("");
-  const [osBuild, setOsBuild] = useState("");
-  const [buildTokens, setBuildTokens] = useState("");
-  const [buildMs, setBuildMs] = useState("");
-  const [runtimeTokens, setRuntimeTokens] = useState("");
-  const [runtimeMs, setRuntimeMs] = useState("");
+  const [model, setModel] = useState('');
+  const [tool, setTool] = useState('');
+  const [toolBuild, setToolBuild] = useState('');
+  const [os, setOs] = useState('');
+  const [osBuild, setOsBuild] = useState('');
+  const [buildTokens, setBuildTokens] = useState('');
+  const [buildMs, setBuildMs] = useState('');
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const toNum = (v) => (v === "" ? null : Number(v));
+  const toNum = (v) => (v === '' ? null : Number(v));
 
   const submit = async () => {
     setSaving(true);
-    setError("");
+    setError('');
     try {
-      const res = await fetch("/api/manifest/attempt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/manifest/attempt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id,
           model,
           environment: { tool, toolBuild, os, osBuild },
           build: { tokens: toNum(buildTokens), durationMs: toNum(buildMs) },
-          runtime: {
-            tokens: toNum(runtimeTokens),
-            durationMs: toNum(runtimeMs),
-          },
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        setModel("");
-        setTool("");
-        setToolBuild("");
-        setOs("");
-        setOsBuild("");
-        setBuildTokens("");
-        setBuildMs("");
-        setRuntimeTokens("");
-        setRuntimeMs("");
+        setModel('');
+        setTool('');
+        setToolBuild('');
+        setOs('');
+        setOsBuild('');
+        setBuildTokens('');
+        setBuildMs('');
         onAdded();
       } else {
-        setError(data.error || "Failed to record attempt.");
+        setError(data.error || 'Failed to record attempt.');
       }
     } catch (e) {
-      setError("Network error recording attempt.");
+      setError('Network error recording attempt.');
     } finally {
       setSaving(false);
     }
   };
 
   const input =
-    "px-3 py-1.5 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500";
+    'px-3 py-1.5 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500';
 
   return (
     <div className="bg-slate-900/60 border border-slate-700 rounded-lg p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-slate-200">
-        Record a build attempt
-      </h3>
+      <h3 className="text-sm font-semibold text-slate-200">Record a build attempt</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <input
           className={input}
@@ -281,22 +257,6 @@ function RecordAttemptForm({ id, onAdded }) {
           value={buildMs}
           onChange={(e) => setBuildMs(e.target.value)}
         />
-        <input
-          className={input}
-          type="number"
-          min="0"
-          placeholder="Runtime tokens"
-          value={runtimeTokens}
-          onChange={(e) => setRuntimeTokens(e.target.value)}
-        />
-        <input
-          className={input}
-          type="number"
-          min="0"
-          placeholder="Runtime (ms)"
-          value={runtimeMs}
-          onChange={(e) => setRuntimeMs(e.target.value)}
-        />
       </div>
       <div className="flex items-center gap-3">
         <button
@@ -304,7 +264,7 @@ function RecordAttemptForm({ id, onAdded }) {
           disabled={saving}
           className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white text-sm font-medium rounded transition-colors"
         >
-          {saving ? "Saving…" : "Add Attempt"}
+          {saving ? 'Saving…' : 'Add Attempt'}
         </button>
         {error && <span className="text-xs text-red-400">{error}</span>}
       </div>
@@ -316,32 +276,29 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
   const ev = attempt.evaluation || {};
   const [open, setOpen] = useState(false);
   const [score, setScore] = useState(
-    typeof ev.fidelityScore === "number" ? String(ev.fidelityScore) : "",
+    typeof ev.fidelityScore === 'number' ? String(ev.fidelityScore) : ''
   );
-  const [feedback, setFeedback] = useState(
-    typeof ev.feedback === "string" ? ev.feedback : "",
-  );
+  const [feedback, setFeedback] = useState(typeof ev.feedback === 'string' ? ev.feedback : '');
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verifyOut, setVerifyOut] = useState(null);
 
   const env = attempt.environment || {};
   const build = attempt.build || {};
-  const runtime = attempt.runtime || {};
 
   const saveEval = async () => {
     setSaving(true);
-    setError("");
+    setError('');
     try {
-      const res = await fetch("/api/manifest/evaluation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/manifest/evaluation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id,
           attemptId: attempt.id,
-          method: "human",
-          fidelityScore: score === "" ? null : Number(score),
+          method: 'human',
+          fidelityScore: score === '' ? null : Number(score),
           feedback,
         }),
       });
@@ -349,10 +306,10 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
       if (res.ok) {
         onChanged();
       } else {
-        setError(data.error || "Failed to save evaluation.");
+        setError(data.error || 'Failed to save evaluation.');
       }
     } catch (e) {
-      setError("Network error saving evaluation.");
+      setError('Network error saving evaluation.');
     } finally {
       setSaving(false);
     }
@@ -361,11 +318,11 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
   const runVerify = async () => {
     setVerifying(true);
     setVerifyOut(null);
-    setError("");
+    setError('');
     try {
-      const res = await fetch("/api/manifest/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/manifest/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, attemptId: attempt.id }),
       });
       const data = await res.json();
@@ -373,54 +330,46 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
       if (res.ok) {
         onChanged();
       } else {
-        setError(data.error || "Acceptance test could not run.");
+        setError(data.error || 'Acceptance test could not run.');
       }
     } catch (e) {
-      setError("Network error running acceptance test.");
+      setError('Network error running acceptance test.');
     } finally {
       setVerifying(false);
     }
   };
 
   const renderFidelity = () => {
-    if (ev.method === "program" && typeof ev.passed === "boolean") {
+    if (ev.method === 'program' && typeof ev.passed === 'boolean') {
       return (
-        <span className={ev.passed ? "text-green-400" : "text-red-400"}>
-          {ev.passed ? "✓ pass" : "✗ fail"}
+        <span className={ev.passed ? 'text-green-400' : 'text-red-400'}>
+          {ev.passed ? '✓ pass' : '✗ fail'}
         </span>
       );
     }
-    if (typeof ev.fidelityScore === "number") {
-      return (
-        <span className={fidelityColor(ev.fidelityScore)}>
-          {ev.fidelityScore}%
-        </span>
-      );
+    if (typeof ev.fidelityScore === 'number') {
+      return <span className={fidelityColor(ev.fidelityScore)}>{ev.fidelityScore}%</span>;
     }
     return <span className="text-slate-600">—</span>;
   };
 
   const envLabel =
-    [env.tool, env.toolBuild].filter(Boolean).join(" ") +
-    (env.os || env.osBuild
-      ? ` / ${[env.os, env.osBuild].filter(Boolean).join(" ")}`
-      : "");
+    [env.tool, env.toolBuild].filter(Boolean).join(' ') +
+    (env.os || env.osBuild ? ` / ${[env.os, env.osBuild].filter(Boolean).join(' ')}` : '');
 
   return (
     <>
       <tr className="border-t border-slate-800">
         <td className="py-2 pr-3 text-slate-400 whitespace-nowrap">
-          {attempt.timestamp
-            ? new Date(attempt.timestamp).toLocaleString()
-            : "—"}
+          {attempt.timestamp ? new Date(attempt.timestamp).toLocaleString() : '—'}
         </td>
-        <td className="py-2 pr-3 text-slate-200">{attempt.model || "—"}</td>
-        <td className="py-2 pr-3 text-slate-400">{envLabel || "—"}</td>
+        <td className="py-2 pr-3 text-slate-200">{attempt.model || '—'}</td>
+        <td className="py-2 pr-3 text-slate-400">{envLabel || '—'}</td>
         <td className="py-2 pr-3 text-slate-300 whitespace-nowrap">
           {fmtNum(build.tokens)} tok / {fmtMs(build.durationMs)}
         </td>
-        <td className="py-2 pr-3 text-slate-300 whitespace-nowrap">
-          {fmtNum(runtime.tokens)} tok / {fmtMs(runtime.durationMs)}
+        <td className="py-2 pr-3 text-amber-400 font-mono">
+          {typeof attempt.estimatedCost === 'number' ? `$${attempt.estimatedCost.toFixed(4)}` : '—'}
         </td>
         <td className="py-2 pr-3 font-semibold">{renderFidelity()}</td>
         <td className="py-2">
@@ -428,7 +377,7 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
             onClick={() => setOpen((o) => !o)}
             className="text-xs px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded transition-colors"
           >
-            {open ? "Close" : "Evaluate"}
+            {open ? 'Close' : 'Evaluate'}
           </button>
         </td>
       </tr>
@@ -462,34 +411,28 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
                   disabled={saving}
                   className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white text-sm font-medium rounded transition-colors"
                 >
-                  {saving ? "Saving…" : "Save Evaluation"}
+                  {saving ? 'Saving…' : 'Save Evaluation'}
                 </button>
-                {acceptanceMode === "program" ? (
+                {acceptanceMode === 'program' ? (
                   <button
                     onClick={runVerify}
                     disabled={verifying}
                     className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 disabled:bg-emerald-900 text-white text-sm font-medium rounded transition-colors"
                   >
-                    {verifying ? "Running…" : "Run Acceptance Test"}
+                    {verifying ? 'Running…' : 'Run Acceptance Test'}
                   </button>
                 ) : (
                   <span className="text-xs text-slate-500">
-                    Acceptance mode is “{acceptanceMode}”. Set mode to “program”
-                    and add a <code>verify</code> script to run an automated
-                    test.
+                    Acceptance mode is “{acceptanceMode}”. Set mode to “program” and add a{' '}
+                    <code>verify</code> script to run an automated test.
                   </span>
                 )}
                 {error && <span className="text-xs text-red-400">{error}</span>}
               </div>
               {verifyOut && (
                 <div className="bg-black rounded p-3 font-mono text-xs text-green-400 border border-slate-900">
-                  <div
-                    className={
-                      verifyOut.passed ? "text-green-400" : "text-red-400"
-                    }
-                  >
-                    &gt; Acceptance test{" "}
-                    {verifyOut.passed ? "PASSED" : "FAILED"}
+                  <div className={verifyOut.passed ? 'text-green-400' : 'text-red-400'}>
+                    &gt; Acceptance test {verifyOut.passed ? 'PASSED' : 'FAILED'}
                   </div>
                   <RunResult output={verifyOut} />
                 </div>
@@ -533,21 +476,18 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
 
   const spec = data && data.spec;
   const attempts = (data && data.attempts) || [];
-  const acceptanceMode =
-    spec && spec.acceptance ? spec.acceptance.mode : "human";
+  const acceptanceMode = spec && spec.acceptance ? spec.acceptance.mode : 'human';
 
   const buildTokenSeries = attempts.map((a) =>
-    a.build && typeof a.build.tokens === "number" ? a.build.tokens : null,
+    a.build && typeof a.build.tokens === 'number' ? a.build.tokens : null
   );
   const buildTimeSeries = attempts.map((a) =>
-    a.build && typeof a.build.durationMs === "number"
-      ? a.build.durationMs
-      : null,
+    a.build && typeof a.build.durationMs === 'number' ? a.build.durationMs : null
   );
   const fidelitySeries = attempts.map((a) =>
-    a.evaluation && typeof a.evaluation.fidelityScore === "number"
+    a.evaluation && typeof a.evaluation.fidelityScore === 'number'
       ? a.evaluation.fidelityScore
-      : null,
+      : null
   );
 
   return (
@@ -555,12 +495,9 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
       <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl">
         <div className="p-6 border-b border-slate-700 flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-bold text-slate-100">
-              {item.name} — Vision &amp; Metrics
-            </h2>
+            <h2 className="text-xl font-bold text-slate-100">{item.name} — Vision &amp; Metrics</h2>
             <p className="text-xs text-slate-400 mt-1">
-              Track tokens, time, model, environment, and fidelity across every
-              attempt.
+              Track tokens, time, model, environment, and fidelity across every attempt.
             </p>
           </div>
           <button
@@ -578,12 +515,11 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
             </div>
           ) : (
             <>
-              {data && data.manifestStatus === "corrupt" && (
+              {data && data.manifestStatus === 'corrupt' && (
                 <div className="bg-red-950/40 border border-red-800 rounded-lg p-4 text-red-300 text-sm">
-                  ⚠ This one-shot's <code>oneshot.json</code> is corrupt and
-                  could not be parsed. Recorded data is shown as empty, and
-                  writes are blocked to avoid overwriting it. Fix or remove the
-                  file to continue.
+                  ⚠ This one-shot&apos;s <code>oneshot.json</code> is corrupt and could not be
+                  parsed. Recorded data is shown as empty, and writes are blocked to avoid
+                  overwriting it. Fix or remove the file to continue.
                 </div>
               )}
 
@@ -595,17 +531,11 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
                       Vision (immutable)
                     </h3>
                     <span className="text-xs text-slate-400">
-                      {spec.createdAt
-                        ? `Set ${new Date(spec.createdAt).toLocaleDateString()}`
-                        : ""}
-                      {spec.acceptance
-                        ? ` · ${spec.acceptance.mode} evaluation`
-                        : ""}
+                      {spec.createdAt ? `Set ${new Date(spec.createdAt).toLocaleDateString()}` : ''}
+                      {spec.acceptance ? ` · ${spec.acceptance.mode} evaluation` : ''}
                     </span>
                   </div>
-                  <p className="text-slate-200 mt-2 whitespace-pre-wrap">
-                    {spec.vision}
-                  </p>
+                  <p className="text-slate-200 mt-2 whitespace-pre-wrap">{spec.vision}</p>
                 </div>
               ) : (
                 <SetVisionForm id={item.id} onCreated={afterChange} />
@@ -646,9 +576,7 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
                   Attempt history ({attempts.length})
                 </h3>
                 {attempts.length === 0 ? (
-                  <p className="text-sm text-slate-500">
-                    No attempts recorded yet.
-                  </p>
+                  <p className="text-sm text-slate-500">No attempts recorded yet.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
@@ -658,7 +586,7 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
                           <th className="py-2 pr-3 font-medium">Model</th>
                           <th className="py-2 pr-3 font-medium">Environment</th>
                           <th className="py-2 pr-3 font-medium">Build</th>
-                          <th className="py-2 pr-3 font-medium">Runtime</th>
+                          <th className="py-2 pr-3 font-medium">Est. Cost</th>
                           <th className="py-2 pr-3 font-medium">Fidelity</th>
                           <th className="py-2 font-medium" />
                         </tr>
@@ -704,19 +632,13 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
 // Compact metrics summary shown on each card.
 function CardMetrics({ manifest }) {
   if (!manifest) return null;
-  if (manifest.manifestStatus === "corrupt") {
+  if (manifest.manifestStatus === 'corrupt') {
     return (
-      <div className="text-xs text-red-400 mb-3 font-semibold">
-        ⚠ manifest unreadable (corrupt)
-      </div>
+      <div className="text-xs text-red-400 mb-3 font-semibold">⚠ manifest unreadable (corrupt)</div>
     );
   }
   if (!manifest.hasManifest) {
-    return (
-      <div className="text-xs text-slate-600 mb-3 italic">
-        No vision/metrics recorded yet
-      </div>
-    );
+    return <div className="text-xs text-slate-600 mb-3 italic">No vision/metrics recorded yet</div>;
   }
   return (
     <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
@@ -726,49 +648,39 @@ function CardMetrics({ manifest }) {
         </span>
       )}
       {manifest.attemptCount > 0 && (
-        <span className="text-slate-400">
-          ↻ {manifest.attemptCount} attempts
-        </span>
+        <span className="text-slate-400">↻ {manifest.attemptCount} attempts</span>
       )}
-      {typeof manifest.latestFidelity === "number" ? (
-        <span
-          className={`font-semibold ${fidelityColor(manifest.latestFidelity)}`}
-        >
+      {typeof manifest.latestFidelity === 'number' ? (
+        <span className={`font-semibold ${fidelityColor(manifest.latestFidelity)}`}>
           ★ {manifest.latestFidelity}%
         </span>
-      ) : typeof manifest.latestPassed === "boolean" ? (
+      ) : typeof manifest.latestPassed === 'boolean' ? (
         <span
-          className={`font-semibold ${manifest.latestPassed ? "text-green-400" : "text-red-400"}`}
+          className={`font-semibold ${manifest.latestPassed ? 'text-green-400' : 'text-red-400'}`}
         >
-          {manifest.latestPassed ? "✓ pass" : "✗ fail"}
+          {manifest.latestPassed ? '✓ pass' : '✗ fail'}
         </span>
       ) : null}
     </div>
   );
 }
 
-export default function DashboardClient({
-  initialItems,
-  initialStats,
-  initialScanError,
-}) {
+export default function DashboardClient({ initialItems, initialStats, initialScanError }) {
   const [oneShots, setOneShots] = useState(initialItems || []);
-  const [statsData, setStatsData] = useState(
-    initialStats || { totalRuns: 0, failedRuns: 0 },
-  );
+  const [statsData, setStatsData] = useState(initialStats || { totalRuns: 0, failedRuns: 0 });
   const [scanError, setScanError] = useState(initialScanError || false);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
 
   // Preview Modal state
   const [previewItem, setPreviewItem] = useState(null);
-  const [readmeContent, setReadmeContent] = useState("");
+  const [readmeContent, setReadmeContent] = useState('');
   const [loadingReadme, setLoadingReadme] = useState(false);
 
   // Run Modal state
   const [runningItem, setRunningItem] = useState(null);
-  const [runAction, setRunAction] = useState("test");
+  const [runAction, setRunAction] = useState('test');
   const [isRunning, setIsRunning] = useState(false);
   const [runOutput, setRunOutput] = useState(null);
 
@@ -776,37 +688,37 @@ export default function DashboardClient({
   const [detailItem, setDetailItem] = useState(null);
 
   // Ideas Registry state
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [ideas, setIdeas] = useState([]);
   const [loadingIdeas, setLoadingIdeas] = useState(false);
-  const [ideasSearchQuery, setIdeasSearchQuery] = useState("");
-  const [selectedIdeaCategory, setSelectedIdeaCategory] = useState("");
-  const [selectedIdeaStack, setSelectedIdeaStack] = useState("");
-  const [selectedIdeaStatus, setSelectedIdeaStatus] = useState("");
+  const [ideasSearchQuery, setIdeasSearchQuery] = useState('');
+  const [selectedIdeaCategory, setSelectedIdeaCategory] = useState('');
+  const [selectedIdeaStack, setSelectedIdeaStack] = useState('');
+  const [selectedIdeaStatus, setSelectedIdeaStatus] = useState('');
   const [selectedIdeaDetail, setSelectedIdeaDetail] = useState(null);
   const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
   const [addIdeaForm, setAddIdeaForm] = useState({
-    title: "",
-    category: "",
-    vision: "",
-    techSpecs: "",
-    targetStack: "",
-    readyToCopyTaskPrompt: "",
+    title: '',
+    category: '',
+    vision: '',
+    techSpecs: '',
+    targetStack: '',
+    readyToCopyTaskPrompt: '',
   });
-  const [addIdeaError, setAddIdeaError] = useState("");
-  const [addIdeaSuccess, setAddIdeaSuccess] = useState("");
+  const [addIdeaError, setAddIdeaError] = useState('');
+  const [addIdeaSuccess, setAddIdeaSuccess] = useState('');
   const [submittingIdea, setSubmittingIdea] = useState(false);
 
   const fetchIdeas = async () => {
     setLoadingIdeas(true);
     try {
-      const res = await fetch("/api/ideas");
+      const res = await fetch('/api/ideas');
       if (res.ok) {
         const data = await res.json();
         setIdeas(data);
       }
     } catch (e) {
-      console.error("Error fetching ideas:", e);
+      console.error('Error fetching ideas:', e);
     } finally {
       setLoadingIdeas(false);
     }
@@ -818,25 +730,25 @@ export default function DashboardClient({
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    if (tab === "ideas") {
+    if (tab === 'ideas') {
       fetchIdeas();
     }
   };
 
   const IDEAS_CATEGORIES = [
-    "Automotive & B2B Lead Generation Tools",
-    "AI Development, Prompting, Routing & Evaluation Tools",
-    "Agent Orchestration, Governance & Sandbox Frameworks",
-    "Codebase Engineering & Git Workflow Enhancers",
-    "Data, Document & Workspace Productivity Tools",
-    "Micro-SaaS Templates & Personal Workflow Apps",
+    'Automotive & B2B Lead Generation Tools',
+    'AI Development, Prompting, Routing & Evaluation Tools',
+    'Agent Orchestration, Governance & Sandbox Frameworks',
+    'Codebase Engineering & Git Workflow Enhancers',
+    'Data, Document & Workspace Productivity Tools',
+    'Micro-SaaS Templates & Personal Workflow Apps',
   ];
 
   const allIdeaStacks = React.useMemo(() => {
     const stacksSet = new Set();
     ideas.forEach((idea) => {
       if (idea.targetStack) {
-        idea.targetStack.split(",").forEach((s) => {
+        idea.targetStack.split(',').forEach((s) => {
           const trimmed = s.trim();
           if (trimmed) {
             stacksSet.add(trimmed);
@@ -856,28 +768,18 @@ export default function DashboardClient({
         (idea.vision && idea.vision.toLowerCase().includes(q)) ||
         (idea.id && idea.id.toLowerCase().includes(q));
 
-      const matchesCategory =
-        !selectedIdeaCategory || idea.category === selectedIdeaCategory;
+      const matchesCategory = !selectedIdeaCategory || idea.category === selectedIdeaCategory;
 
       const matchesStack =
         !selectedIdeaStack ||
         (idea.targetStack &&
-          idea.targetStack
-            .toLowerCase()
-            .includes(selectedIdeaStack.toLowerCase()));
+          idea.targetStack.toLowerCase().includes(selectedIdeaStack.toLowerCase()));
 
-      const matchesStatus =
-        !selectedIdeaStatus || idea.status === selectedIdeaStatus;
+      const matchesStatus = !selectedIdeaStatus || idea.status === selectedIdeaStatus;
 
       return matchesSearch && matchesCategory && matchesStack && matchesStatus;
     });
-  }, [
-    ideas,
-    ideasSearchQuery,
-    selectedIdeaCategory,
-    selectedIdeaStack,
-    selectedIdeaStatus,
-  ]);
+  }, [ideas, ideasSearchQuery, selectedIdeaCategory, selectedIdeaStack, selectedIdeaStatus]);
 
   // Load all unique tags from one-shots
   const allTags = React.useMemo(() => {
@@ -885,7 +787,7 @@ export default function DashboardClient({
     oneShots.forEach((item) => {
       if (Array.isArray(item.tags)) {
         item.tags.forEach((tag) => {
-          if (tag && typeof tag === "string") {
+          if (tag && typeof tag === 'string') {
             tagsSet.add(tag);
           }
         });
@@ -896,7 +798,7 @@ export default function DashboardClient({
 
   const handleRefresh = async () => {
     try {
-      const res = await fetch("/api/scan");
+      const res = await fetch('/api/scan');
       if (res.ok) {
         const data = await res.json();
         setOneShots(data);
@@ -910,7 +812,7 @@ export default function DashboardClient({
 
     // Also refresh stats
     try {
-      const statsRes = await fetch("/api/stats");
+      const statsRes = await fetch('/api/stats');
       if (statsRes.ok) {
         const statsVal = await statsRes.json();
         setStatsData(statsVal);
@@ -923,17 +825,17 @@ export default function DashboardClient({
   const handlePreview = async (item) => {
     setPreviewItem(item);
     setLoadingReadme(true);
-    setReadmeContent("Loading README...");
+    setReadmeContent('Loading README...');
     try {
       const res = await fetch(`/api/scan/${item.id}/readme`);
       if (res.ok) {
         const data = await res.json();
-        setReadmeContent(data.readme || "No README content found.");
+        setReadmeContent(data.readme || 'No README content found.');
       } else {
-        setReadmeContent("Error loading README.");
+        setReadmeContent('Error loading README.');
       }
     } catch (e) {
-      setReadmeContent("Error loading README.");
+      setReadmeContent('Error loading README.');
     } finally {
       setLoadingReadme(false);
     }
@@ -944,9 +846,9 @@ export default function DashboardClient({
     setIsRunning(true);
     setRunOutput(null);
     try {
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: runningItem.id, action: runAction }),
       });
       const data = await res.json();
@@ -955,15 +857,15 @@ export default function DashboardClient({
       setRunOutput({
         success: false,
         exitCode: 1,
-        stdout: "",
-        stderr: "Network error occurred while calling run endpoint.",
-        error: "Execution failed",
+        stdout: '',
+        stderr: 'Network error occurred while calling run endpoint.',
+        error: 'Execution failed',
       });
     } finally {
       setIsRunning(false);
       // Fetch updated stats
       try {
-        const statsRes = await fetch("/api/stats");
+        const statsRes = await fetch('/api/stats');
         if (statsRes.ok) {
           const statsVal = await statsRes.json();
           setStatsData(statsVal);
@@ -984,8 +886,7 @@ export default function DashboardClient({
 
       const matchesTag =
         !selectedTag ||
-        (item.tags &&
-          item.tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase()));
+        (item.tags && item.tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase()));
 
       return matchesSearch && matchesTag;
     });
@@ -993,17 +894,14 @@ export default function DashboardClient({
 
   const total = statsData.totalRuns || 0;
   const failed = statsData.failedRuns || 0;
-  const successRate =
-    total > 0 ? Math.round(((total - failed) / total) * 100) : 100;
+  const successRate = total > 0 ? Math.round(((total - failed) / total) * 100) : 100;
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row">
       {/* Sidebar Navigation */}
       <aside className="w-full md:w-64 bg-slate-800 p-6 flex flex-col border-r border-slate-700">
         <div className="flex items-center space-x-2 mb-8">
-          <span className="text-xl font-bold tracking-wide text-blue-400">
-            OneShotForge
-          </span>
+          <span className="text-xl font-bold tracking-wide text-blue-400">OneShotForge</span>
         </div>
 
         <nav className="flex-1 space-y-4">
@@ -1011,21 +909,21 @@ export default function DashboardClient({
             Navigation
           </div>
           <button
-            onClick={() => handleTabChange("dashboard")}
+            onClick={() => handleTabChange('dashboard')}
             className={`flex items-center space-x-2 w-full text-left px-3 py-2 rounded transition-colors ${
-              activeTab === "dashboard"
-                ? "bg-blue-600 text-white font-medium"
-                : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+              activeTab === 'dashboard'
+                ? 'bg-blue-600 text-white font-medium'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             <span>Dashboard</span>
           </button>
           <button
-            onClick={() => handleTabChange("ideas")}
+            onClick={() => handleTabChange('ideas')}
             className={`flex items-center space-x-2 w-full text-left px-3 py-2 rounded transition-colors ${
-              activeTab === "ideas"
-                ? "bg-blue-600 text-white font-medium"
-                : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+              activeTab === 'ideas'
+                ? 'bg-blue-600 text-white font-medium'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             <span>Ideas Registry</span>
@@ -1050,6 +948,12 @@ export default function DashboardClient({
               <span>Success Rate:</span>
               <span className="font-mono text-green-400">{successRate}%</span>
             </div>
+            {statsData.pricingDate && (
+              <div className="flex justify-between border-t border-slate-700/50 pt-2 text-xs text-slate-400">
+                <span>Price Registry:</span>
+                <span className="font-mono text-amber-400">{statsData.pricingDate}</span>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -1060,7 +964,7 @@ export default function DashboardClient({
           <div className="mb-6 p-4 bg-green-900/50 border border-green-500 rounded text-green-200 text-sm flex justify-between items-center">
             <span>{addIdeaSuccess}</span>
             <button
-              onClick={() => setAddIdeaSuccess("")}
+              onClick={() => setAddIdeaSuccess('')}
               className="text-green-200 hover:text-white font-semibold"
             >
               ✕
@@ -1068,7 +972,7 @@ export default function DashboardClient({
           </div>
         )}
 
-        {activeTab === "ideas" ? (
+        {activeTab === 'ideas' ? (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
               <div>
@@ -1076,8 +980,7 @@ export default function DashboardClient({
                   Ideas Registry
                 </h1>
                 <p className="text-slate-400 mt-1">
-                  Explore, search, and manage standalone one-shot application
-                  ideas.
+                  Explore, search, and manage standalone one-shot application ideas.
                 </p>
               </div>
               <div className="flex items-center space-x-4">
@@ -1094,7 +997,7 @@ export default function DashboardClient({
                   disabled={loadingIdeas}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors text-sm"
                 >
-                  {loadingIdeas ? "Refreshing..." : "Refresh"}
+                  {loadingIdeas ? 'Refreshing...' : 'Refresh'}
                 </button>
               </div>
             </div>
@@ -1154,9 +1057,7 @@ export default function DashboardClient({
             {filteredIdeas.length === 0 ? (
               <div className="text-center py-12 bg-slate-800/50 border border-slate-800 rounded-lg">
                 <p className="text-slate-400">
-                  {loadingIdeas
-                    ? "Loading ideas..."
-                    : "No ideas found matching your filters."}
+                  {loadingIdeas ? 'Loading ideas...' : 'No ideas found matching your filters.'}
                 </p>
               </div>
             ) : (
@@ -1172,11 +1073,14 @@ export default function DashboardClient({
                           <span className="font-mono text-sm font-bold text-blue-400">
                             {idea.id}
                           </span>
-                          <span className="text-xs bg-blue-955 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-semibold max-w-[150px] truncate" title={idea.category}>
+                          <span
+                            className="text-xs bg-blue-955 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-semibold max-w-[150px] truncate"
+                            title={idea.category}
+                          >
                             {idea.category}
                           </span>
                         </div>
-                        {idea.status === "promoted" ? (
+                        {idea.status === 'promoted' ? (
                           <span className="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-semibold">
                             Promoted
                           </span>
@@ -1192,23 +1096,17 @@ export default function DashboardClient({
                       >
                         {idea.title}
                       </h3>
-                      <p className="text-slate-400 text-sm mt-2 line-clamp-3">
-                        {idea.vision}
-                      </p>
+                      <p className="text-slate-400 text-sm mt-2 line-clamp-3">{idea.vision}</p>
                     </div>
 
                     <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-2">
                       <div className="flex justify-between text-xs text-slate-400">
                         <span>Stack:</span>
-                        <span className="font-mono text-slate-300">
-                          {idea.targetStack}
-                        </span>
+                        <span className="font-mono text-slate-300">{idea.targetStack}</span>
                       </div>
                       <div className="flex justify-between text-xs text-slate-400">
                         <span>Added:</span>
-                        <span className="font-mono text-slate-300">
-                          {idea.dateAdded}
-                        </span>
+                        <span className="font-mono text-slate-300">{idea.dateAdded}</span>
                       </div>
                       <button
                         onClick={() => setSelectedIdeaDetail(idea)}
@@ -1247,7 +1145,7 @@ export default function DashboardClient({
             {/* Error Banner Container */}
             <div
               id="error-banner"
-              className={`${scanError ? "" : "hidden"} mb-6 p-4 bg-red-900/50 border border-red-500 rounded text-red-200`}
+              className={`${scanError ? '' : 'hidden'} mb-6 p-4 bg-red-900/50 border border-red-500 rounded text-red-200`}
             >
               Error loading scan: Failed to read one-shots directory.
             </div>
@@ -1268,15 +1166,13 @@ export default function DashboardClient({
                 />
               </div>
               <div className="w-full md:w-auto flex items-center space-x-2 overflow-x-auto">
-                <span className="text-sm text-slate-400 whitespace-nowrap">
-                  Filter Tags:
-                </span>
+                <span className="text-sm text-slate-400 whitespace-nowrap">Filter Tags:</span>
                 <button
-                  onClick={() => setSelectedTag("")}
+                  onClick={() => setSelectedTag('')}
                   className={`px-3 py-1 text-xs rounded transition-colors border ${
-                    selectedTag === ""
-                      ? "bg-blue-600 border-blue-500 text-white"
-                      : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
+                    selectedTag === ''
+                      ? 'bg-blue-600 border-blue-500 text-white'
+                      : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
                   }`}
                 >
                   All
@@ -1287,8 +1183,8 @@ export default function DashboardClient({
                     onClick={() => setSelectedTag(tag)}
                     className={`px-3 py-1 text-xs rounded transition-colors border ${
                       selectedTag === tag
-                        ? "bg-blue-600 border-blue-500 text-white"
-                        : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
+                        ? 'bg-blue-600 border-blue-500 text-white'
+                        : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
                     }`}
                   >
                     {tag}
@@ -1300,14 +1196,12 @@ export default function DashboardClient({
             {/* Grid layout for one-shots */}
             {filteredItems.length === 0 ? (
               <div className="text-center py-12 bg-slate-800/50 border border-slate-800 rounded-lg">
-                <p className="text-slate-400">
-                  No one-shots found matching your filters.
-                </p>
+                <p className="text-slate-400">No one-shots found matching your filters.</p>
               </div>
             ) : null}
 
             <div
-              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${filteredItems.length === 0 ? "hidden" : ""}`}
+              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${filteredItems.length === 0 ? 'hidden' : ''}`}
             >
               {filteredItems.map((item) => (
                 <div
@@ -1328,9 +1222,7 @@ export default function DashboardClient({
                         v{item.version}
                       </span>
                     </div>
-                    <p className="text-slate-400 text-sm mt-2 line-clamp-3">
-                      {item.description}
-                    </p>
+                    <p className="text-slate-400 text-sm mt-2 line-clamp-3">{item.description}</p>
                   </div>
 
                   <div className="mt-4">
@@ -1365,7 +1257,7 @@ export default function DashboardClient({
                       <button
                         onClick={() => {
                           setRunningItem(item);
-                          setRunAction("test");
+                          setRunAction('test');
                           setRunOutput(null);
                           setIsRunning(false);
                         }}
@@ -1388,12 +1280,8 @@ export default function DashboardClient({
           <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
             <div className="p-6 border-b border-slate-700 flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold text-slate-100">
-                  {previewItem.name} - README
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  {previewItem.path}
-                </p>
+                <h2 className="text-xl font-bold text-slate-100">{previewItem.name} - README</h2>
+                <p className="text-xs text-slate-400 mt-1">{previewItem.path}</p>
               </div>
               <button
                 onClick={() => setPreviewItem(null)}
@@ -1405,9 +1293,7 @@ export default function DashboardClient({
             <div className="p-6 overflow-y-auto flex-1 prose prose-invert max-w-none text-slate-300">
               {loadingReadme ? (
                 <div className="flex items-center justify-center py-12">
-                  <span className="text-slate-400">
-                    Loading README content...
-                  </span>
+                  <span className="text-slate-400">Loading README content...</span>
                 </div>
               ) : (
                 <div dangerouslySetInnerHTML={{ __html: readmeContent }} />
@@ -1440,9 +1326,7 @@ export default function DashboardClient({
           <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
             <div className="p-6 border-b border-slate-700 flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold text-slate-100">
-                  Run: {runningItem.name}
-                </h2>
+                <h2 className="text-xl font-bold text-slate-100">Run: {runningItem.name}</h2>
                 <p className="text-xs text-slate-400 mt-1">
                   Execute defined package script targets
                 </p>
@@ -1457,9 +1341,7 @@ export default function DashboardClient({
             </div>
             <div className="p-6 overflow-y-auto flex-1 flex flex-col space-y-4">
               <div className="flex items-center space-x-4">
-                <span className="text-sm font-semibold text-slate-300">
-                  Select Script Target:
-                </span>
+                <span className="text-sm font-semibold text-slate-300">Select Script Target:</span>
                 <select
                   value={runAction}
                   onChange={(e) => setRunAction(e.target.value)}
@@ -1475,7 +1357,7 @@ export default function DashboardClient({
                   disabled={isRunning}
                   className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-medium text-sm rounded transition-colors flex items-center space-x-2"
                 >
-                  {isRunning ? "Executing..." : "Run"}
+                  {isRunning ? 'Executing...' : 'Run'}
                 </button>
               </div>
 
@@ -1487,7 +1369,7 @@ export default function DashboardClient({
                 <div className="flex-1 bg-black rounded p-4 font-mono text-xs overflow-y-auto text-green-400 space-y-2 border border-slate-950">
                   {isRunning && (
                     <div className="text-yellow-400 animate-pulse">
-                      &gt; Executing script target "{runAction}"... Please wait.
+                      &gt; Executing script target &quot;{runAction}&quot;... Please wait.
                     </div>
                   )}
 
@@ -1524,10 +1406,8 @@ export default function DashboardClient({
                   <span className="font-mono text-sm font-bold text-blue-400 px-2 py-0.5 bg-slate-900 border border-slate-700 rounded">
                     {selectedIdeaDetail.id}
                   </span>
-                  <h2 className="text-xl font-bold text-slate-100">
-                    {selectedIdeaDetail.title}
-                  </h2>
-                  {selectedIdeaDetail.status === "promoted" ? (
+                  <h2 className="text-xl font-bold text-slate-100">{selectedIdeaDetail.title}</h2>
+                  {selectedIdeaDetail.status === 'promoted' ? (
                     <span className="text-xs bg-emerald-955 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-full font-semibold">
                       Promoted
                     </span>
@@ -1586,7 +1466,7 @@ export default function DashboardClient({
                 </div>
               </div>
 
-              {selectedIdeaDetail.status === "promoted" && selectedIdeaDetail.promoted_to && (
+              {selectedIdeaDetail.status === 'promoted' && selectedIdeaDetail.promoted_to && (
                 <div>
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                     Promoted To
@@ -1595,7 +1475,7 @@ export default function DashboardClient({
                     <a
                       href={`#${selectedIdeaDetail.promoted_to}`}
                       onClick={() => {
-                        setActiveTab("dashboard");
+                        setActiveTab('dashboard');
                         setSearchQuery(selectedIdeaDetail.promoted_to);
                         setSelectedIdeaDetail(null);
                       }}
@@ -1614,10 +1494,8 @@ export default function DashboardClient({
                   </h3>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(
-                        selectedIdeaDetail.readyToCopyTaskPrompt,
-                      );
-                      alert("Prompt copied to clipboard!");
+                      navigator.clipboard.writeText(selectedIdeaDetail.readyToCopyTaskPrompt);
+                      alert('Prompt copied to clipboard!');
                     }}
                     className="px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded flex items-center gap-1 transition-colors"
                   >
@@ -1647,18 +1525,15 @@ export default function DashboardClient({
           <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
             <div className="p-6 border-b border-slate-700 flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold text-slate-100">
-                  Add New Idea
-                </h2>
+                <h2 className="text-xl font-bold text-slate-100">Add New Idea</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Submit a new standalone one-shot application idea to the
-                  registry.
+                  Submit a new standalone one-shot application idea to the registry.
                 </p>
               </div>
               <button
                 onClick={() => {
                   setShowAddIdeaModal(false);
-                  setAddIdeaError("");
+                  setAddIdeaError('');
                 }}
                 className="text-slate-400 hover:text-white text-lg font-semibold"
                 disabled={submittingIdea}
@@ -1681,9 +1556,7 @@ export default function DashboardClient({
                   type="text"
                   placeholder="e.g. My Awesome Scraper"
                   value={addIdeaForm.title}
-                  onChange={(e) =>
-                    setAddIdeaForm({ ...addIdeaForm, title: e.target.value })
-                  }
+                  onChange={(e) => setAddIdeaForm({ ...addIdeaForm, title: e.target.value })}
                   className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
                   disabled={submittingIdea}
                 />
@@ -1695,9 +1568,7 @@ export default function DashboardClient({
                 </label>
                 <select
                   value={addIdeaForm.category}
-                  onChange={(e) =>
-                    setAddIdeaForm({ ...addIdeaForm, category: e.target.value })
-                  }
+                  onChange={(e) => setAddIdeaForm({ ...addIdeaForm, category: e.target.value })}
                   className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 focus:outline-none focus:border-blue-500 text-sm"
                   disabled={submittingIdea}
                 >
@@ -1717,9 +1588,7 @@ export default function DashboardClient({
                 <textarea
                   placeholder="What does this one-shot build and why?"
                   value={addIdeaForm.vision}
-                  onChange={(e) =>
-                    setAddIdeaForm({ ...addIdeaForm, vision: e.target.value })
-                  }
+                  onChange={(e) => setAddIdeaForm({ ...addIdeaForm, vision: e.target.value })}
                   rows={3}
                   className="px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
                   disabled={submittingIdea}
@@ -1788,7 +1657,7 @@ export default function DashboardClient({
                 type="button"
                 onClick={() => {
                   setShowAddIdeaModal(false);
-                  setAddIdeaError("");
+                  setAddIdeaError('');
                 }}
                 className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded font-medium transition-colors text-sm"
                 disabled={submittingIdea}
@@ -1798,7 +1667,7 @@ export default function DashboardClient({
               <button
                 type="button"
                 onClick={async () => {
-                  setAddIdeaError("");
+                  setAddIdeaError('');
                   if (
                     !addIdeaForm.title.trim() ||
                     !addIdeaForm.category.trim() ||
@@ -1807,28 +1676,28 @@ export default function DashboardClient({
                     !addIdeaForm.targetStack.trim() ||
                     !addIdeaForm.readyToCopyTaskPrompt.trim()
                   ) {
-                    setAddIdeaError("All fields are required.");
+                    setAddIdeaError('All fields are required.');
                     return;
                   }
 
                   const invalidPatterns = [
-                    "/",
-                    "\\",
-                    "..",
-                    "__proto__",
-                    "constructor",
-                    "prototype",
+                    '/',
+                    '\\',
+                    '..',
+                    '__proto__',
+                    'constructor',
+                    'prototype',
                   ];
                   for (const pattern of invalidPatterns) {
                     if (addIdeaForm.title.includes(pattern)) {
                       setAddIdeaError(
-                        `Title cannot contain "${pattern}" due to directory security policies.`,
+                        `Title cannot contain "${pattern}" due to directory security policies.`
                       );
                       return;
                     }
                     if (addIdeaForm.category.includes(pattern)) {
                       setAddIdeaError(
-                        `Category cannot contain "${pattern}" due to directory security policies.`,
+                        `Category cannot contain "${pattern}" due to directory security policies.`
                       );
                       return;
                     }
@@ -1836,35 +1705,31 @@ export default function DashboardClient({
 
                   setSubmittingIdea(true);
                   try {
-                    const res = await fetch("/api/ideas", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
+                    const res = await fetch('/api/ideas', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(addIdeaForm),
                     });
                     if (res.ok) {
                       const newIdea = await res.json();
-                      setAddIdeaSuccess(
-                        `Successfully added idea "${newIdea.title}"!`,
-                      );
+                      setAddIdeaSuccess(`Successfully added idea "${newIdea.title}"!`);
                       setAddIdeaForm({
-                        title: "",
-                        category: "",
-                        vision: "",
-                        techSpecs: "",
-                        targetStack: "",
-                        readyToCopyTaskPrompt: "",
+                        title: '',
+                        category: '',
+                        vision: '',
+                        techSpecs: '',
+                        targetStack: '',
+                        readyToCopyTaskPrompt: '',
                       });
                       setShowAddIdeaModal(false);
                       await fetchIdeas();
-                      setTimeout(() => setAddIdeaSuccess(""), 5000);
+                      setTimeout(() => setAddIdeaSuccess(''), 5000);
                     } else {
                       const errData = await res.json();
-                      setAddIdeaError(
-                        errData.error || "Failed to submit new idea.",
-                      );
+                      setAddIdeaError(errData.error || 'Failed to submit new idea.');
                     }
                   } catch (e) {
-                    setAddIdeaError("Network error while submitting idea.");
+                    setAddIdeaError('Network error while submitting idea.');
                   } finally {
                     setSubmittingIdea(false);
                   }
@@ -1872,7 +1737,7 @@ export default function DashboardClient({
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition-colors text-sm flex items-center space-x-1"
                 disabled={submittingIdea}
               >
-                <span>{submittingIdea ? "Submitting..." : "Submit"}</span>
+                <span>{submittingIdea ? 'Submitting...' : 'Submit'}</span>
               </button>
             </div>
           </div>

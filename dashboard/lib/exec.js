@@ -1,5 +1,5 @@
-import path from "path";
-import { exec } from "child_process";
+import path from 'path';
+import { exec } from 'child_process';
 
 // Shared, security-hardened executor for one-shot package scripts.
 // Extracted from app/api/run/route.js so both /api/run and /api/manifest/verify
@@ -28,18 +28,12 @@ export async function acquireLock(id) {
   };
 }
 
-const DANGEROUS_ENV_KEYS = [
-  "NODE_OPTIONS",
-  "PATH",
-  "LD_PRELOAD",
-  "PYTHONPATH",
-  "NODE_PATH",
-];
+const DANGEROUS_ENV_KEYS = ['NODE_OPTIONS', 'PATH', 'LD_PRELOAD', 'PYTHONPATH', 'NODE_PATH'];
 
 // Drops env keys that could be used to escape the sandbox.
 export function sanitizeEnv(customEnv) {
   const out = {};
-  if (customEnv && typeof customEnv === "object") {
+  if (customEnv && typeof customEnv === 'object') {
     for (const [key, val] of Object.entries(customEnv)) {
       if (DANGEROUS_ENV_KEYS.includes(key.toUpperCase())) {
         continue;
@@ -67,22 +61,21 @@ export function parseArgs(commandStr) {
 // Returns true if the command (or any of its args) attempts to read/write
 // outside the one-shot's target directory.
 export function detectCommandEscape(cmd, targetDir) {
-  if (cmd.includes("..") || (path.isAbsolute(cmd) && !cmd.startsWith(targetDir))) {
+  if (cmd.includes('..') || (path.isAbsolute(cmd) && !cmd.startsWith(targetDir))) {
     return true;
   }
 
   const commandArgs = parseArgs(cmd);
   for (const arg of commandArgs) {
-    const strippedArg = arg.replace(/^["']|["']$/g, "");
-    const containsDotDot = strippedArg.includes("..");
+    const strippedArg = arg.replace(/^["']|["']$/g, '');
+    const containsDotDot = strippedArg.includes('..');
     const startsWithDrive = /^[a-zA-Z]:[\\/]/.test(strippedArg);
-    const startsWithSlash =
-      strippedArg.startsWith("\\") || strippedArg.startsWith("/");
+    const startsWithSlash = strippedArg.startsWith('\\') || strippedArg.startsWith('/');
 
     if (containsDotDot || startsWithDrive || startsWithSlash) {
       const resolvedPath = path.resolve(targetDir, strippedArg);
       const relative = path.relative(targetDir, resolvedPath);
-      if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
         return true;
       }
     }
@@ -112,7 +105,7 @@ export async function runScript({ id, targetDir, cmd, timeout, env }) {
   const processEnv = { ...process.env, ...sanitizeEnv(env) };
   // On POSIX, run the child in its own process group so a timeout can reap the
   // whole tree (the script plus anything it spawned), not just the shell.
-  const isWin = process.platform === "win32";
+  const isWin = process.platform === 'win32';
   const execOptions = { cwd: targetDir, env: processEnv, detached: !isWin };
   const execTimeout = normalizeTimeout(timeout);
 
@@ -159,10 +152,10 @@ export async function runScript({ id, targetDir, cmd, timeout, env }) {
             // Kill the whole process group (negative pid); fall back to the
             // direct child if the group signal fails.
             try {
-              process.kill(-child.pid, "SIGKILL");
+              process.kill(-child.pid, 'SIGKILL');
             } catch (e) {
               try {
-                child.kill("SIGKILL");
+                child.kill('SIGKILL');
               } catch (e2) {
                 // Ignore kill errors
               }
@@ -172,9 +165,9 @@ export async function runScript({ id, targetDir, cmd, timeout, env }) {
           resolve({
             success: false,
             exitCode: null,
-            stdout: "",
-            stderr: "timeout occurred during execution",
-            error: "timeout occurred during execution",
+            stdout: '',
+            stderr: 'timeout occurred during execution',
+            error: 'timeout occurred during execution',
             timedOut: true,
           });
         }, execTimeout);

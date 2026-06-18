@@ -84,7 +84,7 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
   - Returns the full `oneshot.json` (vision + attempt history), or a normalized empty default when none exists.
 - **`POST /api/manifest/spec`** `{ id, vision, acceptance? }`
   - Creates the immutable vision. Write-once: returns **409** if a vision already exists.
-- **`POST /api/manifest/attempt`** `{ id, model?, environment?, build?, runtime? }`
+- **`POST /api/manifest/attempt`** `{ id, model?, environment?, build? }`
   - Appends a build attempt to the append-only history.
 - **`POST /api/manifest/evaluation`** `{ id, attemptId, fidelityScore?, feedback? }`
   - Records a human fidelity evaluation for an existing attempt.
@@ -98,7 +98,7 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
 Each one-shot can carry a `oneshot.json` that turns it into a longitudinal benchmark — letting you measure whether better tools, models, prompting, and planning make you faster, cheaper, and more consistent over time.
 
 - **`spec` (write-once, never deleted)** — the `vision` (what success looks like) that every attempt is scored against, plus how to evaluate it (`acceptance.mode`: `human` or `program`).
-- **`attempts[]` (append-only)** — one entry per build/regeneration, capturing the generation cost (`build.tokens` / `build.durationMs`), the runtime cost (`runtime.*`), the `model`, the `environment` (tool build + OS build), and an `evaluation` (a `fidelityScore` 0–100 for human review, or `passed` for an automated `verify` test).
+- **`attempts[]` (append-only)** — one entry per build/regeneration, capturing the generation cost (`build.tokens` / `build.durationMs`), the `model`, the `environment` (tool build + OS build), and an `evaluation` (a `fidelityScore` 0–100 for human review, or `passed` for an automated `verify` test).
 
 ```json
 {
@@ -113,10 +113,20 @@ Each one-shot can carry a `oneshot.json` that turns it into a longitudinal bench
       "id": "att_1750000000000_abc123",
       "timestamp": "2026-06-17T00:00:00.000Z",
       "model": "Gemini 3.5 Flash (high)",
-      "environment": { "tool": "Antigravity", "toolBuild": "xxxx", "os": "Windows 11", "osBuild": "xxxx" },
+      "environment": {
+        "tool": "Antigravity",
+        "toolBuild": "xxxx",
+        "os": "Windows 11",
+        "osBuild": "xxxx"
+      },
       "build": { "tokens": 123456, "durationMs": 845000 },
-      "runtime": { "tokens": 0, "durationMs": 1200 },
-      "evaluation": { "method": "human", "fidelityScore": 87, "passed": null, "feedback": "Mostly matched the vision.", "evaluatedAt": "2026-06-17T01:00:00.000Z" }
+      "evaluation": {
+        "method": "human",
+        "fidelityScore": 87,
+        "passed": null,
+        "feedback": "Mostly matched the vision.",
+        "evaluatedAt": "2026-06-17T01:00:00.000Z"
+      }
     }
   ]
 }
@@ -166,5 +176,5 @@ Open a one-shot's **Details** in the dashboard to read the vision, see the attem
 1. Create a subdirectory under `/one-shots/` using kebab-case (e.g. `/one-shots/my-awesome-script/`).
 2. Add a `package.json` with the required metadata fields (`name`, `description`, `version`, `tags`) and execution scripts (`start`, `test`).
 3. Add a `README.md` documenting usage, required environment variables, and visual previews/examples.
-4. Add a `oneshot.json` with the `spec.vision` and a seed entry in `attempts[]` (see [Vision & Metrics](#vision--metrics)). For non-visual outputs, add a `scripts.verify` acceptance test and set `acceptance.mode` to `program`.
+4. Add a `oneshot.json` with the `spec.vision` and seed the first attempt. (Note: when promoting an idea, run `python scripts/promote.py <ID>` to scaffold the files and seed the manifest automatically. For subsequent attempts, always record them using `node scripts/record-attempt.js --id <id> [options]` to ensure lock-safety and schema accuracy). For non-visual outputs, add a `scripts.verify` acceptance test and set `acceptance.mode` to `program`.
 5. Verify your piece appears in the Dashboard and passes local tests before submitting a PR.

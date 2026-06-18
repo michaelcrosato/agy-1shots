@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 import {
   resolveOneShot,
   readManifestWithStatus,
   summarizeManifest,
-} from "../../../../../lib/manifest";
+  decorateManifest,
+} from '../../../../../lib/manifest';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 // GET /api/scan/:id/manifest
 // Returns the full manifest for a one-shot, or a normalized empty default
@@ -15,20 +16,21 @@ export async function GET(request, { params }) {
 
   const resolved = resolveOneShot(id);
   if (!resolved.ok) {
-    return new NextResponse(JSON.stringify({ error: "Not Found" }), {
+    return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
       status: resolved.status,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
   const { manifest, status } = await readManifestWithStatus(resolved.targetDir);
   const summary = summarizeManifest(manifest, status);
+  const decorated = decorateManifest(manifest);
 
   return NextResponse.json({
     id,
-    schemaVersion: manifest.schemaVersion,
-    spec: manifest.spec,
-    attempts: manifest.attempts,
+    schemaVersion: decorated.schemaVersion,
+    spec: decorated.spec,
+    attempts: decorated.attempts,
     ...summary,
   });
 }

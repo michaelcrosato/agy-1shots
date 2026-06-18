@@ -1,0 +1,34 @@
+{
+  "name": "cyberpunk-marble-physics",
+  "version": "1.0.0",
+  "description": "A browser-based, modular 3D Cyberpunk Marble-Physics game featuring a deterministic 60Hz physics accumulator loop, interpolated WebGL rendering, custom neon grid shaders, and procedurally generated tracks.",
+  "type": "module",
+  "tags": [
+    "3d",
+    "physics",
+    "rapier",
+    "threejs",
+    "game",
+    "cyberpunk",
+    "vite"
+  ],
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "verify": "node verify.js"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.11.2",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "@types/three": "^0.160.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vite-plugin-static-copy": "^1.0.1",
+    "vitest": "^1.2.1"
+  }
+}

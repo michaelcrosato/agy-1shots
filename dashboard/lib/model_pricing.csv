@@ -1,0 +1,88 @@
+# Model Pricing Registry
+# Last Updated: 2026-06-17
+Model,Pricing,InputPricePer1M,OutputPricePer1M,Category
+"Claude Fable 5","$10.00 input / $50.00 output per 1M tokens",10.00,50.00,text
+"Claude Mythos 5","$10.00 input / $50.00 output per 1M tokens",10.00,50.00,text
+"Claude Opus 4.8","$5.00 input / $25.00 output per 1M tokens",5.00,25.00,text
+"Claude Opus 4.7","$5.00 input / $25.00 output per 1M tokens",5.00,25.00,text
+"Claude Opus 4.6","$5.00 input / $25.00 output per 1M tokens",5.00,25.00,text
+"Claude Opus 4.5","$5.00 input / $25.00 output per 1M tokens",5.00,25.00,text
+"Claude Sonnet 4.6","$3.00 input / $15.00 output per 1M tokens",3.00,15.00,text
+"Claude Sonnet 4.5","$3.00 input / $15.00 output per 1M tokens",3.00,15.00,text
+"Claude Haiku 4.5","$1.00 input / $5.00 output per 1M tokens",1.00,5.00,text
+"Claude Opus 4.1 / Opus 4 (legacy)","$15.00 input / $75.00 output per 1M tokens",15.00,75.00,text
+"GPT-5.5","$4.00-$5.00 input / $24.00-$30.00 output per 1M tokens",4.50,27.00,text
+"GPT-5.5 Pro","$30.00 input / $180.00 output per 1M tokens",30.00,180.00,text
+"GPT-5.4","$2.50 input / $15.00 output per 1M tokens",2.50,15.00,text
+"GPT-5.4 Mini","$0.75 input / $4.50 output per 1M tokens",0.75,4.50,text
+"GPT-5.4 Nano","$0.20 input / $1.25 output per 1M tokens",0.20,1.25,text
+"GPT-5.4 Pro","$30.00 input / $180.00 output per 1M tokens",30.00,180.00,text
+"chat-latest","$5.00 input / $30.00 output per 1M tokens",5.00,30.00,text
+"GPT-5.3 Codex","$1.75 input / $14.00 output per 1M tokens",1.75,14.00,text
+"o3 / GPT-4.1","$2.00 input / $8.00 output per 1M tokens",2.00,8.00,text
+"o3-deep-research","$5.00 input / $20.00 output per 1M tokens",5.00,20.00,text
+"o4-mini-deep-research","$1.00 input / $4.00 output per 1M tokens",1.00,4.00,text
+"computer-use-preview","$1.50 input / $6.00 output per 1M tokens",1.50,6.00,text
+"GPT-5 (Flagship)","$1.25 input / $10.00 output per 1M tokens",1.25,10.00,text
+"o4-mini / o3-mini","$1.10 input / $4.40 output per 1M tokens",1.10,4.40,text
+"GPT-4.1 Mini","$0.40 input / $1.60 output per 1M tokens",0.40,1.60,text
+"GPT-5 Mini","$0.25 input / $2.00 output per 1M tokens",0.25,2.00,text
+"GPT-4.1 Nano","$0.10 input / $0.40 output per 1M tokens",0.10,0.40,text
+"Gemini 3.5 Flash","$1.50 input / $9.00 output per 1M tokens",1.50,9.00,text
+"Gemini 3.1 Flash-Lite","$0.25 input / $1.50 output per 1M tokens",0.25,1.50,text
+"Gemini 3.1 Pro (Preview)","$2.00-$2.70 input / $12.00-$16.20 output per 1M tokens (Scales to $4.00/$18.00 over 200K)",2.35,14.10,text
+"Gemini 3 Flash (Preview)","$0.50 input / $3.00 output per 1M tokens",0.50,3.00,text
+"Gemini 2.5 Pro","Input: $1.25-$2.00 (<=200K) / $2.50-$4.00 (>200K); Output: $10.00-$12.00 (<=200K) / $15.00-$18.00 (>200K) per 1M tokens",1.625,11.00,text
+"Gemini 2.5 Flash","Input: $0.30-$1.00 (<=200K) / $2.00 (>200K); Output: $2.50-$6.00 (<=200K) / $9.00 (>200K) per 1M tokens",0.65,4.25,text
+"Gemini 2.5 Flash-Lite","$0.10 input / $0.40 output per 1M tokens",0.10,0.40,text
+"Gemini 2.5 Flash-Lite Preview","$0.10 input / $0.40 output per 1M tokens",0.10,0.40,text
+"Gemini 2.5 Computer Use Preview","Input: $1.25-$2.50, Output: $10.00-$15.00 per 1M tokens",1.875,12.50,text
+"Gemma 4","Free tier only",0.00,0.00,text
+"Gemini 2.0 Flash","$0.10 input / $0.40 output per 1M tokens",0.10,0.40,text
+"Gemini 2.0 Flash-Lite","$0.075 input / $0.30 output per 1M tokens",0.075,0.30,text
+"Gemini 3.1 Flash","$0.75 input / $4.50 output per 1M tokens",0.75,4.50,text
+"Gemini 3.1 Flash ultra-efficient variant","$0.125 input / $0.75 output per 1M tokens",0.125,0.75,text
+"Gemini Embedding 2","Text: $0.20, Image: $0.45, Audio: $6.50, Video: $12.00 input per 1M tokens",0.20,0.00,text
+"Gemini Embedding-001","$0.15 input per 1M tokens",0.15,0.00,text
+"Gemini Robotics-ER 1.6 Preview","Input: $1.00, Output: $5.00 per 1M tokens",1.00,5.00,text
+"Grok 4.3","$1.25 input / $2.50 output per 1M tokens",1.25,2.50,text
+"Grok 4.20 family / variants","$1.25-$2.00 input / $2.50-$6.00 output per 1M tokens",1.625,4.25,text
+"grok-build-0.1","$1.00 input / $2.00 output per 1M tokens",1.00,2.00,text
+"Grok 4.1 Fast","$0.20 input / $0.50 output per 1M tokens",0.20,0.50,text
+"Grok 4 (legacy)","$3.00 input / $15.00 output per 1M tokens",3.00,15.00,text
+"Grok 3","$3.00 input / $15.00 output per 1M tokens",3.00,15.00,text
+"Grok 3 Mini","$0.30 input / $0.50 output per 1M tokens",0.30,0.50,text
+"GPT-Image-2 (image)","$8.00 input / $30.00 output per 1M tokens",8.00,30.00,image
+"GPT-Image-2 (text)","$5.00 input per 1M tokens",5.00,0.00,image
+"GPT-Image-1.5 (image)","$8.00 input / $32.00 output per 1M tokens",8.00,32.00,image
+"GPT-Image-1.5 (text)","$5.00 input / $10.00 output per 1M tokens",5.00,10.00,image
+"GPT-Image-1-mini (image)","$2.50 input / $8.00 output per 1M tokens",2.50,8.00,image
+"GPT-Image-1-mini (text)","$2.00 input per 1M tokens",2.00,0.00,image
+"Gemini 3.1 Flash Image","Text/Image: $0.50 input; Text output: $3.00, Image output: $60.00 per 1M tokens",0.50,60.00,image
+"Gemini 3 Pro Image","Text/Image input: $2.00, Text output: $12.00, Image output: $120.00 per 1M tokens",2.00,120.00,image
+"Gemini 2.5 Flash Image","Text/Image input: $0.30 per 1M tokens; Image output: $0.039 per image",0.30,39.00,image
+"Imagen 4","$0.02-$0.06 per image",40.00,40.00,image
+"Imagine image","$0.02-$0.07 per image",45.00,45.00,image
+"Sora-2","$0.10 per second output",100.00,100.00,video
+"Sora-2-pro","$0.30-$0.70 per second output",500.00,500.00,video
+"Veo 3.1","$0.05-$0.60 per second",325.00,325.00,video
+"Imagine video","$0.05-$0.14 per second",95.00,95.00,video
+"GPT-Realtime-2 (audio)","$32.00 input / $64.00 output per 1M tokens",32.00,64.00,voice
+"GPT-Realtime-2 (text)","$4.00 input / $24.00 output per 1M tokens",4.00,24.00,voice
+"GPT-Realtime-2 (image)","$5.00 input per 1M tokens",5.00,0.00,voice
+"gpt-realtime-translate","$0.034 per minute",34.00,34.00,voice
+"gpt-realtime-whisper","$0.017 per minute",17.00,17.00,voice
+"GPT-4o-transcribe","$2.50 input / $10.00 output per 1M tokens",2.50,10.00,voice
+"GPT-4o-mini-transcribe","$1.25 input / $5.00 output per 1M tokens",1.25,5.00,voice
+"Gemini 3.5 Live Translate","Text/Audio: $3.50 input / $21.00 output per 1M tokens",3.50,21.00,voice
+"Gemini 3.1 Flash Live Preview","Text: $0.75 in / $4.50 out; Audio: $3 in / $12 out; Img/Vid: $1 in per 1M tokens",1.00,12.00,voice
+"Gemini 3.1 Flash TTS Preview","Text input: $1.00, Audio output: $20.00 per 1M tokens",1.00,20.00,voice
+"Gemini 2.5 Flash Native Audio","Text input: $0.50, Audio/Video input: $3.00; Text output: $2.00, Audio output: $12.00 per 1M tokens",3.00,12.00,voice
+"Gemini 2.5 Flash Preview TTS","Text input: $0.50, Audio output: $10.00 per 1M tokens",0.50,10.00,voice
+"Gemini 2.5 Pro Preview TTS","Text input: $1.00, Audio output: $20.00 per 1M tokens",1.00,20.00,voice
+"Lyria 3","$0.04 per 30s clip / $0.08 per song",80.00,80.00,voice
+"Voice Agent API","$3.00 per hour / $0.05 per minute",50.00,50.00,voice
+"Realtime text input","$0.004 per message",4.00,4.00,voice
+"Text-to-speech","$15.00 per 1M characters",15.00,15.00,voice
+"Speech-to-text batch","$0.10 per hour",10.00,10.00,voice
+"Speech-to-text streaming","$0.20 per hour",20.00,20.00,voice

@@ -1,13 +1,13 @@
-import fs from "fs";
-import path from "path";
-import archiver from "archiver";
-import { NextResponse } from "next/server";
-import { Readable } from "stream";
+import fs from 'fs';
+import path from 'path';
+import archiver from 'archiver';
+import { NextResponse } from 'next/server';
+import { Readable } from 'stream';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return new NextResponse("Method Not Allowed", { status: 405 });
+  return new NextResponse('Method Not Allowed', { status: 405 });
 }
 
 export async function POST(request) {
@@ -15,54 +15,54 @@ export async function POST(request) {
   try {
     body = await request.json();
   } catch (err) {
-    return new NextResponse(JSON.stringify({ error: "Bad Request" }), {
+    return new NextResponse(JSON.stringify({ error: 'Bad Request' }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  if (!body || typeof body.id !== "string") {
-    return new NextResponse(JSON.stringify({ error: "Bad Request" }), {
+  if (!body || typeof body.id !== 'string') {
+    return new NextResponse(JSON.stringify({ error: 'Bad Request' }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
   const { id } = body;
 
   // Rejects path traversal
-  if (id.includes("..") || id.includes("/") || id.includes("\\")) {
-    return new NextResponse(JSON.stringify({ error: "Not Found" }), {
+  if (id.includes('..') || id.includes('/') || id.includes('\\')) {
+    return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
       status: 404,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const oneShotsDir = path.resolve(process.cwd(), "../one-shots");
+  const oneShotsDir = path.resolve(process.cwd(), '../one-shots');
   const targetDir = path.join(oneShotsDir, id);
 
   if (!fs.existsSync(targetDir) || !fs.statSync(targetDir).isDirectory()) {
-    return new NextResponse(JSON.stringify({ error: "Not Found" }), {
+    return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
       status: 404,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const archive = archiver("zip", { zlib: { level: 9 } });
+  const archive = archiver('zip', { zlib: { level: 9 } });
 
-  archive.on("error", (err) => {
-    console.error("Archiver error:", err);
+  archive.on('error', (err) => {
+    console.error('Archiver error:', err);
   });
 
   archive.directory(targetDir, false, (entry) => {
     // Exclude node_modules and .git
     if (
-      entry.name === "node_modules" ||
-      entry.name.startsWith("node_modules/") ||
-      entry.name.startsWith("node_modules\\") ||
-      entry.name === ".git" ||
-      entry.name.startsWith(".git/") ||
-      entry.name.startsWith(".git\\")
+      entry.name === 'node_modules' ||
+      entry.name.startsWith('node_modules/') ||
+      entry.name.startsWith('node_modules\\') ||
+      entry.name === '.git' ||
+      entry.name.startsWith('.git/') ||
+      entry.name.startsWith('.git\\')
     ) {
       return false;
     }
@@ -89,8 +89,8 @@ export async function POST(request) {
   return new Response(webStream, {
     status: 200,
     headers: {
-      "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="${id}.zip"`,
+      'Content-Type': 'application/zip',
+      'Content-Disposition': `attachment; filename="${id}.zip"`,
     },
   });
 }

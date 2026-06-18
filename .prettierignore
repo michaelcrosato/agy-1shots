@@ -1,0 +1,9 @@
+node_modules/
+.next/
+dist/
+out/
+.agents/
+.agent-cleaner/
+tests/e2e/reports/junit.xml
+package-lock.json
+one-shots/cyberpunk-marble-physics/package-lock.json

@@ -213,10 +213,6 @@ def main():
                     "tokens": None,
                     "durationMs": None
                 },
-                "runtime": {
-                    "tokens": None,
-                    "durationMs": None
-                },
                 "evaluation": {
                     "method": "none",
                     "fidelityScore": None,

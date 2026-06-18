@@ -1,19 +1,19 @@
-import { promises as fs } from "fs";
-import path from "path";
+import { promises as fs } from 'fs';
+import path from 'path';
 
-const statsPath = path.join(process.cwd(), "stats.json");
+const statsPath = path.join(process.cwd(), 'stats.json');
 
 export async function getStats() {
   try {
-    const data = await fs.readFile(statsPath, "utf8");
+    const data = await fs.readFile(statsPath, 'utf8');
     const parsed = JSON.parse(data);
     return {
-      totalRuns: typeof parsed.totalRuns === "number" ? parsed.totalRuns : 0,
-      failedRuns: typeof parsed.failedRuns === "number" ? parsed.failedRuns : 0,
+      totalRuns: typeof parsed.totalRuns === 'number' ? parsed.totalRuns : 0,
+      failedRuns: typeof parsed.failedRuns === 'number' ? parsed.failedRuns : 0,
     };
   } catch (e) {
-    if (e.code !== "ENOENT") {
-      console.error("Error reading stats:", e);
+    if (e.code !== 'ENOENT') {
+      console.error('Error reading stats:', e);
     }
   }
   return { totalRuns: 0, failedRuns: 0 };
@@ -22,11 +22,11 @@ export async function getStats() {
 async function writeStats(data) {
   const uniqueTmpPath = path.join(
     process.cwd(),
-    `stats.json.tmp.${process.pid}.${Date.now()}.${Math.random().toString(36).substring(2)}`,
+    `stats.json.tmp.${process.pid}.${Date.now()}.${Math.random().toString(36).substring(2)}`
   );
   let created = false;
   try {
-    await fs.writeFile(uniqueTmpPath, JSON.stringify(data, null, 2), "utf8");
+    await fs.writeFile(uniqueTmpPath, JSON.stringify(data, null, 2), 'utf8');
     created = true;
 
     // Retry loop (5 attempts with 50ms delay)
@@ -44,13 +44,13 @@ async function writeStats(data) {
       }
     }
   } catch (e) {
-    console.error("Error writing stats:", e);
+    console.error('Error writing stats:', e);
     if (created) {
       try {
         await fs.unlink(uniqueTmpPath);
       } catch (unlinkErr) {
-        if (unlinkErr.code !== "ENOENT") {
-          console.error("Error cleaning up temp file:", unlinkErr);
+        if (unlinkErr.code !== 'ENOENT') {
+          console.error('Error cleaning up temp file:', unlinkErr);
         }
       }
     }

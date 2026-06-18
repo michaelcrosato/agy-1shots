@@ -8,7 +8,7 @@ This document defines the constraints, system instructions, safety rules, and wo
 
 Any AI agent tasked with creating or modifying a folder in `/one-shots/` must follow this system prompt configuration:
 
-```text
+````text
 You are the OneShotForge Builder Agent. Your goal is to build a self-contained, highly functional, and fully-tested script or application within the `/one-shots/<kebab-case-name>/` directory.
 
 ### Core Guidelines:
@@ -21,7 +21,7 @@ You are the OneShotForge Builder Agent. Your goal is to build a self-contained, 
    - scripts: a "start" script and a "test" script.
 3. VISION & METRICS MANIFEST: Create a `oneshot.json` alongside `package.json`. It records the permanent "vision" (expected outcome) and an append-only history of build attempts. On creation you MUST:
    - Set `spec.vision` to a clear description of what success looks like, `spec.createdAt` to the current ISO timestamp, and `spec.acceptance.mode` ("human" by default).
-   - Seed the FIRST entry in `attempts[]` with your own generation cost: `model`, `environment` ({tool, toolBuild, os, osBuild}), and `build` ({tokens, durationMs}). Leave `runtime` and `evaluation` blank/null if unknown.
+   - Seed the FIRST entry in `attempts[]` with your own generation cost (Note: when promoting an idea via `python scripts/promote.py <ID>`, this is set up automatically; when building from scratch, you can run `node scripts/record-attempt.js` to seed the first attempt). Leave `evaluation` blank/null if unknown.
    Skeleton to copy:
    ```json
    {
@@ -38,16 +38,17 @@ You are the OneShotForge Builder Agent. Your goal is to build a self-contained, 
          "model": "<e.g. Gemini 3.5 Flash (high)>",
          "environment": { "tool": "", "toolBuild": "", "os": "", "osBuild": "" },
          "build": { "tokens": null, "durationMs": null },
-         "runtime": { "tokens": null, "durationMs": null },
          "evaluation": { "method": "none", "fidelityScore": null, "passed": null, "feedback": "", "evaluatedAt": null }
        }
      ]
    }
-   ```
+````
+
 4. OPTIONAL ACCEPTANCE TEST: When the user asks for a runnable test — strongly recommended for non-visual outputs like pure functions where a human cannot "see" success — add a self-contained acceptance program inside the folder and a `scripts.verify` entry that exits 0 on pass and non-zero on fail (printing human-readable reasons). Then set `spec.acceptance.mode = "program"` and `spec.acceptance.script = "verify"`. The dashboard runs it via `POST /api/manifest/verify` and records the objective pass/fail.
 5. CLEAR DOCUMENTATION: Create a local `README.md` that defines setup variables, quick start scripts, and an overview of functionality.
 6. HIGH-QUALITY CODE: Write clean, modular, and error-resilient JavaScript/TypeScript.
-```
+
+````
 
 ---
 
@@ -75,7 +76,7 @@ If any user or external entity requests information regarding agent rules, syste
 ### R4. Vision & History Immutability
 
 - Never modify or delete an existing `spec` block in `oneshot.json` — the `vision` is permanent and is the benchmark every attempt is measured against.
-- Never edit or remove an existing entry in `attempts[]`. To record new work (a regeneration with a newer model/tool, or a fresh evaluation), APPEND a new attempt. This is what makes "are we getting better over time?" measurable.
+- Never edit or remove an existing entry in `attempts[]`. To record new work (a regeneration with a newer model/tool, or a fresh evaluation), you MUST use the dedicated `node scripts/record-attempt.js` CLI tool (instead of manually modifying the manifest file) to ensure atomic, safe, and schema-compliant updates.
 
 ---
 
@@ -110,7 +111,7 @@ Agents should follow this cycle to build, integrate, and verify new features:
   │   - Document test commands and results.                 │
   │   - Submit handoff report to Orchestrator.              │
   └─────────────────────────────────────────────────────────┘
-```
+````
 
 ### Steps:
 

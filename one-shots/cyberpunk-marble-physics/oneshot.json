@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "spec": {
+    "vision": "A performant, modular browser-based 3D Cyberpunk Marble-Physics game. Features a deterministic 60Hz physics accumulator loop running in WebAssembly (via Rapier3D) decoupled from the WebGL rendering loop. Rendered using Three.js with position interpolation (residual accumulator alpha) for ultra-smooth motion. Incorporates dynamic tilt controls (WASD, mouse, and accelerometer) mapping to shifting gravity vectors, neon track segments rendered using InstancedMesh, and custom distance-modulated PBR and glow vertex/fragment shaders.",
+    "createdAt": "2026-06-18T12:01:03Z",
+    "acceptance": {
+      "mode": "program",
+      "script": "verify",
+      "successExitCode": 0
+    }
+  },
+  "attempts": [
+    {
+      "id": "att_seed",
+      "timestamp": "2026-06-18T12:01:03Z",
+      "model": "Gemini 3.5 Flash (high)",
+      "environment": {
+        "tool": "Gemini Developer Environment",
+        "toolBuild": "v1.0.0",
+        "os": "Windows",
+        "osBuild": "10.0"
+      },
+      "build": {
+        "tokens": null,
+        "durationMs": null
+      },
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781784293448_ckv3k0",
+      "timestamp": "2026-06-18T12:04:53.448Z",
+      "model": "Gemini 3.5 Flash (high)",
+      "environment": {
+        "tool": "Gemini Developer Environment",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": null,
+        "durationMs": null
+      },
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781784436911_ve5i0d",
+      "timestamp": "2026-06-18T12:07:16.911Z",
+      "model": "Gemini 3.5 Flash (high)",
+      "environment": {
+        "tool": "Gemini Developer Environment",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": null,
+        "durationMs": null
+      },
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781787806459_godqxs",
+      "timestamp": "2026-06-18T13:03:26.459Z",
+      "model": "Gemini 3.5 Flash (high)",
+      "environment": {
+        "tool": "Antigravity",
+        "toolBuild": "v1.0.0",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": 350000,
+        "durationMs": 1000
+      },
+      "evaluation": {
+        "method": "program",
+        "fidelityScore": null,
+        "passed": true,
+        "feedback": "=== Starting Cyberpunk Marble-Physics Acceptance Verification (Stub) ===\n[PASS] Found file: package.json\n[PASS] Found file: oneshot.json\n[PASS] Found file: vite.config.js\n[PASS] Found file: README.md\n[PASS] package.json contains all required dependencies.\nRunning compile verification (npm run build)...\n\n> cyberpunk-marble-physics@1.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 11 modules transformed.\nrendering chunks...\ncomputing gzip size...\n[vite-plugin-static-copy] Copied 1 items.\ndist/index.html                              2.92 kB │ gzip:   1.17 kB\ndist/assets/index-DaJlqTlA.js               22.87 kB │ gzip:   7.59 kB │ map:    61.12 kB\ndist/assets/three-rendering-BbwemxW2.js    455.51 kB │ gzip: 114.87 kB │ map: 1,864.89 kB\ndist/assets/rapier-physics-BM4kW-A5.js   1,987.56 kB │ gzip: 722.74 kB │ map: 2,114.03 kB\n✓ built in 1.12s\n[PASS] Compile Verification (npm run build) succeeded.\nChecking built assets...\n[PASS] Distribution assets verified successfully.\n=== Verification Passed Successfully ===",
+        "evaluatedAt": "2026-06-18T13:03:50.123Z"
+      }
+    },
+    {
+      "id": "att_1781788575249_k18xgm",
+      "timestamp": "2026-06-18T13:16:14.249Z",
+      "model": "Gemini 3.5 Flash (high)",
+      "environment": {
+        "tool": "Antigravity",
+        "toolBuild": "v2.1.4",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": 7280000,
+        "durationMs": 931000
+      },
+      "evaluation": {
+        "method": "program",
+        "fidelityScore": null,
+        "passed": true,
+        "feedback": "=== Starting Cyberpunk Marble-Physics Acceptance Verification (Stub) ===\n[PASS] Found file: package.json\n[PASS] Found file: oneshot.json\n[PASS] Found file: vite.config.js\n[PASS] Found file: README.md\n[PASS] package.json contains all required dependencies.\nRunning compile verification (npm run build)...\n\n> cyberpunk-marble-physics@1.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 11 modules transformed.\nrendering chunks...\ncomputing gzip size...\n[vite-plugin-static-copy] Copied 1 items.\ndist/index.html                              2.92 kB │ gzip:   1.17 kB\ndist/assets/index-DaJlqTlA.js               22.87 kB │ gzip:   7.59 kB │ map:    61.12 kB\ndist/assets/three-rendering-BbwemxW2.js    455.51 kB │ gzip: 114.87 kB │ map: 1,864.89 kB\ndist/assets/rapier-physics-BM4kW-A5.js   1,987.56 kB │ gzip: 722.74 kB │ map: 2,114.03 kB\n✓ built in 1.18s\n[PASS] Compile Verification (npm run build) succeeded.\nChecking built assets...\n[PASS] Distribution assets verified successfully.\n=== Verification Passed Successfully ===",
+        "evaluatedAt": "2026-06-18T13:16:23.123Z"
+      }
+    }
+  ]
+}

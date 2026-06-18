@@ -30,3 +30,13 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Python bytecode cache
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local cleanup artifacts
+.agent-cleaner/
+

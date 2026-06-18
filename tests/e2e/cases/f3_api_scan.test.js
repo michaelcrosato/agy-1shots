@@ -1,9 +1,9 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-describe("F3: Dashboard API Scan", () => {
-  const DASHBOARD_URL = process.env.DASHBOARD_URL || "http://localhost:3000";
-  const oneShotsDir = path.resolve(__dirname, "../../../one-shots");
+describe('F3: Dashboard API Scan', () => {
+  const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:3000';
+  const oneShotsDir = path.resolve(__dirname, '../../../one-shots');
   const tempDirs = [];
 
   function rmDirRecursive(dirPath) {
@@ -21,9 +21,7 @@ describe("F3: Dashboard API Scan", () => {
             } catch (err) {
               if (
                 retries > 1 &&
-                (err.code === "EBUSY" ||
-                  err.code === "ENOTEMPTY" ||
-                  err.code === "EPERM")
+                (err.code === 'EBUSY' || err.code === 'ENOTEMPTY' || err.code === 'EPERM')
               ) {
                 retries--;
                 const end = Date.now() + 100;
@@ -41,14 +39,12 @@ describe("F3: Dashboard API Scan", () => {
           fs.rmdirSync(dirPath);
           break;
         } catch (err) {
-          if (err.code === "ENOENT") {
+          if (err.code === 'ENOENT') {
             break; // Already deleted
           }
           if (
             retries > 1 &&
-            (err.code === "EBUSY" ||
-              err.code === "ENOTEMPTY" ||
-              err.code === "EPERM")
+            (err.code === 'EBUSY' || err.code === 'ENOTEMPTY' || err.code === 'EPERM')
           ) {
             retries--;
             const end = Date.now() + 100;
@@ -75,44 +71,42 @@ describe("F3: Dashboard API Scan", () => {
     }
   });
 
-  test("F3_1: GET /api/scan returns status 200", async () => {
+  test('F3_1: GET /api/scan returns status 200', async () => {
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     expect(res.status).toBe(200);
   });
 
-  test("F3_2: GET /api/scan response has application/json content type", async () => {
+  test('F3_2: GET /api/scan response has application/json content type', async () => {
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
-    const contentType = res.headers.get("content-type") || "";
-    expect(contentType.includes("application/json")).toBe(true);
+    const contentType = res.headers.get('content-type') || '';
+    expect(contentType.includes('application/json')).toBe(true);
   });
 
-  test("F3_3: GET /api/scan returns a JSON array", async () => {
+  test('F3_3: GET /api/scan returns a JSON array', async () => {
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     const data = await res.json();
     expect(Array.isArray(data)).toBe(true);
   });
 
-  test("F3_4: GET /api/scan elements have required fields", async () => {
+  test('F3_4: GET /api/scan elements have required fields', async () => {
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     const data = await res.json();
     if (data.length > 0) {
       const first = data[0];
-      expect(typeof first.id).toBe("string");
-      expect(typeof first.name).toBe("string");
-      expect(typeof first.version).toBe("string");
-      expect(typeof first.description).toBe("string");
+      expect(typeof first.id).toBe('string');
+      expect(typeof first.name).toBe('string');
+      expect(typeof first.version).toBe('string');
+      expect(typeof first.description).toBe('string');
       expect(Array.isArray(first.tags)).toBe(true);
-      expect(typeof first.path).toBe("string");
+      expect(typeof first.path).toBe('string');
     }
   });
 
-  test("F3_5: GET /api/scan returns notion-scraper if implemented", async () => {
+  test('F3_5: GET /api/scan returns notion-scraper if implemented', async () => {
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     const data = await res.json();
-    const scraperExists = fs.existsSync(
-      path.join(oneShotsDir, "notion-scraper"),
-    );
-    const found = data.some((item) => item.id === "notion-scraper");
+    const scraperExists = fs.existsSync(path.join(oneShotsDir, 'notion-scraper'));
+    const found = data.some((item) => item.id === 'notion-scraper');
     if (scraperExists) {
       expect(found).toBe(true);
     } else {
@@ -121,8 +115,8 @@ describe("F3: Dashboard API Scan", () => {
     }
   });
 
-  test("F3_6: GET /api/scan dynamically scans new one-shots added to disk", async () => {
-    const tempDirName = "temp-scan-add-test";
+  test('F3_6: GET /api/scan dynamically scans new one-shots added to disk', async () => {
+    const tempDirName = 'temp-scan-add-test';
     const tempPath = path.join(oneShotsDir, tempDirName);
     rmDirRecursive(tempPath); // Ensure clean start
 
@@ -131,21 +125,13 @@ describe("F3: Dashboard API Scan", () => {
 
     const pkg = {
       name: tempDirName,
-      version: "1.0.0",
-      description: "Temporary scan addition test",
-      tags: ["temp", "test"],
-      main: "index.js",
+      version: '1.0.0',
+      description: 'Temporary scan addition test',
+      tags: ['temp', 'test'],
+      main: 'index.js',
     };
-    fs.writeFileSync(
-      path.join(tempPath, "package.json"),
-      JSON.stringify(pkg, null, 2),
-      "utf8",
-    );
-    fs.writeFileSync(
-      path.join(tempPath, "index.js"),
-      'console.log("temp");',
-      "utf8",
-    );
+    fs.writeFileSync(path.join(tempPath, 'package.json'), JSON.stringify(pkg, null, 2), 'utf8');
+    fs.writeFileSync(path.join(tempPath, 'index.js'), 'console.log("temp");', 'utf8');
 
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     const data = await res.json();
@@ -156,8 +142,8 @@ describe("F3: Dashboard API Scan", () => {
     tempDirs.splice(tempDirs.indexOf(tempPath), 1);
   });
 
-  test("F3_7: GET /api/scan dynamically removes deleted one-shots", async () => {
-    const tempDirName = "temp-scan-del-test";
+  test('F3_7: GET /api/scan dynamically removes deleted one-shots', async () => {
+    const tempDirName = 'temp-scan-del-test';
     const tempPath = path.join(oneShotsDir, tempDirName);
     rmDirRecursive(tempPath);
 
@@ -166,16 +152,12 @@ describe("F3: Dashboard API Scan", () => {
 
     const pkg = {
       name: tempDirName,
-      version: "1.0.0",
-      description: "Temporary scan deletion test",
-      tags: ["temp"],
-      main: "index.js",
+      version: '1.0.0',
+      description: 'Temporary scan deletion test',
+      tags: ['temp'],
+      main: 'index.js',
     };
-    fs.writeFileSync(
-      path.join(tempPath, "package.json"),
-      JSON.stringify(pkg, null, 2),
-      "utf8",
-    );
+    fs.writeFileSync(path.join(tempPath, 'package.json'), JSON.stringify(pkg, null, 2), 'utf8');
 
     // Scan to verify it's there
     let res = await fetch(`${DASHBOARD_URL}/api/scan`);
@@ -192,19 +174,15 @@ describe("F3: Dashboard API Scan", () => {
     expect(data.some((item) => item.id === tempDirName)).toBe(false);
   });
 
-  test("F3_8: GET /api/scan handles corrupt package.json gracefully", async () => {
-    const tempDirName = "temp-scan-corrupt-test";
+  test('F3_8: GET /api/scan handles corrupt package.json gracefully', async () => {
+    const tempDirName = 'temp-scan-corrupt-test';
     const tempPath = path.join(oneShotsDir, tempDirName);
     rmDirRecursive(tempPath);
 
     fs.mkdirSync(tempPath, { recursive: true });
     tempDirs.push(tempPath);
 
-    fs.writeFileSync(
-      path.join(tempPath, "package.json"),
-      '{ invalid json: "" }',
-      "utf8",
-    );
+    fs.writeFileSync(path.join(tempPath, 'package.json'), '{ invalid json: "" }', 'utf8');
 
     // Scanner should not crash, returns 200
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
@@ -216,22 +194,17 @@ describe("F3: Dashboard API Scan", () => {
     tempDirs.splice(tempDirs.indexOf(tempPath), 1);
   });
 
-  test("F3_9: GET /api/scan ignores non-directory files in one-shots folder", async () => {
-    const tempFilePath = path.join(oneShotsDir, "temp-file-test.txt");
+  test('F3_9: GET /api/scan ignores non-directory files in one-shots folder', async () => {
+    const tempFilePath = path.join(oneShotsDir, 'temp-file-test.txt');
     if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
-    fs.writeFileSync(
-      tempFilePath,
-      "This is a text file, not a directory",
-      "utf8",
-    );
+    fs.writeFileSync(tempFilePath, 'This is a text file, not a directory', 'utf8');
     tempDirs.push(tempFilePath);
 
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     const data = await res.json();
     const found = data.some(
-      (item) =>
-        item.id === "temp-file-test" || item.name === "temp-file-test.txt",
+      (item) => item.id === 'temp-file-test' || item.name === 'temp-file-test.txt'
     );
     expect(found).toBe(false);
 
@@ -239,8 +212,8 @@ describe("F3: Dashboard API Scan", () => {
     tempDirs.splice(tempDirs.indexOf(tempFilePath), 1);
   });
 
-  test("F3_10: GET /api/scan ignores directories without package.json", async () => {
-    const tempDirName = "temp-no-pkg-test";
+  test('F3_10: GET /api/scan ignores directories without package.json', async () => {
+    const tempDirName = 'temp-no-pkg-test';
     const tempPath = path.join(oneShotsDir, tempDirName);
     rmDirRecursive(tempPath);
 

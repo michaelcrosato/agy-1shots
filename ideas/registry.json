@@ -34,8 +34,8 @@
     "targetStack": "FastAPI (Python) or Node.js",
     "readyToCopyTaskPrompt": "Build an ADF Lead Parser & CRM Webhook Auto-Enricher. Create a FastAPI or Node.js gateway that accepts raw endpoint payloads, email data via IMAP polling, or Auto Dealer Format (ADF/XML) logs. Parse and normalize phone numbers, URLs, and addresses into standard JSON. Flag anomalies and forward the enriched lead data directly to HubSpot/Pipedrive CRM endpoints.",
     "dateAdded": "2026-06-17",
-    "status": "backlog",
-    "promoted_to": null,
+    "status": "promoted",
+    "promoted_to": "adf-lead-parser-crm-webhook-auto-enricher",
     "supersedes": null
   },
   {
