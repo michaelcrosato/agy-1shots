@@ -711,6 +711,74 @@ export default function DashboardClient({ initialItems, initialStats, initialSca
 
   const [promotingIdeaId, setPromotingIdeaId] = useState(null);
 
+  const [promptVariables, setPromptVariables] = useState({});
+
+  useEffect(() => {
+    if (selectedIdeaDetail && selectedIdeaDetail.readyToCopyTaskPrompt) {
+      const prompt = selectedIdeaDetail.readyToCopyTaskPrompt;
+      const stack = selectedIdeaDetail.targetStack || '';
+      const regex = /\{\{([^}]+)\}\}/g;
+      let match;
+      const vars = {};
+      while ((match = regex.exec(prompt)) !== null) {
+        const varName = match[1].trim();
+        const varNameLower = varName.toLowerCase();
+        if (vars[varName]) continue;
+
+        // compute default
+        if (varNameLower === 'language') {
+          if (stack.toLowerCase().includes('python')) {
+            vars[varName] = 'Python';
+          } else if (/\b(node|js|react|typescript|javascript)\b/i.test(stack)) {
+            vars[varName] = 'JavaScript';
+          } else if (stack.toLowerCase().includes('rust')) {
+            vars[varName] = 'Rust';
+          } else {
+            vars[varName] = 'Python';
+          }
+        } else if (varNameLower === 'framework') {
+          if (stack.toLowerCase().includes('playwright')) {
+            vars[varName] = 'Playwright';
+          } else if (stack.toLowerCase().includes('crawl4ai')) {
+            vars[varName] = 'Crawl4AI';
+          } else if (stack.toLowerCase().includes('fastapi')) {
+            vars[varName] = 'FastAPI';
+          } else if (stack.toLowerCase().includes('express')) {
+            vars[varName] = 'Express';
+          } else if (stack.toLowerCase().includes('next.js')) {
+            vars[varName] = 'Next.js';
+          } else {
+            vars[varName] = 'Playwright';
+          }
+        } else if (varNameLower === 'database' || varNameLower === 'db') {
+          if (stack.toLowerCase().includes('sqlite')) {
+            vars[varName] = 'SQLite';
+          } else if (stack.toLowerCase().includes('postgres')) {
+            vars[varName] = 'PostgreSQL';
+          } else {
+            vars[varName] = 'SQLite';
+          }
+        } else {
+          vars[varName] = varName;
+        }
+      }
+      setPromptVariables(vars);
+    } else {
+      setPromptVariables({});
+    }
+  }, [selectedIdeaDetail]);
+
+  const compiledPrompt = React.useMemo(() => {
+    if (!selectedIdeaDetail || !selectedIdeaDetail.readyToCopyTaskPrompt) return '';
+    let prompt = selectedIdeaDetail.readyToCopyTaskPrompt;
+    Object.entries(promptVariables).forEach(([key, val]) => {
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g');
+      prompt = prompt.replace(regex, val);
+    });
+    return prompt;
+  }, [selectedIdeaDetail, promptVariables]);
+
   const fetchIdeas = async () => {
     setLoadingIdeas(true);
     try {
@@ -1514,6 +1582,34 @@ export default function DashboardClient({ initialItems, initialStats, initialSca
                 </div>
               )}
 
+              {Object.keys(promptVariables).length > 0 && (
+                <div className="bg-slate-900/50 p-4 border border-slate-700/50 rounded space-y-3">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Customize Prompt Variables
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {Object.entries(promptVariables).map(([key, val]) => (
+                      <div key={key} className="flex flex-col gap-1">
+                        <label className="text-xs text-slate-400 font-mono">
+                          {key}
+                        </label>
+                        <input
+                          type="text"
+                          value={val}
+                          onChange={(e) => {
+                            setPromptVariables((prev) => ({
+                              ...prev,
+                              [key]: e.target.value,
+                            }));
+                          }}
+                          className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
@@ -1521,7 +1617,7 @@ export default function DashboardClient({ initialItems, initialStats, initialSca
                   </h3>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(selectedIdeaDetail.readyToCopyTaskPrompt);
+                      navigator.clipboard.writeText(compiledPrompt);
                       alert('Prompt copied to clipboard!');
                     }}
                     className="px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded flex items-center gap-1 transition-colors"
@@ -1530,7 +1626,7 @@ export default function DashboardClient({ initialItems, initialStats, initialSca
                   </button>
                 </div>
                 <pre className="p-3 bg-black rounded font-mono text-xs text-green-400 overflow-x-auto whitespace-pre-wrap max-h-48 border border-slate-900">
-                  {selectedIdeaDetail.readyToCopyTaskPrompt}
+                  {compiledPrompt}
                 </pre>
               </div>
             </div>
