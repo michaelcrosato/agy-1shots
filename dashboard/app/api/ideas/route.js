@@ -13,7 +13,7 @@ const categories = [
   'Micro-SaaS Templates & Personal Workflow Apps',
 ];
 
-function generateIdeasReadme(ideas) {
+export function generateIdeasReadme(ideas) {
   const categoriesList = [
     'Automotive & B2B Lead Generation Tools',
     'AI Development, Prompting, Routing & Evaluation Tools',
@@ -62,7 +62,7 @@ function generateIdeasReadme(ideas) {
   return md;
 }
 
-function generateIdeasMd(ideas) {
+export function generateIdeasMd(ideas) {
   const categoriesList = [
     'Automotive & B2B Lead Generation Tools',
     'AI Development, Prompting, Routing & Evaluation Tools',

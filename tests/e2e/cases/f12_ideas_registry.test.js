@@ -263,4 +263,27 @@ describe('F12: Ideas Registry API', () => {
     const data3 = await res3.json();
     expect(data3.id).toBe('MICRO-017');
   });
+
+  // Test 11: POST /api/ideas/promote promotes an idea and scaffolds its one-shot
+  test('F12_11: POST /api/ideas/promote promotes a backlog idea and scaffolds files', async () => {
+    const promoteRes = await fetch(`${DASHBOARD_URL}/api/ideas/promote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'MICRO-014' }),
+    });
+    expect(promoteRes.status).toBe(200);
+    const promoteData = await promoteRes.json();
+    expect(promoteData.success).toBe(true);
+    expect(promoteData.slug).toBe('unique-test-idea-x');
+
+    // Verify files were scaffolded
+    const slugDir = path.resolve(__dirname, '../../../one-shots/unique-test-idea-x');
+    expect(fs.existsSync(slugDir)).toBe(true);
+    expect(fs.existsSync(path.join(slugDir, 'oneshot.json'))).toBe(true);
+    expect(fs.existsSync(path.join(slugDir, 'package.json'))).toBe(true);
+    expect(fs.existsSync(path.join(slugDir, 'README.md'))).toBe(true);
+
+    // Clean up scaffolded folder
+    fs.rmSync(slugDir, { recursive: true, force: true });
+  });
 });

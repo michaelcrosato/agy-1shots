@@ -3,8 +3,8 @@
 This document lists all ideas available in the registry, including their current lifecycle status.
 
 ## Backlog Statistics
-- **Stats**: 56 total ideas, 2 promoted (ADF Lead Parser & CRM Webhook Auto-Enricher, Notion Scraper)
-- **Backlog Ideas**: 54
+- **Stats**: 56 total ideas, 3 promoted (ADF Lead Parser & CRM Webhook Auto-Enricher, Notion Scraper, Unique Test Idea X)
+- **Backlog Ideas**: 53
 
 ---
 
@@ -91,7 +91,7 @@ This document lists all ideas available in the registry, including their current
 | `MICRO-011` | [Family Photo Organizer](#MICRO-011) | `Python, Ollama, SQLite` | `backlog` | - |
 | `MICRO-012` | [Recipe-to-Instacart Cart Mapper](#MICRO-012) | `Node.js or Python` | `backlog` | - |
 | `MICRO-013` | [Offline Travel & Route Planner](#MICRO-013) | `HTML, Tailwind CSS, Leaflet.js` | `backlog` | - |
-| `MICRO-014` | [Unique Test Idea X](#MICRO-014) | `React, WASM` | `backlog` | - |
+| `MICRO-014` | [Unique Test Idea X](#MICRO-014) | `React, WASM` | `promoted` | `unique-test-idea-x` |
 | `MICRO-015` | [Duplicate Resolution Idea](#MICRO-015) | `React` | `backlog` | - |
 | `MICRO-016` | [Duplicate Resolution Idea](#MICRO-016) | `React` | `backlog` | - |
 | `MICRO-017` | [Duplicate Resolution Idea](#MICRO-017) | `React` | `backlog` | - |
@@ -1199,8 +1199,9 @@ Build an Offline Travel & Route Planner. Develop a mobile-friendly map dashboard
 - **ID**: `MICRO-014`
 - **Category**: Micro-SaaS Templates & Personal Workflow Apps
 - **Target Stack**: `React, WASM`
-- **Status**: `backlog`
-- **Date Added**: 2026-06-18
+- **Status**: `promoted`
+- **Promoted To**: `one-shots/unique-test-idea-x/`
+- **Date Added**: 2026-06-19
 
 #### Vision
 A test vision for unique test idea X
@@ -1221,7 +1222,7 @@ Build Unique Test Idea X with WASM, SQLite and React.
 - **Category**: Micro-SaaS Templates & Personal Workflow Apps
 - **Target Stack**: `React`
 - **Status**: `backlog`
-- **Date Added**: 2026-06-18
+- **Date Added**: 2026-06-19
 
 #### Vision
 First instance
@@ -1242,7 +1243,7 @@ Build duplicate.
 - **Category**: Micro-SaaS Templates & Personal Workflow Apps
 - **Target Stack**: `React`
 - **Status**: `backlog`
-- **Date Added**: 2026-06-18
+- **Date Added**: 2026-06-19
 
 #### Vision
 First instance
@@ -1263,7 +1264,7 @@ Build duplicate.
 - **Category**: Micro-SaaS Templates & Personal Workflow Apps
 - **Target Stack**: `React`
 - **Status**: `backlog`
-- **Date Added**: 2026-06-18
+- **Date Added**: 2026-06-19
 
 #### Vision
 First instance

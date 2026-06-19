@@ -1475,6 +1475,102 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // POST /api/ideas/promote
+  if (method === 'POST' && url.pathname === '/api/ideas/promote') {
+    parseJSONBody(req, (err, body) => {
+      if (err || !body || typeof body.id !== 'string') {
+        sendJSON(400, { error: 'Bad Request' });
+        return;
+      }
+      const { id } = body;
+      const ideasDir = path.resolve(__dirname, '../../ideas');
+      const registryPath = path.join(ideasDir, 'registry.json');
+      const readmePath = path.join(ideasDir, 'README.md');
+      const ideasMdPath = path.resolve(__dirname, '../../IDEAS.md');
+
+      if (!fs.existsSync(registryPath)) {
+        sendJSON(404, { error: 'Registry file not found' });
+        return;
+      }
+
+      const ideas = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      const idea = ideas.find((item) => item.id === id);
+
+      if (!idea) {
+        sendJSON(404, { error: `Idea with ID ${id} not found` });
+        return;
+      }
+
+      if (idea.status === 'promoted') {
+        sendJSON(400, { error: `Idea ${id} is already promoted` });
+        return;
+      }
+
+      const slug = idea.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      const oneShotDir = path.join(__dirname, '../../one-shots', slug);
+
+      if (fs.existsSync(oneShotDir)) {
+        sendJSON(409, { error: `Target one-shot directory already exists` });
+        return;
+      }
+
+      fs.mkdirSync(oneShotDir, { recursive: true });
+
+      // Create oneshot.json and package.json stub
+      fs.writeFileSync(
+        path.join(oneShotDir, 'oneshot.json'),
+        JSON.stringify(
+          {
+            schemaVersion: 1,
+            spec: {
+              vision: idea.vision,
+              createdAt: new Date().toISOString(),
+              acceptance: { mode: 'program', script: 'verify', successExitCode: 0 },
+            },
+            attempts: [],
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+
+      fs.writeFileSync(
+        path.join(oneShotDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: slug,
+            version: '1.0.0',
+            description: idea.vision,
+            scripts: { start: 'node index.js', test: 'node verify.js', verify: 'node verify.js' },
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+
+      fs.writeFileSync(path.join(oneShotDir, 'index.js'), 'console.log("hello");', 'utf8');
+      fs.writeFileSync(path.join(oneShotDir, 'verify.js'), 'process.exit(0);', 'utf8');
+      fs.writeFileSync(path.join(oneShotDir, 'README.md'), `# ${idea.title}`, 'utf8');
+
+      idea.status = 'promoted';
+      idea.promoted_to = slug;
+
+      fs.writeFileSync(registryPath, JSON.stringify(ideas, null, 2), 'utf8');
+      fs.writeFileSync(readmePath, generateReadme(ideas), 'utf8');
+      fs.writeFileSync(ideasMdPath, generateIdeasMd(ideas), 'utf8');
+
+      sendJSON(200, { success: true, slug, idea });
+    });
+    return;
+  }
+
   sendJSON(404, { error: 'Not Found' });
 });
 
