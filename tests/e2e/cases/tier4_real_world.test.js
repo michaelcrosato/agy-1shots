@@ -325,7 +325,6 @@ describe('Tier 4: Real-World Scenario Tests', () => {
 
   test('T4_8: Scale Scanning - check scanner handles 50 temporary folders efficiently', async () => {
     const totalPieces = 50;
-    const startScanTime = Date.now();
 
     for (let i = 0; i < totalPieces; i++) {
       const name = `temp-scale-piece-${i}`;
@@ -342,6 +341,7 @@ describe('Tier 4: Real-World Scenario Tests', () => {
       fs.writeFileSync(path.join(tempPath, 'package.json'), JSON.stringify(pkg, null, 2), 'utf8');
     }
 
+    const startScanTime = Date.now();
     const res = await fetch(`${DASHBOARD_URL}/api/scan`);
     expect(res.status).toBe(200);
     const data = await res.json();
@@ -352,8 +352,9 @@ describe('Tier 4: Real-World Scenario Tests', () => {
       const found = data.some((item) => item.id === `temp-scale-piece-${i}`);
       expect(found).toBe(true);
     }
-    // Verify scanner is fast under load
-    expect(duration).toBeGreaterThan(0);
+    // Scanning ~50 folders should be well under a generous bound (normally ms),
+    // catching a real performance regression without being timing-flaky.
+    expect(duration < 10000).toBe(true);
   });
 
   test('T4_9: Standalone Export Validation - verify exported package package.json exists', async () => {
