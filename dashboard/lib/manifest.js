@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { promises as fsp } from 'fs';
 import path from 'path';
-import { calculateCost } from './pricing';
+import { calculateCost } from './pricing.js';
 
 // Per-one-shot "vision + metrics + evaluation" manifest.
 //
@@ -128,16 +128,20 @@ export function readManifestSync(targetDir) {
   return readManifestSyncWithStatus(targetDir).manifest;
 }
 
-// Read + classify: "missing" (no file), "valid", or "corrupt" (unparseable).
-// Surfacing "corrupt" instead of silently returning empty matters because the
-// whole point of the manifest is that recorded data is never lost unnoticed.
+// Read + classify: "missing" (no file / ENOENT), "valid", "corrupt"
+// (unparseable JSON), or "unreadable" (a transient I/O error on a file that
+// does exist). Distinguishing "unreadable" from "missing" is critical: writers
+// refuse to overwrite on "unreadable"/"corrupt", so a momentary read failure
+// can never wipe the append-only history — recorded data is never lost unnoticed.
 export function readManifestSyncWithStatus(targetDir) {
   const manifestPath = path.join(targetDir, MANIFEST_FILENAME);
   let raw;
   try {
     raw = fs.readFileSync(manifestPath, 'utf8');
   } catch (e) {
-    return { manifest: emptyManifest(), status: 'missing' };
+    // Only a genuinely absent file is "missing". A transient error
+    // (EACCES/EMFILE/EBUSY/EPERM/EISDIR) must NOT masquerade as missing.
+    return { manifest: emptyManifest(), status: e.code === 'ENOENT' ? 'missing' : 'unreadable' };
   }
   try {
     return { manifest: normalizeManifest(JSON.parse(raw)), status: 'valid' };
@@ -152,7 +156,9 @@ export async function readManifestWithStatus(targetDir) {
   try {
     raw = await fsp.readFile(manifestPath, 'utf8');
   } catch (e) {
-    return { manifest: emptyManifest(), status: 'missing' };
+    // Only ENOENT is "missing"; any other read error is "unreadable" so writers
+    // refuse to overwrite (see readManifestSyncWithStatus).
+    return { manifest: emptyManifest(), status: e.code === 'ENOENT' ? 'missing' : 'unreadable' };
   }
   try {
     return { manifest: normalizeManifest(JSON.parse(raw)), status: 'valid' };
@@ -280,6 +286,14 @@ export function updateManifest(targetDir, manifestPath, mutator) {
         throw new ManifestError(
           409,
           'Manifest file is unreadable (corrupt JSON); refusing to overwrite to avoid data loss. Fix or remove oneshot.json and retry.'
+        );
+      }
+      if (status === 'unreadable') {
+        // A transient read error (not ENOENT, not corrupt). Refuse to overwrite
+        // so a momentary I/O failure can't clobber the append-only history.
+        throw new ManifestError(
+          503,
+          'Manifest file could not be read (transient I/O error); refusing to overwrite to avoid data loss. Please retry.'
         );
       }
       const updated = await mutator(current);
