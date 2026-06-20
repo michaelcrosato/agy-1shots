@@ -106,7 +106,14 @@ export async function runScript({ id, targetDir, cmd, timeout, env }) {
   // On POSIX, run the child in its own process group so a timeout can reap the
   // whole tree (the script plus anything it spawned), not just the shell.
   const isWin = process.platform === 'win32';
-  const execOptions = { cwd: targetDir, env: processEnv, detached: !isWin };
+  // 10 MB so a verbose-but-successful build/test isn't truncated and reported as
+  // a failure — exec's 1 MB default raises ERR_CHILD_PROCESS_STDIO_MAXBUFFER.
+  const execOptions = {
+    cwd: targetDir,
+    env: processEnv,
+    detached: !isWin,
+    maxBuffer: 10 * 1024 * 1024,
+  };
   const execTimeout = normalizeTimeout(timeout);
 
   const release = await acquireLock(id);
@@ -124,7 +131,11 @@ export async function runScript({ id, targetDir, cmd, timeout, env }) {
         let success = true;
 
         if (error) {
-          exitCode = error.code !== undefined ? error.code : 1;
+          // error.code is the numeric child exit code for a normal non-zero
+          // exit, but a STRING (e.g. ERR_CHILD_PROCESS_STDIO_MAXBUFFER) for
+          // internal exec failures — coerce non-numbers to 1 so exitCode
+          // comparisons (e.g. acceptance successExitCode) never silently mismatch.
+          exitCode = typeof error.code === 'number' ? error.code : 1;
           success = false;
         }
 
