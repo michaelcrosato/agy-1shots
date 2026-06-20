@@ -1,0 +1,71 @@
+name: CI
+
+# Runs on every PR into main and on pushes to main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel a previous run still in flight for the same ref — saves runner minutes
+# and gives faster feedback on the latest push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: every job only needs to read the repo.
+permissions:
+  contents: read
+
+jobs:
+  # Fast gate: pure-Node unit suites (recorder + pricing). No install needed, so
+  # this finishes in seconds and fails fast before the heavier jobs.
+  unit:
+    name: Unit suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Run unit suites
+        run: node tests/run-unit.js
+
+  # Dashboard quality: lint + production build (catches compile/type errors).
+  lint-build:
+    name: Lint + build (dashboard)
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+
+  # Vendored tool: the evidence recorder's own pytest suite (dependency-free,
+  # Python 3.10+). pytest-subtests gives the unittest subTest reporting.
+  python-tool:
+    name: Vendored tool tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install test deps
+        run: python -m pip install --upgrade pip pytest pytest-subtests
+      - name: Run tool tests
+        working-directory: tools/llm-usage-reader
+        run: python -m pytest tests/ -q
