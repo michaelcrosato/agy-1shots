@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "spec": {
+    "vision": "A dependency-free CLI/module that estimates the token count of an input text and the blended USD cost of processing it with a named model. estimateTokens uses a ~4-chars-per-token heuristic and is total (non-strings -> 0). estimateCostUsd applies an 80/20 input/output blend from a self-contained pricing snapshot and returns null for unknown models (never a guess). Ships an objective program acceptance test (verify.js) that exits 0 only when all edge cases hold.",
+    "createdAt": "2026-06-19T00:00:00.000Z",
+    "acceptance": {
+      "mode": "program",
+      "script": "verify",
+      "successExitCode": 0
+    }
+  },
+  "attempts": [
+    {
+      "id": "att_1781937879390_a4l85w",
+      "timestamp": "2026-06-20T06:44:39.390Z",
+      "model": "claude-opus-4-8",
+      "environment": {
+        "tool": "claude-code",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": 36883,
+        "durationMs": 0
+      },
+      "usage": {
+        "inputTokens": 35285,
+        "outputTokens": 1598,
+        "cachedInputTokens": 24707,
+        "tokensConsumed": 36883,
+        "billedTokens": null,
+        "unavailableReason": null
+      },
+      "billing": {
+        "actualCostUsd": null,
+        "currency": null,
+        "source": "unavailable",
+        "authoritative": false
+      },
+      "evidence": {
+        "evidenceLevel": "vendor_session_store",
+        "tokensSource": "vendor_session_store",
+        "timingSource": "system_probe",
+        "provider": "anthropic",
+        "recorder": "llm-usage-reader",
+        "recorderVersion": "0.1.0",
+        "ledgerRecordId": "rec_4e15a123802c42d4",
+        "ledgerRunId": null,
+        "recordHash": "0df0e520d9f63cc6e18062d87c216b6abbb69286a048a060917e902168bf5442",
+        "provenanceClient": "claude-code"
+      },
+      "benchmarkEligible": true,
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781937879456_1c4f1t",
+      "timestamp": "2026-06-20T06:44:39.456Z",
+      "model": "claude-opus-4-6",
+      "environment": {
+        "tool": "",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": 3700,
+        "durationMs": 86400000
+      },
+      "usage": {
+        "inputTokens": 3200,
+        "outputTokens": 500,
+        "cachedInputTokens": 200,
+        "tokensConsumed": 3700,
+        "billedTokens": null,
+        "unavailableReason": null
+      },
+      "billing": {
+        "actualCostUsd": null,
+        "currency": null,
+        "source": "unavailable",
+        "authoritative": false
+      },
+      "evidence": {
+        "evidenceLevel": "provider_reconciled",
+        "tokensSource": "provider_reconciled",
+        "timingSource": "system_probe",
+        "provider": "anthropic",
+        "recorder": "llm-usage-reader",
+        "recorderVersion": "0.1.0",
+        "ledgerRecordId": "rec_b8608e7253c346d5",
+        "ledgerRunId": null,
+        "recordHash": "d13e4c19e0225c3a87a1ff62931e998752ab3f9cd47cf0deca62409ddf0db5b2",
+        "provenanceClient": null
+      },
+      "benchmarkEligible": true,
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781937879518_cxr3ng",
+      "timestamp": "2026-06-20T06:44:39.518Z",
+      "model": "gpt-5.4",
+      "environment": {
+        "tool": "",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": 1500,
+        "durationMs": 86400000
+      },
+      "usage": {
+        "inputTokens": 1200,
+        "outputTokens": 300,
+        "cachedInputTokens": 100,
+        "tokensConsumed": 1500,
+        "billedTokens": null,
+        "unavailableReason": null
+      },
+      "billing": {
+        "actualCostUsd": null,
+        "currency": null,
+        "source": "unavailable",
+        "authoritative": false
+      },
+      "evidence": {
+        "evidenceLevel": "provider_reconciled",
+        "tokensSource": "provider_reconciled",
+        "timingSource": "system_probe",
+        "provider": "openai",
+        "recorder": "llm-usage-reader",
+        "recorderVersion": "0.1.0",
+        "ledgerRecordId": "rec_d20431d65bdd4ff4",
+        "ledgerRunId": null,
+        "recordHash": "461772fbad81b2cf9a00f857cb65c4bc6e41b7b736da3f1eca15a68382683e8a",
+        "provenanceClient": null
+      },
+      "benchmarkEligible": true,
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781937879585_hptsjc",
+      "timestamp": "2026-06-20T06:44:39.585Z",
+      "model": "gpt-5.4",
+      "environment": {
+        "tool": "",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": 1200,
+        "durationMs": 60000
+      },
+      "usage": {
+        "inputTokens": 1000,
+        "outputTokens": 200,
+        "cachedInputTokens": null,
+        "tokensConsumed": 1200,
+        "billedTokens": null,
+        "unavailableReason": null
+      },
+      "billing": {
+        "actualCostUsd": null,
+        "currency": null,
+        "source": "unavailable",
+        "authoritative": false
+      },
+      "evidence": {
+        "evidenceLevel": "manual_attestation",
+        "tokensSource": "manual_attestation",
+        "timingSource": "manual_attestation",
+        "provider": "openai",
+        "recorder": "llm-usage-reader",
+        "recorderVersion": "0.1.0",
+        "ledgerRecordId": "rec_43fabc923be34665",
+        "ledgerRunId": null,
+        "recordHash": "f98e7662ea2ba54709ea3a935092acafcd30b2060395ad302629c9daf40edc3b",
+        "provenanceClient": null
+      },
+      "benchmarkEligible": false,
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    },
+    {
+      "id": "att_1781937879650_we40ka",
+      "timestamp": "2026-06-20T06:44:39.650Z",
+      "model": "node",
+      "environment": {
+        "tool": "claude-code",
+        "toolBuild": "",
+        "os": "Windows",
+        "osBuild": "10.0.26200"
+      },
+      "build": {
+        "tokens": null,
+        "durationMs": 15
+      },
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "cachedInputTokens": null,
+        "tokensConsumed": null,
+        "billedTokens": null,
+        "unavailableReason": "no usage telemetry source was attached to this wrapped command"
+      },
+      "billing": {
+        "actualCostUsd": null,
+        "currency": null,
+        "source": "unavailable",
+        "authoritative": false
+      },
+      "evidence": {
+        "evidenceLevel": "system_probe",
+        "tokensSource": "unavailable",
+        "timingSource": "system_probe",
+        "provider": "local",
+        "recorder": "llm-usage-reader",
+        "recorderVersion": "0.1.0",
+        "ledgerRecordId": "rec_f71c09d7836f4e75",
+        "ledgerRunId": "run_f2f98292a71a433d",
+        "recordHash": "d660cdc68abc2de0565028bd63ac0922685d519961f969a7873984bcdda9d3ce",
+        "provenanceClient": "claude-code"
+      },
+      "benchmarkEligible": false,
+      "evaluation": {
+        "method": "none",
+        "fidelityScore": null,
+        "passed": null,
+        "feedback": "",
+        "evaluatedAt": null
+      }
+    }
+  ]
+}

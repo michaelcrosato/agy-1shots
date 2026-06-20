@@ -1,0 +1,6 @@
+# The ideas registry and its generated docs are rewritten with LF newlines by
+# the generators (dashboard/app/api/ideas + scripts/promote.py). Pin their EOL
+# so a verification run never dirties them on machines with core.autocrlf=true.
+IDEAS.md text eol=lf
+ideas/README.md text eol=lf
+ideas/registry.json text eol=lf

@@ -487,6 +487,18 @@ function main() {
       tokens: finalBuildTokens !== undefined && finalBuildTokens !== null ? finalBuildTokens : null,
       durationMs: finalBuildTime !== undefined && finalBuildTime !== null ? finalBuildTime : null,
     },
+    // This is the untrusted self-report/heuristic path. Tokens and timing here
+    // are supplied by an agent/human or scraped from a log, so the attempt is
+    // marked manual_attestation and is NOT benchmark-eligible. For trusted,
+    // evidence-backed attempts use scripts/record-evidence.js with the
+    // llm-usage-reader ledger. See tools/llm-usage-reader/DESIGN-rationale.md.
+    evidence: {
+      evidenceLevel: 'manual_attestation',
+      tokensSource: values['session-log'] ? 'heuristic_log_scrape' : 'manual_attestation',
+      timingSource: 'manual_attestation',
+      recorder: 'record-attempt.js',
+    },
+    benchmarkEligible: false,
     evaluation: {
       method: 'none',
       fidelityScore: null,

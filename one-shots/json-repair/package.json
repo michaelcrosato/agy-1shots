@@ -1,0 +1,11 @@
+{
+  "name": "json-repair",
+  "version": "1.0.0",
+  "description": "Repair JSONC (comments + trailing commas) into strict valid JSON, string-aware. A program-verifiable example one-shot.",
+  "tags": ["utility", "json", "parsing", "example", "benchmark"],
+  "scripts": {
+    "start": "node index.js",
+    "test": "node verify.js",
+    "verify": "node verify.js"
+  }
+}

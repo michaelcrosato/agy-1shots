@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "spec": {
+    "vision": "A dependency-free, string-aware JSONC repairer. cleanJsonc removes // line comments, /* */ block comments, and trailing commas before } or ], while preserving comment markers and commas that appear inside string literals (respecting backslash escapes). repairJson returns the parsed value and throws for input that is broken beyond JSONC (no partial guesses). Single-quote and unquoted-key recovery are explicitly out of scope. Ships an objective program acceptance test (verify.js).",
+    "createdAt": "2026-06-19T00:00:00.000Z",
+    "acceptance": { "mode": "program", "script": "verify", "successExitCode": 0 }
+  },
+  "attempts": []
+}

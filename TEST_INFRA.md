@@ -3,6 +3,7 @@
 ## Test Philosophy
 
 - **Opaque-box**: The test suite validates the system's externally observable behaviors (filesystem structure and HTTP APIs) without relying on internal framework implementations.
+- **Real application under test**: The harness builds and starts the actual Next.js dashboard (`dashboard/app/api/*`) and runs every test against it over HTTP. The gate never substitutes a mock for the product, so a regression in a real route handler fails the gate.
 - **Requirement-driven**: Mapped directly to requirements in `ORIGINAL_REQUEST.md`.
 - **Methodology**: Category-Partition for feature paths, Boundary Value Analysis (BVA) for limits and error states, Pairwise Testing for cross-feature interactions, and Real-World Workload Testing for developer workflows.
 
@@ -22,6 +23,7 @@
 | 10  | Manifest Verify      | M3 Requirement       |      5 tests      |      2 tests      |           ✓            |          ✓          |
 | 11  | Full Lifecycle       | M3 Requirement       |      1 test       |      0 tests      |           ✓            |          ✓          |
 | 12  | Ideas Registry       | M4 Requirement       |      5 tests      |      5 tests      |           ✓            |          ✓          |
+| 13  | Suggest API          | Dashboard Assist     |      8 tests      |        —          |           —            |          —          |
 
 ## Test Architecture
 
@@ -29,10 +31,12 @@
   - Exposes global hooks (`describe`, `test`/`it`, `beforeAll`/`afterAll`, `beforeEach`/`afterEach`) and assertions (`expect()`).
   - Scans for `*.test.js` files recursively in `tests/e2e/cases/` and runs them sequentially.
   - Automatically traps uncaught exceptions/rejections, generates JUnit XML reports, and returns exit code 0 on success, 1 on failure.
+- **Live-application harness**: `tests/e2e/verify.js` is the gate entrypoint. It builds the dashboard, starts the production server (`next start`), waits until it answers HTTP, runs `runner.js` against it, then tears the server down and exits with the runner's code. Run it with `node tests/e2e/verify.js`.
+  - Env knobs: `PORT` (default `3000`), `SKIP_BUILD=1` (reuse the existing `.next` build), `USE_RUNNING_SERVER=1` (skip build/start and test an already-running server at `DASHBOARD_URL`).
 - **Test Configuration**: Target endpoint defaults to `http://localhost:3000` but can be configured using `DASHBOARD_URL`.
 - **Directory Layout**:
   - `tests/e2e/runner.js` - Runner entrypoint
-  - `tests/e2e/verify.js` - Verification mock server and execution verification utility
+  - `tests/e2e/verify.js` - Live-application harness: builds + starts the real dashboard and drives the runner against it
   - `tests/e2e/cases/` - Individual test suite files
   - `tests/e2e/reports/` - Output directory for JUnit XML results
 
