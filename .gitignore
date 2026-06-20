@@ -17,6 +17,9 @@ dist/
 stats.json
 stats.json.tmp.*
 
+# Test artifacts (regenerated on every run)
+tests/e2e/reports/
+
 # OS files
 .DS_Store
 Thumbs.db

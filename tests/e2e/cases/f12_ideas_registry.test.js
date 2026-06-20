@@ -6,9 +6,18 @@ describe('F12: Ideas Registry API', () => {
   const ideasDir = path.resolve(__dirname, '../../../ideas');
   const registryPath = path.join(ideasDir, 'registry.json');
   const readmePath = path.join(ideasDir, 'README.md');
+  // The POST /api/ideas and /api/ideas/promote routes rewrite ALL THREE of
+  // these files (registry.json, ideas/README.md, and root IDEAS.md). Every one
+  // of them must be snapshot/restored, or a test run leaves residue behind.
+  const ideasMdPath = path.resolve(__dirname, '../../../IDEAS.md');
+  // F12_11 promotes MICRO-014, which scaffolds this tracked-path one-shot dir.
+  // It is removed unconditionally in afterAll so a failing assertion can never
+  // leave the scaffold behind as residue in the tracked one-shots/ tree.
+  const promotedSlugDir = path.resolve(__dirname, '../../../one-shots/unique-test-idea-x');
 
   let registryBackup = null;
   let readmeBackup = null;
+  let ideasMdBackup = null;
 
   beforeAll(() => {
     // Back up the files on disk
@@ -18,10 +27,13 @@ describe('F12: Ideas Registry API', () => {
     if (fs.existsSync(readmePath)) {
       readmeBackup = fs.readFileSync(readmePath, 'utf8');
     }
+    if (fs.existsSync(ideasMdPath)) {
+      ideasMdBackup = fs.readFileSync(ideasMdPath, 'utf8');
+    }
   });
 
   afterAll(() => {
-    // Restore the original state
+    // Restore the original state byte-for-byte so the working tree stays clean.
     if (registryBackup !== null) {
       fs.writeFileSync(registryPath, registryBackup, 'utf8');
     } else if (fs.existsSync(registryPath)) {
@@ -33,6 +45,15 @@ describe('F12: Ideas Registry API', () => {
     } else if (fs.existsSync(readmePath)) {
       fs.unlinkSync(readmePath);
     }
+
+    if (ideasMdBackup !== null) {
+      fs.writeFileSync(ideasMdPath, ideasMdBackup, 'utf8');
+    } else if (fs.existsSync(ideasMdPath)) {
+      fs.unlinkSync(ideasMdPath);
+    }
+
+    // Remove the scaffolded one-shot even if a promote assertion threw.
+    fs.rmSync(promotedSlugDir, { recursive: true, force: true, maxRetries: 30, retryDelay: 100 });
   });
 
   // Test 1: GET /api/ideas returns 200 OK
@@ -276,14 +297,11 @@ describe('F12: Ideas Registry API', () => {
     expect(promoteData.success).toBe(true);
     expect(promoteData.slug).toBe('unique-test-idea-x');
 
-    // Verify files were scaffolded
-    const slugDir = path.resolve(__dirname, '../../../one-shots/unique-test-idea-x');
+    // Verify files were scaffolded (cleanup happens unconditionally in afterAll).
+    const slugDir = promotedSlugDir;
     expect(fs.existsSync(slugDir)).toBe(true);
     expect(fs.existsSync(path.join(slugDir, 'oneshot.json'))).toBe(true);
     expect(fs.existsSync(path.join(slugDir, 'package.json'))).toBe(true);
     expect(fs.existsSync(path.join(slugDir, 'README.md'))).toBe(true);
-
-    // Clean up scaffolded folder
-    fs.rmSync(slugDir, { recursive: true, force: true });
   });
 });
