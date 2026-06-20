@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "dashboard", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "cyberpunk-marble-physics",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "one-shots/cyberpunk-marble-physics", "run", "start"],
+      "port": 5173
+    }
+  ]
+}

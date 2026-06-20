@@ -404,7 +404,7 @@ export function validateAttemptInput(body) {
 
   const environment = normalizeStringMap(
     body.environment,
-    ['tool', 'toolBuild', 'os', 'osBuild'],
+    ['tool', 'toolBuild', 'os', 'osBuild', 'speed', 'effort'],
     'environment'
   );
 

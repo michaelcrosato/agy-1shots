@@ -157,7 +157,13 @@ function SetVisionForm({ id, onCreated }) {
 }
 
 function RecordAttemptForm({ id, onAdded }) {
+  // Collapsed by default — manual entry is rarely needed now that the recorder
+  // captures attempts automatically; it lives behind a toggle.
+  const [open, setOpen] = useState(false);
   const [model, setModel] = useState('');
+  // Kept separate (not merged) so a manual entry maps cleanly onto the same
+  // tool/toolBuild/os/osBuild fields the recorder writes; the related inputs
+  // just share a row in the layout below.
   const [tool, setTool] = useState('');
   const [toolBuild, setToolBuild] = useState('');
   const [os, setOs] = useState('');
@@ -207,67 +213,80 @@ function RecordAttemptForm({ id, onAdded }) {
     'px-3 py-1.5 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500';
 
   return (
-    <div className="bg-slate-900/60 border border-slate-700 rounded-lg p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-slate-200">Record a build attempt</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <input
-          className={input}
-          placeholder="Model (e.g. Gemini 3.5 Flash (high))"
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-        />
-        <input
-          className={input}
-          placeholder="Tool (e.g. Antigravity)"
-          value={tool}
-          onChange={(e) => setTool(e.target.value)}
-        />
-        <input
-          className={input}
-          placeholder="Tool build (e.g. 1.2.3456)"
-          value={toolBuild}
-          onChange={(e) => setToolBuild(e.target.value)}
-        />
-        <input
-          className={input}
-          placeholder="OS (e.g. Windows 11)"
-          value={os}
-          onChange={(e) => setOs(e.target.value)}
-        />
-        <input
-          className={input}
-          placeholder="OS build (e.g. 22631)"
-          value={osBuild}
-          onChange={(e) => setOsBuild(e.target.value)}
-        />
-        <div />
-        <input
-          className={input}
-          type="number"
-          min="0"
-          placeholder="Build tokens"
-          value={buildTokens}
-          onChange={(e) => setBuildTokens(e.target.value)}
-        />
-        <input
-          className={input}
-          type="number"
-          min="0"
-          placeholder="Build time (ms)"
-          value={buildMs}
-          onChange={(e) => setBuildMs(e.target.value)}
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={submit}
-          disabled={saving}
-          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white text-sm font-medium rounded transition-colors"
-        >
-          {saving ? 'Saving…' : 'Add Attempt'}
-        </button>
-        {error && <span className="text-xs text-red-400">{error}</span>}
-      </div>
+    <div className="bg-slate-900/60 border border-slate-700 rounded-lg">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-200 hover:text-white transition-colors"
+      >
+        <span>Record a build attempt manually</span>
+        <span className="text-xs font-normal text-slate-400">{open ? '▲ hide' : '▼ show'}</span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-xs text-slate-500">
+            Rarely needed — most attempts are captured automatically by the recorder.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input
+              className={`${input} sm:col-span-2`}
+              placeholder="Model (e.g. Gemini 3.5 Flash (high))"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+            />
+            {/* Tool + its build share a row; OS + its build share the next. */}
+            <input
+              className={input}
+              placeholder="Tool (e.g. claude-code)"
+              value={tool}
+              onChange={(e) => setTool(e.target.value)}
+            />
+            <input
+              className={input}
+              placeholder="Tool build (e.g. 2.1.181)"
+              value={toolBuild}
+              onChange={(e) => setToolBuild(e.target.value)}
+            />
+            <input
+              className={input}
+              placeholder="OS (e.g. Windows 11)"
+              value={os}
+              onChange={(e) => setOs(e.target.value)}
+            />
+            <input
+              className={input}
+              placeholder="OS build (e.g. 26100)"
+              value={osBuild}
+              onChange={(e) => setOsBuild(e.target.value)}
+            />
+            <input
+              className={input}
+              type="number"
+              min="0"
+              placeholder="Build tokens"
+              value={buildTokens}
+              onChange={(e) => setBuildTokens(e.target.value)}
+            />
+            <input
+              className={input}
+              type="number"
+              min="0"
+              placeholder="Build time (ms)"
+              value={buildMs}
+              onChange={(e) => setBuildMs(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={submit}
+              disabled={saving}
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white text-sm font-medium rounded transition-colors"
+            >
+              {saving ? 'Saving…' : 'Add Attempt'}
+            </button>
+            {error && <span className="text-xs text-red-400">{error}</span>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -375,9 +394,17 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
     return <span className="text-slate-600">—</span>;
   };
 
+  // Tool + build on one line, OS + build on one line (per operator preference).
+  const toolLabel = [env.tool, env.toolBuild].filter(Boolean).join(' ') || '—';
+  const osLabel = [env.os, env.osBuild].filter(Boolean).join(' ') || '—';
   const envLabel =
     [env.tool, env.toolBuild].filter(Boolean).join(' ') +
     (env.os || env.osBuild ? ` / ${[env.os, env.osBuild].filter(Boolean).join(' ')}` : '');
+  // The "setting" the operator asked to see: effort and/or speed.
+  const settingLabel =
+    [env.effort ? `${env.effort} effort` : null, env.speed ? `${env.speed} speed` : null]
+      .filter(Boolean)
+      .join(' · ') || '—';
 
   return (
     <>
@@ -427,6 +454,40 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
         <tr>
           <td colSpan={7} className="pb-4">
             <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-4 space-y-3">
+              {/* What was built, who/what built it, where, and how much it took.
+                  Captured automatically from the build session — no human input. */}
+              <div>
+                <div className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                  Build details
+                </div>
+                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+                  <div>
+                    <dt className="text-[11px] text-slate-500">Model</dt>
+                    <dd className="text-slate-200">{attempt.model || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] text-slate-500">Setting (effort / speed)</dt>
+                    <dd className="text-slate-200">{settingLabel}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] text-slate-500">Tool + build</dt>
+                    <dd className="text-slate-200">{toolLabel}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] text-slate-500">OS + build</dt>
+                    <dd className="text-slate-200">{osLabel}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] text-slate-500">Build tokens</dt>
+                    <dd className="text-slate-200">{fmtNum(build.tokens)} tok</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] text-slate-500">Build time</dt>
+                    <dd className="text-slate-200">{fmtMs(build.durationMs)}</dd>
+                  </div>
+                </dl>
+              </div>
+              <div className="border-t border-slate-800" />
               <div className="flex items-center gap-3 flex-wrap">
                 <label className="text-xs text-slate-400">
                   Fidelity (0–100%) — how close to the vision?
