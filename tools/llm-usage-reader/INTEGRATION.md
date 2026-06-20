@@ -43,7 +43,9 @@ attempts it writes are stamped `manual_attestation` / `benchmarkEligible:false`.
 
 ```bash
 python tools/llm-usage-reader/llm_usage_reader.py --help
-python -m pytest tools/llm-usage-reader/tests/ -q   # 275 tests
+# Run the tool's own suite from inside its directory (the module must be on
+# sys.path for pytest collection):
+(cd tools/llm-usage-reader && python -m pytest tests/ -q)   # 275 tests
 ```
 
 Vendored, not modified. To pull upstream changes, re-copy `llm_usage_reader.py`,
