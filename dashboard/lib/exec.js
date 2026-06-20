@@ -28,7 +28,23 @@ export async function acquireLock(id) {
   };
 }
 
-const DANGEROUS_ENV_KEYS = ['NODE_OPTIONS', 'PATH', 'LD_PRELOAD', 'PYTHONPATH', 'NODE_PATH'];
+// Env keys that can run code or hijack loaders at process startup. sanitizeEnv
+// strips these from any CALLER-supplied env delta only (the UI never sends env),
+// so denying more here is zero-risk defense-in-depth for the direct-API path.
+const DANGEROUS_ENV_KEYS = [
+  'NODE_OPTIONS',
+  'PATH',
+  'LD_PRELOAD',
+  'PYTHONPATH',
+  'NODE_PATH',
+  'BASH_ENV',
+  'ENV',
+  'IFS',
+  'DYLD_INSERT_LIBRARIES',
+  'DYLD_LIBRARY_PATH',
+  'GIT_SSH',
+  'GIT_EXTERNAL_DIFF',
+];
 
 // Drops env keys that could be used to escape the sandbox.
 export function sanitizeEnv(customEnv) {
@@ -58,6 +74,14 @@ export function parseArgs(commandStr) {
   return args;
 }
 
+// SAFETY RAIL — NOT A SECURITY SANDBOX. The command comes from the one-shot's
+// OWN committed package.json (trusted, operator/agent-authored input) and runs
+// in a full shell with the operator's privileges, so a script can trivially run
+// arbitrary code by design ($()/backticks/env-expansion/`node -e`). This only
+// blocks ACCIDENTAL path-traversal / absolute-path escapes in a malformed
+// one-shot you wrote — do not mistake it for containment. See SECURITY.md for
+// the trust model and when real OS-level sandboxing becomes required.
+//
 // Returns true if the command (or any of its args) attempts to read/write
 // outside the one-shot's target directory.
 export function detectCommandEscape(cmd, targetDir) {
