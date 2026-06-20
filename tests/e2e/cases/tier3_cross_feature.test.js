@@ -134,18 +134,24 @@ describe('Tier 3: Cross-Feature Integration Tests', () => {
     };
     fs.writeFileSync(path.join(tempPath, 'package.json'), JSON.stringify(pkg, null, 2), 'utf8');
 
+    // Capture the global run stats before the failing run.
+    const before = await (await fetch(`${DASHBOARD_URL}/api/stats`)).json();
+
     // Run the failing test
-    await fetch(`${DASHBOARD_URL}/api/run`, {
+    const runRes = await fetch(`${DASHBOARD_URL}/api/run`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: tempName, action: 'test' }),
     });
+    const run = await runRes.json();
+    expect(run.success).toBe(false);
+    expect(run.exitCode).toBe(1);
 
-    // Check stats on home page
-    const res = await fetch(`${DASHBOARD_URL}/`);
-    const html = await res.text();
-    // Verify that the UI reports a failure or decreased success rate
-    expect(html.includes('fail') || html.includes('success') || html.includes('%')).toBe(true);
+    // The failure must actually be recorded in the stats the sidebar reads
+    // (F8 <-> F4 <-> F5): both total and failed run counts must increment.
+    const after = await (await fetch(`${DASHBOARD_URL}/api/stats`)).json();
+    expect(after.totalRuns).toBeGreaterThan(before.totalRuns);
+    expect(after.failedRuns).toBeGreaterThan(before.failedRuns);
   });
 
   test('T3_4: Search/Filter Persistence During Preview Toggle (F6 <-> F7)', async () => {
