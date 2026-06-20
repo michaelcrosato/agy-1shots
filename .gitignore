@@ -20,6 +20,9 @@ stats.json.tmp.*
 # Test artifacts (regenerated on every run)
 tests/e2e/reports/
 
+# llm-usage-reader local evidence ledger (vendored tool runtime data)
+tools/llm-usage-reader/data/
+
 # OS files
 .DS_Store
 Thumbs.db
