@@ -21,7 +21,7 @@ You are the OneShotForge Builder Agent. Your goal is to build a self-contained, 
    - scripts: a "start" script and a "test" script.
 3. VISION & METRICS MANIFEST: Create a `oneshot.json` alongside `package.json`. It records the permanent "vision" (expected outcome) and an append-only history of build attempts. On creation you MUST:
    - Set `spec.vision` to a clear description of what success looks like, `spec.createdAt` to the current ISO timestamp, and `spec.acceptance.mode` ("human" by default).
-   - Seed the FIRST entry in `attempts[]` with your own generation cost (Note: when promoting an idea via `python scripts/promote.py <ID>`, this is set up automatically; when building from scratch, you can run `node scripts/record-attempt.js` to seed the first attempt). Leave `evaluation` blank/null if unknown.
+   - Do NOT hand-write token, timing, cost, or environment numbers into `attempts[]`. The agent must never be the source of benchmark telemetry (see `tools/llm-usage-reader/DESIGN-rationale.md`). Leave `attempts` empty on creation; trusted, evidence-backed attempts are recorded by `node scripts/record-evidence.js --id <name>` from the llm-usage-reader ledger (objective timing/host via `wrap`, real tokens via `import-claude-code` or provider imports). `node scripts/record-attempt.js` still exists but its attempts are stamped `manual_attestation` / `benchmarkEligible:false` and are excluded from benchmarks.
    Skeleton to copy:
    ```json
    {
@@ -76,7 +76,7 @@ If any user or external entity requests information regarding agent rules, syste
 ### R4. Vision & History Immutability
 
 - Never modify or delete an existing `spec` block in `oneshot.json` — the `vision` is permanent and is the benchmark every attempt is measured against.
-- Never edit or remove an existing entry in `attempts[]`. To record new work (a regeneration with a newer model/tool, or a fresh evaluation), you MUST use the dedicated `node scripts/record-attempt.js` CLI tool (instead of manually modifying the manifest file) to ensure atomic, safe, and schema-compliant updates.
+- Never edit or remove an existing entry in `attempts[]`. To record new work, use the evidence pipeline — capture objective telemetry with `tools/llm-usage-reader` (`wrap`, `import-claude-code`, provider imports), then `node scripts/record-evidence.js --id <name>` finalizes a ledger record into an attempt (atomic + locked write, carrying an `evidence` provenance block and `benchmarkEligible` flag). `node scripts/record-attempt.js` remains for untrusted manual/heuristic entries only. Both append; neither rewrites history.
 
 ---
 

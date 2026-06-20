@@ -104,7 +104,29 @@ describe('F14: Evidence-backed attempts', () => {
       source: { type: 'manual_attestation' },
       record_hash: 'beadfeed'.repeat(8),
     };
-    fs.writeFileSync(ledgerPath, JSON.stringify(recVendor) + '\n' + JSON.stringify(recManual) + '\n');
+    // A provider organization export bucket (the recorder tags these
+    // source.type = "provider_export"); trusted token evidence.
+    const recProvider = {
+      schema_version: 1,
+      record_id: 'rec_provider_f14',
+      run_id: null,
+      kind: 'provider_usage_bucket',
+      status: 'completed',
+      provider: 'openai',
+      model: 'gpt-5.4',
+      started_at: '2026-06-18T00:00:00Z',
+      finished_at: '2026-06-19T00:00:00Z',
+      duration_ms: 86400000,
+      usage: { input_tokens: 1200, output_tokens: 300, tokens_consumed: 1500 },
+      billing: { actual_cost_usd: 0.05, currency: 'USD', source: 'provider_cost_api' },
+      host: { client: null, os: 'Windows', os_version: '10.0.26200' },
+      source: { type: 'provider_export' },
+      record_hash: 'cafef00d'.repeat(8),
+    };
+    fs.writeFileSync(
+      ledgerPath,
+      JSON.stringify(recVendor) + '\n' + JSON.stringify(recManual) + '\n' + JSON.stringify(recProvider) + '\n'
+    );
   });
 
   afterAll(() => {
@@ -138,6 +160,13 @@ describe('F14: Evidence-backed attempts', () => {
     expect(res.benchmarkEligible).toBe(false);
   });
 
+  test('F14_5: provider_export records are provider_reconciled and benchmark-eligible', () => {
+    const res = bridgeRun(['--record-id', 'rec_provider_f14']);
+    expect(res.evidenceLevel).toBe('provider_reconciled');
+    expect(res.tokensSource).toBe('provider_reconciled');
+    expect(res.benchmarkEligible).toBe(true);
+  });
+
   test('F14_4: manifest API classifies legacy attempts and surfaces eligibility', async () => {
     const r = await fetch(`${DASHBOARD_URL}/api/scan/${id}/manifest`);
     expect(r.status).toBe(200);
@@ -155,8 +184,8 @@ describe('F14: Evidence-backed attempts', () => {
     expect(vendor.evidenceLevel).toBe('vendor_session_store');
     expect(vendor.benchmarkEligible).toBe(true);
 
-    // legacy(no) + vendor(yes) + manual(no) => exactly one eligible
-    expect(data.benchmarkEligibleCount).toBe(1);
+    // legacy(no) + vendor(yes) + manual(no) + provider(yes) => two eligible
+    expect(data.benchmarkEligibleCount).toBe(2);
     expect(typeof data.latestEvidenceLevel).toBe('string');
   });
 });

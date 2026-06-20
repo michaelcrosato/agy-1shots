@@ -1,0 +1,11 @@
+{
+  "name": "token-cost-estimator",
+  "version": "1.0.0",
+  "description": "Estimate token count and blended USD cost for a text + model. A deterministic, program-verifiable example one-shot.",
+  "tags": ["utility", "tokens", "cost", "example", "benchmark"],
+  "scripts": {
+    "start": "node index.js",
+    "test": "node verify.js",
+    "verify": "node verify.js"
+  }
+}

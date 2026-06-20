@@ -272,6 +272,28 @@ function RecordAttemptForm({ id, onAdded }) {
   );
 }
 
+// Maps an attempt's evidence level (computed server-side in lib/manifest.js) to
+// a compact badge so the user can see at a glance whether the telemetry is
+// trustworthy for benchmarking.
+function evidenceMeta(level) {
+  switch (level) {
+    case 'provider_reconciled':
+      return { label: 'provider', cls: 'text-emerald-300 border-emerald-700' };
+    case 'vendor_session_store':
+      return { label: 'session', cls: 'text-emerald-300 border-emerald-700' };
+    case 'native_telemetry':
+      return { label: 'telemetry', cls: 'text-emerald-300 border-emerald-700' };
+    case 'system_probe':
+      return { label: 'timed-only', cls: 'text-sky-300 border-sky-800' };
+    case 'manual_attestation':
+      return { label: 'manual', cls: 'text-amber-300 border-amber-700' };
+    case 'legacy_self_reported':
+      return { label: 'legacy', cls: 'text-slate-400 border-slate-700' };
+    default:
+      return { label: 'n/a', cls: 'text-slate-500 border-slate-800' };
+  }
+}
+
 function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
   const ev = attempt.evaluation || {};
   const [open, setOpen] = useState(false);
@@ -363,7 +385,27 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
         <td className="py-2 pr-3 text-slate-400 whitespace-nowrap">
           {attempt.timestamp ? new Date(attempt.timestamp).toLocaleString() : '—'}
         </td>
-        <td className="py-2 pr-3 text-slate-200">{attempt.model || '—'}</td>
+        <td className="py-2 pr-3 text-slate-200">
+          <div className="flex flex-col gap-1">
+            <span>{attempt.model || '—'}</span>
+            <span className="flex items-center gap-1 flex-wrap">
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded border ${evidenceMeta(attempt.evidenceLevel).cls}`}
+                title={`Evidence level: ${attempt.evidenceLevel || 'n/a'}`}
+              >
+                {evidenceMeta(attempt.evidenceLevel).label}
+              </span>
+              {attempt.benchmarkEligible && (
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/40 text-emerald-300 border border-emerald-700"
+                  title="Trusted, measured telemetry — counts toward benchmarks"
+                >
+                  ✓ benchmark
+                </span>
+              )}
+            </span>
+          </div>
+        </td>
         <td className="py-2 pr-3 text-slate-400">{envLabel || '—'}</td>
         <td className="py-2 pr-3 text-slate-300 whitespace-nowrap">
           {fmtNum(build.tokens)} tok / {fmtMs(build.durationMs)}
@@ -573,7 +615,14 @@ function MetricsModal({ item, onClose, onCardRefresh }) {
               {/* Attempts table */}
               <div>
                 <h3 className="text-sm font-semibold text-slate-200 mb-2">
-                  Attempt history ({attempts.length})
+                  Attempt history ({attempts.length}
+                  {attempts.length > 0 && (
+                    <span className="text-slate-400 font-normal">
+                      {' · '}
+                      {attempts.filter((a) => a.benchmarkEligible).length} benchmark-eligible
+                    </span>
+                  )}
+                  )
                 </h3>
                 {attempts.length === 0 ? (
                   <p className="text-sm text-slate-500">No attempts recorded yet.</p>

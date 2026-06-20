@@ -139,6 +139,37 @@ Open a one-shot's **Details** in the dashboard to read the vision, see the attem
 
 ---
 
+## Evidence-backed benchmarking
+
+A benchmark is only as good as its measurements. Per the design review in
+[`tools/llm-usage-reader/DESIGN-rationale.md`](tools/llm-usage-reader/DESIGN-rationale.md),
+**the model must never be the source of benchmark telemetry.** OneShotForge
+therefore records attempt telemetry from objective evidence, not self-report:
+
+- **`tools/llm-usage-reader/`** — a vendored, dependency-free recorder. It captures
+  machine-observed timing/host (`wrap`), real token usage from Claude Code session
+  transcripts (`import-claude-code`) and provider usage/cost exports, into a
+  hash-verified append-only ledger with a `verify` integrity gate.
+- **`scripts/record-evidence.js`** — finalizes a ledger record into an attempt with
+  an `evidence` block (`evidenceLevel`, `tokensSource`, ledger record id + hash),
+  observed usage kept **separate** from billing, and a `benchmarkEligible` flag.
+- **Evidence levels** (strongest → weakest): `provider_reconciled`,
+  `native_telemetry`, `vendor_session_store`, `system_probe` (timing only),
+  `manual_attestation`, `legacy_self_reported`, `unavailable`. Only trusted,
+  *measured* token evidence is `benchmarkEligible`; manual, legacy, and
+  timing-only attempts are recorded but excluded from benchmark comparisons.
+  Attempts without an `evidence` block are classified `legacy_self_reported`
+  (computed at read time — historical records are never mutated).
+
+The dashboard shows each attempt's evidence badge and a benchmark-eligible count,
+so professionals can compare models on a one-shot using only trustworthy data.
+The example one-shots [`token-cost-estimator`](one-shots/token-cost-estimator/) and
+[`json-repair`](one-shots/json-repair/) are small, program-verifiable tasks — good
+for **playtesting** what a model can one-shot and for accumulating objective,
+comparable benchmark history across models.
+
+---
+
 ## Getting Started
 
 ### Prerequisites

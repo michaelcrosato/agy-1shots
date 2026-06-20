@@ -51,6 +51,10 @@ function deriveEvidence(rec) {
       evidenceLevel = 'vendor_session_store';
       tokensSource = 'vendor_session_store';
       break;
+    // The recorder tags every imported organization usage/cost export with
+    // source.type = "provider_export". The remaining aliases are defensive in
+    // case the upstream tool ever distinguishes them.
+    case 'provider_export':
     case 'organization_export':
     case 'openai_usage':
     case 'openai_costs':
