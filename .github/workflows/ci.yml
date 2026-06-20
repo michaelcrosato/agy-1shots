@@ -69,3 +69,24 @@ jobs:
       - name: Run tool tests
         working-directory: tools/llm-usage-reader
         run: python -m pytest tests/ -q
+
+  # Full end-to-end gate: builds the dashboard, serves it, and runs the BDD
+  # suite against the live app (tests/e2e/verify.js also runs the unit suites
+  # first). This is the only job that exercises real request/run behavior.
+  e2e:
+    name: E2E gate
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Install dashboard dependencies
+        run: npm ci
+        working-directory: dashboard
+      - name: Run e2e gate
+        run: node tests/e2e/verify.js
