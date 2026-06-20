@@ -140,13 +140,18 @@ describe('Tier 5: White-Box Adversarial Hardening', () => {
     fs.mkdirSync(tempPath, { recursive: true });
     tempDirs.push(tempPath);
 
-    // Absolute path argument bypass
+    // An absolute path OUTSIDE the one-shot. Use a path that is genuinely
+    // absolute on the CURRENT OS so the guard fires on every platform — a
+    // Windows "C:\..." string is just a relative filename on POSIX.
+    const outsideAbs =
+      process.platform === 'win32'
+        ? 'C:\\some\\outside\\path\\script.js'
+        : '/some/outside/path/script.js';
     const pkg = {
       name: tempDirName,
       version: '1.0.0',
       scripts: {
-        // cmd is "node C:\outside.js", path.isAbsolute(cmd) is false
-        start: 'node C:\\some\\outside\\path\\script.js',
+        start: `node ${outsideAbs}`,
       },
     };
     fs.writeFileSync(path.join(tempPath, 'package.json'), JSON.stringify(pkg, null, 2), 'utf8');
@@ -172,13 +177,17 @@ describe('Tier 5: White-Box Adversarial Hardening', () => {
     fs.mkdirSync(tempPath, { recursive: true });
     tempDirs.push(tempPath);
 
-    // Absolute root prefix path bypass (doesn't contain '..' or drive letter 'C:')
-    // E.g., 'node \dev\agy-1shots\dashboard\next.config.mjs'
+    // A root-anchored absolute path outside the one-shot, OS-appropriate so the
+    // guard fires on every platform (Windows root-backslash vs POSIX root '/').
+    const outsideRoot =
+      process.platform === 'win32'
+        ? '\\dev\\agy-1shots\\dashboard\\next.config.mjs'
+        : '/dev/agy-1shots/dashboard/next.config.mjs';
     const pkg = {
       name: tempDirName,
       version: '1.0.0',
       scripts: {
-        start: 'node \\dev\\agy-1shots\\dashboard\\next.config.mjs',
+        start: `node ${outsideRoot}`,
       },
     };
     fs.writeFileSync(path.join(tempPath, 'package.json'), JSON.stringify(pkg, null, 2), 'utf8');
