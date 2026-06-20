@@ -182,6 +182,15 @@ def main():
         sys.exit(0)
         
     slug = get_slug(idea["title"])
+    if not slug:
+        # An empty slug would make one_shot_dir resolve to the shared one-shots/
+        # root, and the unconditional writes below would clobber files there.
+        print(
+            f"Error: could not derive a directory-safe slug from title "
+            f"{idea['title']!r}. The title must contain ASCII letters or digits.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     one_shot_dir = os.path.join(repo_root, "one-shots", slug)
     os.makedirs(one_shot_dir, exist_ok=True)
     
