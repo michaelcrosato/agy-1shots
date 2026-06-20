@@ -17,6 +17,7 @@ const suites = [
   // These .mjs suites import dashboard ESM modules, so run from dashboard/.
   { name: 'pricing', file: 'lib/pricing.test.mjs', cwd: path.join(repoRoot, 'dashboard') },
   { name: 'manifest', file: 'lib/manifest.test.mjs', cwd: path.join(repoRoot, 'dashboard') },
+  { name: 'exec', file: 'lib/exec.test.mjs', cwd: path.join(repoRoot, 'dashboard') },
 ];
 
 let failed = 0;
