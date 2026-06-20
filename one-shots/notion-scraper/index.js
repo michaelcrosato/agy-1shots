@@ -1,4 +1,3 @@
-const { Client } = require("@notionhq/client");
 const https = require("https");
 
 function scrapeTitle(url) {
@@ -47,6 +46,9 @@ async function run() {
     const pageTitle = await scrapeTitle(targetUrl);
     console.log(`Scraped Page Title: "${pageTitle}"`);
 
+    // Lazy-require the Notion SDK only on the real path, so MOCK/--test runs
+    // (which must work offline) don't depend on the package being installed.
+    const { Client } = require("@notionhq/client");
     const notion = new Client({ auth: token });
     console.log(`Connecting to Notion database ${databaseId}...`);
     const response = await notion.pages.create({
