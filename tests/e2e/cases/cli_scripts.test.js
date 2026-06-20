@@ -88,6 +88,47 @@ describe('Milestone 3: CLI Scripts', () => {
     expect(res.stderr.includes('not found')).toBe(true);
   });
 
+  // A title with no ASCII alphanumerics slugifies to '' which would resolve to
+  // the shared one-shots/ root and clobber files. Verified fully isolated in a
+  // temp repo so it never touches the real registry or one-shots/.
+  test('CLI_EMPTYSLUG: promote.py refuses an empty-slug title (no root clobber)', () => {
+    const os = require('os');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'promote-empty-slug-'));
+    try {
+      fs.mkdirSync(path.join(tmp, 'scripts'));
+      fs.mkdirSync(path.join(tmp, 'ideas'));
+      fs.mkdirSync(path.join(tmp, 'one-shots'));
+      fs.copyFileSync(promoteScript, path.join(tmp, 'scripts', 'promote.py'));
+      const idea = {
+        id: 'BAD-1',
+        title: '!!! ??? ###',
+        category: 'Test',
+        vision: 'v',
+        techSpecs: 't',
+        targetStack: 'Node.js',
+        readyToCopyTaskPrompt: 'p',
+        dateAdded: '2026-01-01',
+        status: 'backlog',
+        promoted_to: null,
+        supersedes: null,
+      };
+      fs.writeFileSync(path.join(tmp, 'ideas', 'registry.json'), JSON.stringify([idea], null, 2));
+      fs.writeFileSync(path.join(tmp, 'ideas', 'README.md'), '');
+      fs.writeFileSync(path.join(tmp, 'IDEAS.md'), '');
+
+      const res = cp.spawnSync('python', [path.join(tmp, 'scripts', 'promote.py'), 'BAD-1'], {
+        encoding: 'utf8',
+      });
+      expect(res.status).toBe(1);
+      expect(/slug/i.test(res.stderr || '')).toBe(true);
+      // The shared one-shots/ root must be untouched.
+      expect(fs.existsSync(path.join(tmp, 'one-shots', 'oneshot.json'))).toBe(false);
+      expect(fs.existsSync(path.join(tmp, 'one-shots', 'package.json'))).toBe(false);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true, maxRetries: 5 });
+    }
+  });
+
   // Test 2: promote.py successfully promotes backlog idea
   test('CLI_2: promote.py successfully scaffolds valid ID', () => {
     // In registry.json, AUTO-003 is "ADF Lead Parser & CRM Webhook Auto-Enricher"
