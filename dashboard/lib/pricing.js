@@ -3,6 +3,42 @@ import path from 'path';
 
 let cachedPricing = null;
 let cachedPricingDate = '2026-06-17'; // fallback default
+let cachedAliasMap = null;
+
+// Canonicalize a model identifier for matching. Attempt manifests store API-form
+// ids ("claude-opus-4-8"), the pricing CSV stores display names ("Claude Opus
+// 4.8"), and some attempts carry an effort qualifier ("Gemini 3.5 Flash (high)").
+// Lowercasing, dropping parenthetical qualifiers, and collapsing every separator
+// (hyphen, dot, slash, space) to a single space makes all three forms converge,
+// so "claude-opus-4-8" and "Claude Opus 4.8" both become "claude opus 4 8".
+function normalizeModelId(s) {
+  if (typeof s !== 'string') return '';
+  return s
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ') // "(high)", "(legacy)", "(preview)" -> drop
+    .replace(/[^a-z0-9]+/g, ' ') // hyphen/dot/slash/space -> single space
+    .trim();
+}
+
+// Build a normalized-id -> pricing-row map once. A CSV name like
+// "Claude Opus 4.1 / Opus 4 (legacy)" yields two aliases ("claude opus 4 1" and
+// "opus 4"), so the API id "claude-opus-4-1" still resolves. First row wins on a
+// collision, preserving the prior find()-order semantics.
+function getAliasMap() {
+  if (cachedAliasMap) return cachedAliasMap;
+  const map = new Map();
+  for (const p of loadPricingData()) {
+    const aliases = String(p.Model || '')
+      .split('/')
+      .map(normalizeModelId)
+      .filter(Boolean);
+    for (const alias of aliases) {
+      if (!map.has(alias)) map.set(alias, p);
+    }
+  }
+  cachedAliasMap = map;
+  return map;
+}
 
 function loadPricingData() {
   if (cachedPricing) return cachedPricing;
@@ -76,29 +112,14 @@ export function getPricingDate() {
 
 export function getPricingForModel(modelName) {
   if (!modelName || typeof modelName !== 'string') return null;
-  const pricingData = loadPricingData();
-  const normalizedSearch = modelName.trim().toLowerCase();
+  const normalized = normalizeModelId(modelName);
+  if (!normalized) return null;
 
-  // 1. Exact match first
-  let match = pricingData.find((p) => p.Model.toLowerCase() === normalizedSearch);
-  if (match) return match;
-
-  // 2. Substring match
-  match = pricingData.find(
-    (p) =>
-      normalizedSearch.includes(p.Model.toLowerCase()) ||
-      p.Model.toLowerCase().includes(normalizedSearch)
-  );
-  if (match) return match;
-
-  // 3. Fallback to prefix matching
-  const firstWord = normalizedSearch.split(' ')[0];
-  if (firstWord && firstWord.length > 2) {
-    match = pricingData.find((p) => p.Model.toLowerCase().startsWith(firstWord));
-    if (match) return match;
-  }
-
-  return null;
+  // Exact match on the normalized id. This deliberately does NOT fall back to
+  // substring or first-word-prefix guessing: those mapped any unknown id whose
+  // first word matched a row (e.g. "claude-whatever" -> the first "Claude …"
+  // row), which silently mis-prices. An id we don't recognize returns null.
+  return getAliasMap().get(normalized) || null;
 }
 
 export function calculateCost(modelName, tokens) {
