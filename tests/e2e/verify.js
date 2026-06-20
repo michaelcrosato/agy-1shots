@@ -147,6 +147,20 @@ function runRunner() {
   });
 }
 
+// Fast, server-less unit suites — run before the expensive build so a broken
+// invariant fails the gate immediately.
+function runUnitTests() {
+  return new Promise((resolve) => {
+    log('Running unit suites (tests/run-unit.js)...');
+    const child = spawn(process.execPath, [path.join(repoRoot, 'tests', 'run-unit.js')], {
+      cwd: repoRoot,
+      stdio: 'inherit',
+    });
+    child.on('error', () => resolve(1));
+    child.on('exit', (code) => resolve(code === null ? 1 : code));
+  });
+}
+
 function teardown() {
   if (!serverChild || serverChild.killed) return;
   const pid = serverChild.pid;
@@ -188,6 +202,12 @@ async function main() {
   console.log('OneShotForge Verification (live application)');
   console.log(`Target: ${BASE_URL}`);
   console.log('==================================================');
+
+  const unitCode = await runUnitTests();
+  if (unitCode !== 0) {
+    console.error('[verify] Unit suites failed — aborting before the e2e gate.');
+    process.exit(unitCode);
+  }
 
   if (USE_RUNNING_SERVER) {
     log('USE_RUNNING_SERVER set: skipping build/start; testing existing server.');

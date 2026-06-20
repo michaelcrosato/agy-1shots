@@ -87,7 +87,6 @@ function aggregateTranscript(transcriptPath) {
   let input = 0;
   let output = 0;
   let cacheRead = 0;
-  let cacheCreate = 0;
   let messages = 0;
   let minTs = null;
   let maxTs = null;
@@ -133,7 +132,6 @@ function aggregateTranscript(transcriptPath) {
     input += num(usage.input_tokens);
     output += num(usage.output_tokens);
     cacheRead += num(usage.cache_read_input_tokens);
-    cacheCreate += num(usage.cache_creation_input_tokens);
     bump(modelCounts, msg.model);
     bump(speedCounts, usage.speed);
 
@@ -174,7 +172,6 @@ function aggregateTranscript(transcriptPath) {
     input,
     output,
     cacheRead,
-    cacheCreate,
     tokensConsumed,
     durationMs,
   };
@@ -320,7 +317,7 @@ function appendAttempt(targetDir, manifestPath, attempt) {
 // it into the common aggregate shape buildAttempt() consumes. Adding a tool =
 // adding one entry to ADAPTERS; nothing else changes.
 //   aggregate = { model, speed, provider, version, sessionId, cwd, messages,
-//                 input, output, cacheRead, cacheCreate, tokensConsumed, durationMs }
+//                 input, output, cacheRead, tokensConsumed, durationMs }
 // ---------------------------------------------------------------------------
 
 function inferProvider(model) {
@@ -453,7 +450,6 @@ function parseCodexRollout(p) {
     input,
     output,
     cacheRead: cached,
-    cacheCreate: 0,
     tokensConsumed,
     durationMs,
   };
