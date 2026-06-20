@@ -21,6 +21,34 @@ const PROTO_KEYS = ['__proto__', 'constructor', 'prototype'];
 const ACCEPTANCE_MODES = ['human', 'program', 'none'];
 const EVAL_METHODS = ['human', 'program', 'none'];
 
+// Evidence provenance for attempt telemetry. The design review in
+// tools/llm-usage-reader/DESIGN-rationale.md is unanimous: the LLM must never be
+// the source of benchmark telemetry. Trusted token evidence comes only from
+// provider reconciliation, native telemetry, or a local vendor session store.
+// Token sources we trust for benchmark comparisons:
+const TRUSTED_TOKEN_SOURCES = ['provider_reconciled', 'native_telemetry', 'vendor_session_store'];
+
+// Classify an attempt's evidence. Attempts written by the evidence bridge
+// (scripts/record-evidence.js) carry an `evidence` block; anything without one
+// predates evidence-backed recording and is treated as legacy self-reported and
+// NOT benchmark-eligible — without mutating the stored (append-only) record.
+export function classifyAttempt(attempt) {
+  const ev = attempt && attempt.evidence;
+  if (ev && typeof ev === 'object' && typeof ev.evidenceLevel === 'string') {
+    const tokensSource = typeof ev.tokensSource === 'string' ? ev.tokensSource : 'unavailable';
+    const benchmarkEligible =
+      typeof attempt.benchmarkEligible === 'boolean'
+        ? attempt.benchmarkEligible
+        : TRUSTED_TOKEN_SOURCES.includes(tokensSource);
+    return { evidenceLevel: ev.evidenceLevel, tokensSource, benchmarkEligible };
+  }
+  return {
+    evidenceLevel: 'legacy_self_reported',
+    tokensSource: 'legacy_self_reported',
+    benchmarkEligible: false,
+  };
+}
+
 // Error carrying an HTTP status so routes can map failures uniformly.
 export class ManifestError extends Error {
   constructor(status, message) {
@@ -142,11 +170,15 @@ export function summarizeManifest(m, status = 'valid') {
   const latest = attemptCount > 0 ? attempts[attemptCount - 1] : null;
   const evaluation = latest && latest.evaluation ? latest.evaluation : null;
 
+  const benchmarkEligibleCount = attempts.filter((a) => classifyAttempt(a).benchmarkEligible).length;
+
   return {
     hasManifest: hasVision || attemptCount > 0,
     manifestStatus: status,
     hasVision,
     attemptCount,
+    benchmarkEligibleCount,
+    latestEvidenceLevel: latest ? classifyAttempt(latest).evidenceLevel : null,
     latestFidelity:
       evaluation && typeof evaluation.fidelityScore === 'number' ? evaluation.fidelityScore : null,
     latestPassed: evaluation && typeof evaluation.passed === 'boolean' ? evaluation.passed : null,
@@ -467,6 +499,7 @@ export function decorateAttempt(attempt) {
   if (!attempt) return attempt;
   const buildTokens = attempt.build ? attempt.build.tokens : null;
   const buildCost = calculateCost(attempt.model, buildTokens);
+  const { evidenceLevel, tokensSource, benchmarkEligible } = classifyAttempt(attempt);
   return {
     ...attempt,
     build: {
@@ -474,6 +507,10 @@ export function decorateAttempt(attempt) {
       estimatedCost: buildCost,
     },
     estimatedCost: buildCost !== null ? Number(buildCost.toFixed(4)) : null,
+    // Computed provenance (does not mutate the stored, append-only record).
+    evidenceLevel,
+    tokensSource,
+    benchmarkEligible,
   };
 }
 
