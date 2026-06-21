@@ -170,6 +170,54 @@ comparable benchmark history across models.
 
 ---
 
+## Recording a build
+
+When a coding tool finishes building a one-shot, record the attempt to the
+dashboard with **one command** — you never type telemetry numbers by hand.
+
+**Primary — `record-build.js` (auto, from the coding tool's own transcript):**
+
+```bash
+node scripts/record-build.js --id <one-shot>
+```
+
+Run it from the same directory you ran the coding tool in (normally the repo
+root), right after the build finishes. It reads the tool's session transcript
+and appends **one** evidence-backed attempt with everything filled in
+automatically:
+
+- **what model** — the model the tool actually used
+- **the setting** — effort / speed (e.g. `standard` / `fast`)
+- **the tool + build** — e.g. `claude-code 2.1.181`
+- **the OS + build** — e.g. `Windows 10.0.26200`
+- **build tokens** — summed from the real session usage
+- **build time** — wall-clock span of the build session
+
+Useful flags: `--dry-run` previews the attempt without writing; `--effort high`
+tags a setting the transcript doesn't carry; `--transcript <file.jsonl>` or
+`--projects-dir <dir>` point at the session explicitly when you ran the tool
+from a different directory. The auto-reader currently understands Claude Code
+and Codex transcripts.
+
+**Ledger path — `record-evidence.js` (from the llm-usage-reader ledger):**
+
+```bash
+node scripts/record-evidence.js --id <one-shot> --latest
+```
+
+Finalizes a record captured by the vendored [`tools/llm-usage-reader`](tools/llm-usage-reader/)
+(`wrap` for timing/host, `import-claude-code` or provider usage/cost exports for
+tokens) into an attempt with its `evidence` provenance block and
+`benchmarkEligible` flag. Use this when your token evidence comes from a
+provider usage export rather than a local transcript.
+
+> [!WARNING] > `node scripts/record-attempt.js` still exists but its attempts are stamped
+> `manual_attestation` / `benchmarkEligible: false` and are **excluded from
+> benchmark comparisons**. Don't use it for data you want to compare — reach for
+> one of the evidence-backed recorders above.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -210,5 +258,5 @@ comparable benchmark history across models.
 1. Create a subdirectory under `/one-shots/` using kebab-case (e.g. `/one-shots/my-awesome-script/`).
 2. Add a `package.json` with the required metadata fields (`name`, `description`, `version`, `tags`) and execution scripts (`start`, `test`).
 3. Add a `README.md` documenting usage, required environment variables, and visual previews/examples.
-4. Add a `oneshot.json` with the `spec.vision` and seed the first attempt. (Note: when promoting an idea, run `python scripts/promote.py <ID>` to scaffold the files and seed the manifest automatically. For subsequent attempts, always record them using `node scripts/record-attempt.js --id <id> [options]` to ensure lock-safety and schema accuracy). For non-visual outputs, add a `scripts.verify` acceptance test and set `acceptance.mode` to `program`.
+4. Add a `oneshot.json` with the `spec.vision` and seed the first attempt. (Note: when promoting an idea, run `python scripts/promote.py <ID>` to scaffold the files and seed the manifest automatically. To record subsequent attempts, use the evidence-backed recorders in [Recording a build](#recording-a-build) — `node scripts/record-build.js --id <id>` after a build — never the deprecated `record-attempt.js`, whose entries are not benchmark-eligible.) For non-visual outputs, add a `scripts.verify` acceptance test and set `acceptance.mode` to `program`.
 5. Verify your piece appears in the Dashboard and passes local tests before submitting a PR.
