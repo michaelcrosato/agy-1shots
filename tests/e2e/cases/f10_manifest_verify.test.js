@@ -21,7 +21,9 @@ describe('F10: Manifest Acceptance Test (verify)', () => {
             Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
           } catch (e) {
             const start = Date.now();
-            while (Date.now() - start < 100) {}
+            while (Date.now() - start < 100) {
+              /* busy-wait */
+            }
           }
         } else {
           throw err;

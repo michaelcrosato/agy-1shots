@@ -25,7 +25,9 @@ describe('F6: Dashboard Search/Filter', () => {
               ) {
                 retries--;
                 const end = Date.now() + 100;
-                while (Date.now() < end) {}
+                while (Date.now() < end) {
+                  /* busy-wait */
+                }
               } else {
                 throw err;
               }
@@ -48,7 +50,9 @@ describe('F6: Dashboard Search/Filter', () => {
           ) {
             retries--;
             const end = Date.now() + 100;
-            while (Date.now() < end) {}
+            while (Date.now() < end) {
+              /* busy-wait */
+            }
           } else {
             throw err;
           }

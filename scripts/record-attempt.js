@@ -428,7 +428,9 @@ function main() {
       if (err.code === 'EEXIST') {
         // Wait 50ms synchronously
         const start = Date.now();
-        while (Date.now() - start < 50) {}
+        while (Date.now() - start < 50) {
+          /* busy-wait */
+        }
       } else {
         console.error(`Error: Failed to create lock directory: ${err.message}`);
         process.exit(1);
@@ -533,7 +535,9 @@ function main() {
       lastError = err;
       // Wait 50ms synchronously
       const start = Date.now();
-      while (Date.now() - start < 50) {}
+      while (Date.now() - start < 50) {
+        /* busy-wait */
+      }
     }
   }
 

@@ -273,7 +273,9 @@ function main() {
     } catch (err) {
       if (err.code === 'EEXIST') {
         const start = Date.now();
-        while (Date.now() - start < 50) {}
+        while (Date.now() - start < 50) {
+          /* busy-wait */
+        }
       } else {
         fail(`failed to create lock directory: ${err.message}`);
       }
@@ -312,7 +314,9 @@ function main() {
       break;
     } catch (e) {
       const start = Date.now();
-      while (Date.now() - start < 50) {}
+      while (Date.now() - start < 50) {
+        /* busy-wait */
+      }
     }
   }
   if (!renamed) {
