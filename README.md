@@ -156,7 +156,7 @@ therefore records attempt telemetry from objective evidence, not self-report:
 - **Evidence levels** (strongest → weakest): `provider_reconciled`,
   `native_telemetry`, `vendor_session_store`, `system_probe` (timing only),
   `manual_attestation`, `legacy_self_reported`, `unavailable`. Only trusted,
-  *measured* token evidence is `benchmarkEligible`; manual, legacy, and
+  _measured_ token evidence is `benchmarkEligible`; manual, legacy, and
   timing-only attempts are recorded but excluded from benchmark comparisons.
   Attempts without an `evidence` block are classified `legacy_self_reported`
   (computed at read time — historical records are never mutated).

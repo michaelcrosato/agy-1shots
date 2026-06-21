@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 describe('Tier 4: Real-World Scenario Tests', () => {
   const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:3000';

@@ -36,7 +36,12 @@ describe('F14: Evidence-backed attempts', () => {
     fs.writeFileSync(
       path.join(dir, 'package.json'),
       JSON.stringify(
-        { name: id, version: '1.0.0', description: 'evidence test', scripts: { verify: 'node -e ""' } },
+        {
+          name: id,
+          version: '1.0.0',
+          description: 'evidence test',
+          scripts: { verify: 'node -e ""' },
+        },
         null,
         2
       )
@@ -56,7 +61,13 @@ describe('F14: Evidence-backed attempts', () => {
           model: 'Legacy Model',
           environment: { tool: '', toolBuild: '', os: '', osBuild: '' },
           build: { tokens: 999999, durationMs: 1000 },
-          evaluation: { method: 'none', fidelityScore: null, passed: null, feedback: '', evaluatedAt: null },
+          evaluation: {
+            method: 'none',
+            fidelityScore: null,
+            passed: null,
+            feedback: '',
+            evaluatedAt: null,
+          },
         },
       ],
     };
@@ -125,7 +136,12 @@ describe('F14: Evidence-backed attempts', () => {
     };
     fs.writeFileSync(
       ledgerPath,
-      JSON.stringify(recVendor) + '\n' + JSON.stringify(recManual) + '\n' + JSON.stringify(recProvider) + '\n'
+      JSON.stringify(recVendor) +
+        '\n' +
+        JSON.stringify(recManual) +
+        '\n' +
+        JSON.stringify(recProvider) +
+        '\n'
     );
   });
 

@@ -23,7 +23,7 @@
 | 10  | Manifest Verify      | M3 Requirement       |      5 tests      |      2 tests      |           ✓            |          ✓          |
 | 11  | Full Lifecycle       | M3 Requirement       |      1 test       |      0 tests      |           ✓            |          ✓          |
 | 12  | Ideas Registry       | M4 Requirement       |      5 tests      |      5 tests      |           ✓            |          ✓          |
-| 13  | Suggest API          | Dashboard Assist     |      8 tests      |        —          |           —            |          —          |
+| 13  | Suggest API          | Dashboard Assist     |      8 tests      |         —         |           —            |          —          |
 
 ## Test Architecture
 

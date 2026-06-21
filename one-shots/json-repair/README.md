@@ -2,7 +2,7 @@
 
 Repairs **JSONC** — `//` line comments, `/* */` block comments, and trailing
 commas — into strict, valid JSON. String-aware: comment markers and commas that
-appear *inside* string literals are preserved. Dependency-free.
+appear _inside_ string literals are preserved. Dependency-free.
 
 ## Why this is a good example one-shot
 

@@ -48,23 +48,29 @@ check('trailing-looking comma inside string', deepEq(repairJson('{"s": "ends,"}'
 // already-valid JSON is unchanged in meaning
 check('valid JSON round-trips', deepEq(repairJson('{"a":1,"b":[2,3]}'), { a: 1, b: [2, 3] }));
 // pretty-print output is itself valid JSON
-check('repairJsonToString emits valid JSON', (() => {
-  const s = repairJsonToString('{"a":1,}');
-  try {
-    return deepEq(JSON.parse(s), { a: 1 });
-  } catch (e) {
-    return false;
-  }
-})());
+check(
+  'repairJsonToString emits valid JSON',
+  (() => {
+    const s = repairJsonToString('{"a":1,}');
+    try {
+      return deepEq(JSON.parse(s), { a: 1 });
+    } catch (e) {
+      return false;
+    }
+  })()
+);
 // genuinely broken input (not just JSONC) still throws — no partial guess
-check('unrepairable throws', (() => {
-  try {
-    repairJson('{"a": }');
-    return false;
-  } catch (e) {
-    return true;
-  }
-})());
+check(
+  'unrepairable throws',
+  (() => {
+    try {
+      repairJson('{"a": }');
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })()
+);
 // cleanJsonc is a no-op on plain JSON text
 check('cleanJsonc preserves plain JSON', cleanJsonc('{"a":1}') === '{"a":1}');
 

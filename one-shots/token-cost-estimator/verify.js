@@ -20,7 +20,11 @@ function check(name, cond, detail) {
 // --- estimateTokens: deterministic 4-chars-per-token ---
 check('empty string => 0 tokens', estimateTokens('') === 0);
 check('non-string => 0 tokens', estimateTokens(null) === 0 && estimateTokens(undefined) === 0);
-check('400 chars => 100 tokens', estimateTokens('a'.repeat(400)) === 100, `got ${estimateTokens('a'.repeat(400))}`);
+check(
+  '400 chars => 100 tokens',
+  estimateTokens('a'.repeat(400)) === 100,
+  `got ${estimateTokens('a'.repeat(400))}`
+);
 check('3 chars => ceil = 1 token', estimateTokens('abc') === 1, `got ${estimateTokens('abc')}`);
 
 // --- estimateCostUsd: known model, 80/20 blend ---
