@@ -3,6 +3,7 @@ import path from 'path';
 import os from 'os';
 import { NextResponse } from 'next/server';
 import { generateIdeasReadme, generateIdeasMd } from '../route';
+import { writeFileAtomic } from '../../../../lib/atomic-file';
 
 export const dynamic = 'force-dynamic';
 
@@ -222,18 +223,19 @@ ${idea.readyToCopyTaskPrompt}
     const readmeLocalPath = path.join(oneShotDir, 'README.md');
     fs.writeFileSync(readmeLocalPath, readmeLocalContent, 'utf8');
 
-    // 7. Update status in registry.json
+    // 7. Update status in registry.json. Atomic write: a torn registry.json
+    // would 500 every subsequent GET /api/ideas that JSON.parses it.
     idea.status = 'promoted';
     idea.promoted_to = slug;
 
-    fs.writeFileSync(registryPath, JSON.stringify(ideas, null, 2), 'utf8');
+    writeFileAtomic(registryPath, JSON.stringify(ideas, null, 2));
 
     // 8. Regenerate registry README.md and root IDEAS.md
     const registryReadmeContent = generateIdeasReadme(ideas);
-    fs.writeFileSync(readmePath, registryReadmeContent, 'utf8');
+    writeFileAtomic(readmePath, registryReadmeContent);
 
     const ideasMdContent = generateIdeasMd(ideas);
-    fs.writeFileSync(ideasMdPath, ideasMdContent, 'utf8');
+    writeFileAtomic(ideasMdPath, ideasMdContent);
 
     return NextResponse.json({ success: true, slug, idea }, { status: 200 });
   } catch (error) {
