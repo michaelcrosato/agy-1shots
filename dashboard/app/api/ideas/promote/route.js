@@ -258,6 +258,9 @@ ${idea.readyToCopyTaskPrompt}
         /* best-effort cleanup; the original error is what matters */
       }
     }
-    return NextResponse.json({ error: 'Internal Server Error: ' + error.message }, { status: 500 });
+    // Log detail server-side; return a generic 500 (no internal error text
+    // leaked to the client), matching the other API routes.
+    console.error('POST /api/ideas/promote failed:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
