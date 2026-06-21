@@ -265,6 +265,10 @@ export async function POST(request) {
 
     return NextResponse.json(newIdea, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error: ' + error.message }, { status: 500 });
+    // Log the detail server-side; return a generic 500 so internal error text
+    // (e.g. filesystem paths) isn't leaked to the client — matching the other
+    // API routes (e.g. polish).
+    console.error('POST /api/ideas failed:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
