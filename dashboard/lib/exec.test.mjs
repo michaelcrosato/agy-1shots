@@ -8,7 +8,7 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { runScript } from './exec.js';
+import { runScript, sanitizeEnv, detectCommandEscape } from './exec.js';
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'exec-test-'));
 let passed = 0;
@@ -52,6 +52,39 @@ try {
     });
     assert.strictEqual(r.success, false);
     assert.strictEqual(typeof r.exitCode, 'number'); // never the raw string code
+  });
+
+  // --- sanitizeEnv: strips env keys that can hijack process startup ---
+
+  await check('sanitizeEnv strips dangerous keys, keeps safe vars, case-insensitively', () => {
+    const out = sanitizeEnv({
+      NODE_OPTIONS: '--require /tmp/evil.js',
+      node_options: '--inspect', // lowercase must be stripped too
+      LD_PRELOAD: '/tmp/x.so',
+      BASH_ENV: '/tmp/rc',
+      PATH: '/evil/bin',
+      SAFE_VAR: 'keep-me',
+    });
+    assert.deepStrictEqual(out, { SAFE_VAR: 'keep-me' });
+  });
+
+  await check('sanitizeEnv on a non-object returns an empty object', () => {
+    assert.deepStrictEqual(sanitizeEnv(null), {});
+    assert.deepStrictEqual(sanitizeEnv(undefined), {});
+    assert.deepStrictEqual(sanitizeEnv('NODE_OPTIONS=x'), {});
+  });
+
+  // --- detectCommandEscape: blocks reads/writes outside the one-shot dir ---
+
+  await check('detectCommandEscape blocks relative .. traversal, allows an in-dir command', () => {
+    assert.strictEqual(detectCommandEscape('node ../../outside.js', tmp), true);
+    assert.strictEqual(detectCommandEscape('node index.js', tmp), false);
+  });
+
+  await check('detectCommandEscape blocks an absolute path outside the target dir', () => {
+    const outside =
+      process.platform === 'win32' ? 'node C:\\Windows\\system32\\x.js' : 'node /etc/passwd';
+    assert.strictEqual(detectCommandEscape(outside, tmp), true);
   });
 
   fs.rmSync(tmp, { recursive: true, force: true });
