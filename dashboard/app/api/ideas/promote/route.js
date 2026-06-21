@@ -21,6 +21,10 @@ function getSlug(title) {
 }
 
 export async function POST(request) {
+  // Tracked at handler scope so the catch can roll back a partial scaffold.
+  let oneShotDir = null;
+  let createdDir = false;
+  let registryCommitted = false;
   try {
     let body;
     try {
@@ -56,7 +60,7 @@ export async function POST(request) {
 
     const slug = getSlug(idea.title);
     const repoRoot = path.resolve(process.cwd(), '..');
-    const oneShotDir = path.join(repoRoot, 'one-shots', slug);
+    oneShotDir = path.join(repoRoot, 'one-shots', slug);
 
     if (fs.existsSync(oneShotDir)) {
       return NextResponse.json(
@@ -66,6 +70,7 @@ export async function POST(request) {
     }
 
     fs.mkdirSync(oneShotDir, { recursive: true });
+    createdDir = true;
 
     // 1. Create oneshot.json
     const nowIso = new Date().toISOString();
@@ -229,6 +234,7 @@ ${idea.readyToCopyTaskPrompt}
     idea.promoted_to = slug;
 
     writeFileAtomic(registryPath, JSON.stringify(ideas, null, 2));
+    registryCommitted = true;
 
     // 8. Regenerate registry README.md and root IDEAS.md
     const registryReadmeContent = generateIdeasReadme(ideas);
@@ -239,6 +245,19 @@ ${idea.readyToCopyTaskPrompt}
 
     return NextResponse.json({ success: true, slug, idea }, { status: 200 });
   } catch (error) {
+    // Roll back a partial scaffold: if we created the one-shot directory but
+    // never committed the registry, remove it so a transient failure leaves no
+    // residue in the tracked one-shots/ tree and doesn't permanently block retry
+    // via the existsSync guard above. After the registry commit the promotion is
+    // durable, so a later doc-regen failure must NOT delete the now-registered
+    // one-shot.
+    if (createdDir && !registryCommitted && oneShotDir) {
+      try {
+        fs.rmSync(oneShotDir, { recursive: true, force: true });
+      } catch {
+        /* best-effort cleanup; the original error is what matters */
+      }
+    }
     return NextResponse.json({ error: 'Internal Server Error: ' + error.message }, { status: 500 });
   }
 }
