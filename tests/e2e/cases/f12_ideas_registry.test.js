@@ -99,7 +99,7 @@ describe('F12: Ideas Registry API', () => {
     ];
     for (const item of data) {
       for (const field of required) {
-        expect(item.hasOwnProperty(field)).toBe(true);
+        expect(Object.hasOwn(item, field)).toBe(true);
         expect(typeof item[field]).toBe('string');
       }
     }

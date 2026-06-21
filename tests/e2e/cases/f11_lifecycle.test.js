@@ -25,7 +25,9 @@ describe('F11: Full one-shot lifecycle (vision -> attempt -> verify -> summary)'
             Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
           } catch (e) {
             const start = Date.now();
-            while (Date.now() - start < 100) {}
+            while (Date.now() - start < 100) {
+              /* busy-wait */
+            }
           }
         } else {
           throw err;

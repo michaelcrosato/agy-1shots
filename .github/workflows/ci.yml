@@ -54,6 +54,9 @@ jobs:
         run: ./dashboard/node_modules/.bin/prettier --check .
       - name: Lint
         run: npm run lint
+      - name: Lint scripts + tests (eslint)
+        working-directory: ${{ github.workspace }}
+        run: ./dashboard/node_modules/.bin/eslint --ext .js scripts tests
       - name: Build
         run: npm run build
 

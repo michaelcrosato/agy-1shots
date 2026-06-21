@@ -29,7 +29,9 @@ function rmDirRecursive(dirPath) {
             ) {
               retries--;
               const end = Date.now() + 100;
-              while (Date.now() < end) {}
+              while (Date.now() < end) {
+                /* busy-wait */
+              }
             } else {
               throw err;
             }
@@ -52,7 +54,9 @@ function rmDirRecursive(dirPath) {
         ) {
           retries--;
           const end = Date.now() + 100;
-          while (Date.now() < end) {}
+          while (Date.now() < end) {
+            /* busy-wait */
+          }
         } else {
           throw err;
         }
