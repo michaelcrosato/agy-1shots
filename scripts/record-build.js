@@ -155,7 +155,12 @@ function aggregateTranscript(transcriptPath) {
   const m = model.toLowerCase();
   if (m.startsWith('claude') || m.includes('opus') || m.includes('sonnet') || m.includes('haiku')) {
     provider = 'anthropic';
-  } else if (m.startsWith('gpt') || m.startsWith('o1') || m.startsWith('o3') || m.startsWith('o4')) {
+  } else if (
+    m.startsWith('gpt') ||
+    m.startsWith('o1') ||
+    m.startsWith('o3') ||
+    m.startsWith('o4')
+  ) {
     provider = 'openai';
   } else if (m.startsWith('gemini')) {
     provider = 'google';
@@ -324,7 +329,13 @@ function inferProvider(model) {
   const m = (model || '').toLowerCase();
   if (m.startsWith('claude') || m.includes('opus') || m.includes('sonnet') || m.includes('haiku'))
     return 'anthropic';
-  if (m.startsWith('gpt') || m.startsWith('o1') || m.startsWith('o3') || m.startsWith('o4') || m.startsWith('codex'))
+  if (
+    m.startsWith('gpt') ||
+    m.startsWith('o1') ||
+    m.startsWith('o3') ||
+    m.startsWith('o4') ||
+    m.startsWith('codex')
+  )
     return 'openai';
   if (m.startsWith('gemini')) return 'google';
   return 'unknown';

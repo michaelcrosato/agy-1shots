@@ -176,7 +176,9 @@ export function summarizeManifest(m, status = 'valid') {
   const latest = attemptCount > 0 ? attempts[attemptCount - 1] : null;
   const evaluation = latest && latest.evaluation ? latest.evaluation : null;
 
-  const benchmarkEligibleCount = attempts.filter((a) => classifyAttempt(a).benchmarkEligible).length;
+  const benchmarkEligibleCount = attempts.filter(
+    (a) => classifyAttempt(a).benchmarkEligible
+  ).length;
 
   return {
     hasManifest: hasVision || attemptCount > 0,

@@ -235,7 +235,7 @@ describe('Tier 3: Cross-Feature Integration Tests', () => {
     // Fetch scan API
     const scanRes = await fetch(`${DASHBOARD_URL}/api/scan`);
     expect(scanRes.status).toBe(200);
-    const scanData = await scanRes.json();
+    await scanRes.json();
 
     // Renders safely without crashing dashboard page
     const pageRes = await fetch(`${DASHBOARD_URL}/`);

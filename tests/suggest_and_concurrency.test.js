@@ -258,7 +258,7 @@ async function runEmpiricalTests() {
     );
   }
 
-  const results = await Promise.all(promises);
+  await Promise.all(promises);
   console.log(`  All 30 concurrent runs finished successfully. checking stats...`);
 
   // C. Verify final stats

@@ -42,20 +42,23 @@ try {
     assert.strictEqual(readManifestSyncWithStatus(bad.dir).status, 'unreadable');
   });
 
-  await checkAsync('updateManifest refuses to overwrite on "unreadable" (no data loss)', async () => {
-    let threw = null;
-    try {
-      await updateManifest(bad.dir, bad.manifestPath, (m) => {
-        m.attempts.push({ id: 'should-not-be-written' });
-        return m;
-      });
-    } catch (e) {
-      threw = e;
+  await checkAsync(
+    'updateManifest refuses to overwrite on "unreadable" (no data loss)',
+    async () => {
+      let threw = null;
+      try {
+        await updateManifest(bad.dir, bad.manifestPath, (m) => {
+          m.attempts.push({ id: 'should-not-be-written' });
+          return m;
+        });
+      } catch (e) {
+        threw = e;
+      }
+      assert.ok(threw instanceof ManifestError, 'expected a ManifestError');
+      assert.strictEqual(threw.status, 503);
+      assert.ok(fs.statSync(bad.manifestPath).isDirectory(), 'oneshot.json must be left intact');
     }
-    assert.ok(threw instanceof ManifestError, 'expected a ManifestError');
-    assert.strictEqual(threw.status, 503);
-    assert.ok(fs.statSync(bad.manifestPath).isDirectory(), 'oneshot.json must be left intact');
-  });
+  );
 
   // --- Genuinely missing file (ENOENT) still behaves as before ---
   const miss = mkCase('missing');

@@ -33,7 +33,7 @@ args, `sanitizeEnv()` drops dangerous keys from any caller-supplied `env`, runs
 are serialized per one-shot, and a 30-second timeout is enforced.
 
 These are **safety rails against a malformed or buggy one-shot you wrote** — not
-a security sandbox. A script that *wants* to run arbitrary code can trivially do
+a security sandbox. A script that _wants_ to run arbitrary code can trivially do
 so (it is already a shell command, with `$()`, backticks, env expansion,
 redirection, `node -e`, and so on). The guards assume the command source is
 **trusted**; they protect you from mistakes, not from an attacker.

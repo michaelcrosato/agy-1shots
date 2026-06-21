@@ -58,7 +58,10 @@ export async function POST(request) {
     const oneShotDir = path.join(repoRoot, 'one-shots', slug);
 
     if (fs.existsSync(oneShotDir)) {
-      return NextResponse.json({ error: `Error: Target one-shot directory already exists at one-shots/${slug}` }, { status: 409 });
+      return NextResponse.json(
+        { error: `Error: Target one-shot directory already exists at one-shots/${slug}` },
+        { status: 409 }
+      );
     }
 
     fs.mkdirSync(oneShotDir, { recursive: true });
@@ -134,7 +137,11 @@ export async function POST(request) {
       startCmd = 'cargo run';
       testCmd = 'cargo test';
       verifyCmd = 'python verify.py';
-    } else if (stackLower.includes('node') || stackLower.includes('js') || stackLower.includes('react')) {
+    } else if (
+      stackLower.includes('node') ||
+      stackLower.includes('js') ||
+      stackLower.includes('react')
+    ) {
       mainFilename = 'index.js';
       mainContent = 'console.log("Hello from OneShotForge!");\n';
       verifyFilename = 'verify.js';

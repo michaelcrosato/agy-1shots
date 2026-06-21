@@ -8,7 +8,6 @@
  * expected numbers — the recorder must never invent or drift values.
  */
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const assert = require('assert');
 const { execFileSync } = require('child_process');
@@ -61,7 +60,11 @@ function setup() {
   // Two assistant messages 5s apart + one user line that must be ignored.
   const lines = [
     assistant('2026-06-20T10:00:00.000Z', 'claude-opus-4-8', 100, 50, 10, 'standard'),
-    JSON.stringify({ type: 'user', timestamp: '2026-06-20T10:00:02.000Z', message: { role: 'user' } }),
+    JSON.stringify({
+      type: 'user',
+      timestamp: '2026-06-20T10:00:02.000Z',
+      message: { role: 'user' },
+    }),
     assistant('2026-06-20T10:00:05.000Z', 'claude-opus-4-8', 200, 80, 20, 'standard'),
   ];
   fs.writeFileSync(fixture, lines.join('\n') + '\n');
@@ -100,7 +103,14 @@ function writeCodexFixture() {
       timestamp: '2026-06-20T10:00:03.000Z',
       payload: {
         type: 'token_count',
-        info: { total_token_usage: { input_tokens: 1000, cached_input_tokens: 200, output_tokens: 300, total_tokens: 1300 } },
+        info: {
+          total_token_usage: {
+            input_tokens: 1000,
+            cached_input_tokens: 200,
+            output_tokens: 300,
+            total_tokens: 1300,
+          },
+        },
       },
     }),
     JSON.stringify({ type: 'response_item', timestamp: '2026-06-20T10:00:08.000Z' }),
@@ -110,7 +120,14 @@ function writeCodexFixture() {
       timestamp: '2026-06-20T10:00:10.000Z',
       payload: {
         type: 'token_count',
-        info: { total_token_usage: { input_tokens: 5000, cached_input_tokens: 1000, output_tokens: 800, total_tokens: 5800 } },
+        info: {
+          total_token_usage: {
+            input_tokens: 5000,
+            cached_input_tokens: 1000,
+            output_tokens: 800,
+            total_tokens: 5800,
+          },
+        },
       },
     }),
   ];

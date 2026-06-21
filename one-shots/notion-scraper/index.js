@@ -1,41 +1,39 @@
-const https = require("https");
+const https = require('https');
 
 function scrapeTitle(url) {
   return new Promise((resolve, reject) => {
     https
       .get(url, (res) => {
-        let data = "";
-        res.on("data", (chunk) => {
+        let data = '';
+        res.on('data', (chunk) => {
           data += chunk;
         });
-        res.on("end", () => {
+        res.on('end', () => {
           const match = data.match(/<title>([^<]+)<\/title>/i);
-          resolve(match ? match[1].trim() : "No Title Found");
+          resolve(match ? match[1].trim() : 'No Title Found');
         });
       })
-      .on("error", (err) => {
+      .on('error', (err) => {
         reject(err);
       });
   });
 }
 
 async function run() {
-  const isTest = process.argv.includes("--test") || process.env.MOCK === "true";
+  const isTest = process.argv.includes('--test') || process.env.MOCK === 'true';
 
   if (isTest) {
-    console.log("Running notion-scraper in MOCK mode...");
-    console.log("notion-scraper executed successfully");
+    console.log('Running notion-scraper in MOCK mode...');
+    console.log('notion-scraper executed successfully');
     process.exit(0);
   }
 
   const token = process.env.NOTION_TOKEN;
   const databaseId = process.env.NOTION_DATABASE_ID;
-  const targetUrl = process.env.SCRAPE_URL || "https://example.com";
+  const targetUrl = process.env.SCRAPE_URL || 'https://example.com';
 
   if (!token || !databaseId) {
-    console.error(
-      "Error: NOTION_TOKEN and NOTION_DATABASE_ID environment variables are required.",
-    );
+    console.error('Error: NOTION_TOKEN and NOTION_DATABASE_ID environment variables are required.');
     process.exit(1);
   }
 
@@ -48,7 +46,7 @@ async function run() {
 
     // Lazy-require the Notion SDK only on the real path, so MOCK/--test runs
     // (which must work offline) don't depend on the package being installed.
-    const { Client } = require("@notionhq/client");
+    const { Client } = require('@notionhq/client');
     const notion = new Client({ auth: token });
     console.log(`Connecting to Notion database ${databaseId}...`);
     const response = await notion.pages.create({
@@ -75,10 +73,10 @@ async function run() {
     });
 
     console.log(`Successfully created page in Notion: ${response.url}`);
-    console.log("notion-scraper executed successfully");
+    console.log('notion-scraper executed successfully');
     process.exit(0);
   } catch (error) {
-    console.error("Failed to execute notion-scraper:", error.message);
+    console.error('Failed to execute notion-scraper:', error.message);
     process.exit(1);
   }
 }
