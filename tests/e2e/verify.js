@@ -29,7 +29,12 @@ const { spawn, exec } = require('child_process');
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = '127.0.0.1';
-const BASE_URL = process.env.DASHBOARD_URL || `http://localhost:${PORT}`;
+// Target the EXACT host the server binds to (-H 127.0.0.1), not `localhost`.
+// On Windows `localhost` resolves to ::1 (IPv6) first, while `next start -H
+// 127.0.0.1` listens on IPv4 only — so a `localhost` probe/runner can connect
+// to a STALE orphaned server still holding ::1:PORT and silently test the wrong
+// build (a false pass/fail). The bind host and the target host must match.
+const BASE_URL = process.env.DASHBOARD_URL || `http://${HOST}:${PORT}`;
 
 const repoRoot = path.resolve(__dirname, '../..');
 const dashboardDir = path.join(repoRoot, 'dashboard');
