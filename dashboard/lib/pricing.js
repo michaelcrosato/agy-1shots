@@ -140,3 +140,31 @@ export function calculateCost(modelName, tokens) {
   const cost = (t * blendedRate) / 1000000;
   return Number(cost.toFixed(4));
 }
+
+// Price a build from its ACTUAL input/output token split — accurate, unlike the
+// 80/20 heuristic in calculateCost() which has to guess the split from a single
+// total. (A real build is rarely 80/20: an output-heavy session priced with the
+// blend can be off 2–3x.) Uses the same model_pricing.csv rates. Cached-input
+// tokens are NOT priced here — the CSV carries no cache-read rate, and the
+// attempt's build.tokens already excludes cache reads, so counting them would
+// require a price we don't have. Returns null when the model is unknown, the
+// rates are unparseable, or no usable input/output split is present (the caller
+// should fall back to the blended estimate).
+export function calculateCostFromUsage(modelName, usage) {
+  if (!usage || typeof usage !== 'object') return null;
+
+  const num = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0);
+  const input = num(usage.inputTokens);
+  const output = num(usage.outputTokens);
+  if (input === 0 && output === 0) return null; // no split -> caller blends
+
+  const entry = getPricingForModel(modelName);
+  if (!entry) return null; // model unknown
+
+  const inputPrice = Number(entry.InputPricePer1M);
+  const outputPrice = Number(entry.OutputPricePer1M);
+  if (isNaN(inputPrice) || isNaN(outputPrice)) return null;
+
+  const cost = (input * inputPrice + output * outputPrice) / 1000000;
+  return Number(cost.toFixed(4));
+}

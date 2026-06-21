@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { promises as fsp } from 'fs';
 import path from 'path';
-import { calculateCost } from './pricing.js';
+import { calculateCost, calculateCostFromUsage } from './pricing.js';
 
 // Per-one-shot "vision + metrics + evaluation" manifest.
 //
@@ -514,7 +514,11 @@ export function generateAttemptId() {
 export function decorateAttempt(attempt) {
   if (!attempt) return attempt;
   const buildTokens = attempt.build ? attempt.build.tokens : null;
-  const buildCost = calculateCost(attempt.model, buildTokens);
+  // Prefer the exact input/output split when the attempt carries it (evidence-
+  // backed attempts do); fall back to the 80/20 blended estimate for legacy or
+  // total-only records.
+  const splitCost = calculateCostFromUsage(attempt.model, attempt.usage);
+  const buildCost = splitCost !== null ? splitCost : calculateCost(attempt.model, buildTokens);
   const { evidenceLevel, tokensSource, benchmarkEligible } = classifyAttempt(attempt);
   return {
     ...attempt,

@@ -6,7 +6,7 @@
 // those, must still cost OpenAI/display-name forms, and must return null for
 // genuinely unknown models (never guess).
 import assert from 'node:assert';
-import { getPricingForModel, calculateCost } from './pricing.js';
+import { getPricingForModel, calculateCost, calculateCostFromUsage } from './pricing.js';
 
 let passed = 0;
 function check(name, fn) {
@@ -74,6 +74,44 @@ check('non-model strings -> null', () => {
 
 check('ambiguous bare "claude" -> null (must NOT guess Fable/first row)', () => {
   assert.strictEqual(getPricingForModel('claude'), null);
+});
+
+// --- calculateCostFromUsage: exact input/output split pricing ---
+
+check('split pricing uses real input/output rates, not the 80/20 blend', () => {
+  // Opus 4.8 = $5 in / $25 out. An output-heavy build: 373,566 in + 2,438,837 out.
+  // Exact: (373566*5 + 2438837*25)/1M = 62.8388 -> the blend on the 2,812,403
+  // total would give only 2,812,403*9/1M = 25.31, ~2.5x too low.
+  const cost = calculateCostFromUsage('claude-opus-4-8', {
+    inputTokens: 373566,
+    outputTokens: 2438837,
+  });
+  assert.strictEqual(cost, 62.8388);
+});
+
+check('split pricing matches the blend when the split actually is 80/20', () => {
+  // 800k in + 200k out at $5/$25 = (800000*5 + 200000*25)/1M = 9.00, same as the
+  // 80/20 blend on a 1M total — the blend is just the special case.
+  assert.strictEqual(
+    calculateCostFromUsage('claude-opus-4-8', { inputTokens: 800000, outputTokens: 200000 }),
+    9
+  );
+});
+
+check('split pricing returns null without a usable split (caller blends)', () => {
+  assert.strictEqual(calculateCostFromUsage('claude-opus-4-8', null), null);
+  assert.strictEqual(calculateCostFromUsage('claude-opus-4-8', {}), null);
+  assert.strictEqual(
+    calculateCostFromUsage('claude-opus-4-8', { inputTokens: 0, outputTokens: 0 }),
+    null
+  );
+});
+
+check('split pricing returns null for an unknown model (never guess)', () => {
+  assert.strictEqual(
+    calculateCostFromUsage('totally-made-up-model-9000', { inputTokens: 100, outputTokens: 100 }),
+    null
+  );
 });
 
 console.log(`\npricing.test.mjs: ALL ${passed} CHECKS PASSED`);
