@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
+import { writeFileAtomic } from '../../../lib/atomic-file';
 
 export const dynamic = 'force-dynamic';
 
@@ -249,16 +250,18 @@ export async function POST(request) {
       supersedes: null,
     };
 
-    // Append new idea to registry.json
+    // Append new idea to registry.json. Atomic write: registry.json is the
+    // machine source of truth (every GET JSON.parses it), so a torn write would
+    // 500 all subsequent reads.
     ideas.push(newIdea);
-    fs.writeFileSync(registryPath, JSON.stringify(ideas, null, 2), 'utf8');
+    writeFileAtomic(registryPath, JSON.stringify(ideas, null, 2));
 
     // Automatically regenerate README.md and root IDEAS.md
     const readmeContent = generateIdeasReadme(ideas);
-    fs.writeFileSync(readmePath, readmeContent, 'utf8');
+    writeFileAtomic(readmePath, readmeContent);
 
     const ideasMdContent = generateIdeasMd(ideas);
-    fs.writeFileSync(ideasMdPath, ideasMdContent, 'utf8');
+    writeFileAtomic(ideasMdPath, ideasMdContent);
 
     return NextResponse.json(newIdea, { status: 200 });
   } catch (error) {
