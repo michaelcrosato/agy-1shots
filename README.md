@@ -16,18 +16,21 @@ This repository is organized as a monorepo with strict isolation between compone
 ├── README.md               # Monorepo architecture & setup (this file)
 ├── AGENTS.md               # Agent guidelines, system prompt, and workflows
 ├── dashboard/              # Next.js 15 App Router dashboard application
-│   ├── package.json        # Dashboard-specific dependencies
-│   ├── src/
-│   │   ├── app/            # App router pages, layouts, and API routes (/api/scan, /api/run)
-│   │   └── components/     # UI components styled with Tailwind CSS and shadcn/ui
-│   └── ...
-├── one-shots/              # Directory containing isolated one-shot pieces
+│   ├── app/                # Routes, layouts, pages, and API routes
+│   │   ├── api/            # Backend route handlers (scan, run, manifest, ideas, …)
+│   │   ├── page.jsx        # Dashboard UI (Tailwind CSS)
+│   │   └── DashboardClient.jsx
+│   ├── lib/                # Server logic: manifest, pricing, exec, stats, atomic-file
+│   └── package.json        # Dashboard-specific dependencies
+├── one-shots/              # Isolated, self-contained one-shot pieces
 │   └── notion-scraper/     # Example web scraper connected to Notion
 │       ├── README.md       # Usage and one-click run instructions
 │       ├── package.json    # Metadata, dependencies, and test/start scripts
-│       ├── index.js        # Main execution entrypoint
-│       └── tests/          # Local unit/integration tests
-└── shared/                 # Optional folder for versioned common code/configurations
+│       └── index.js        # Main execution entrypoint
+├── scripts/                # CLI tools: record-build/evidence/attempt.js, promote.py, prompt-gen.py
+├── ideas/                  # One-shot ideas registry (registry.json + generated README)
+├── tools/                  # Vendored tooling (llm-usage-reader — the evidence recorder)
+└── tests/                  # Unit suites + the e2e gate (tests/e2e/)
 ```
 
 ### Core Architecture Principles
@@ -60,16 +63,25 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
 
 - **`GET /api/scan`**
   - Scans `/one-shots/` for subdirectories containing a valid `package.json`.
-  - Returns: `JSON` array of pieces:
+  - Returns: `JSON` array of pieces, each with a `manifest` benchmark summary
+    (a normalized empty summary when no `oneshot.json` exists):
     ```json
     [
       {
+        "id": "notion-scraper",
         "name": "notion-scraper",
         "version": "1.0.0",
         "description": "Notion-connected web scraper",
         "tags": ["scraper", "notion"],
         "path": "one-shots/notion-scraper",
-        "readme": "..."
+        "manifest": {
+          "hasManifest": true,
+          "hasVision": true,
+          "attemptCount": 3,
+          "benchmarkEligibleCount": 2,
+          "latestEvidenceLevel": "vendor_session_store",
+          "latestModel": "claude-opus-4-8"
+        }
       }
     ]
     ```
@@ -78,11 +90,11 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
   - Body:
     ```json
     {
-      "name": "notion-scraper",
-      "action": "run"
+      "id": "notion-scraper",
+      "action": "start"
     }
     ```
-  - Returns: Real-time console logs or success status.
+  - Returns: captured stdout/stderr, exit code, and a success flag.
 - **`GET /api/scan/:id/manifest`**
   - Returns the full `oneshot.json` (vision + attempt history), or a normalized empty default when none exists.
 - **`POST /api/manifest/spec`** `{ id, vision, acceptance? }`
