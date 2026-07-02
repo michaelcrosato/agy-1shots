@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 
+import InsightsTab from './components/InsightsTab';
+
 // --- Small presentational helpers (shared across modals) ---
 
 function fidelityColor(score) {
@@ -325,8 +327,48 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
   const [verifying, setVerifying] = useState(false);
   const [verifyOut, setVerifyOut] = useState(null);
 
+  const obs = attempt.observations || null;
+  const [wentWell, setWentWell] = useState('');
+  const [struggled, setStruggled] = useState('');
+  const [lessonsText, setLessonsText] = useState('');
+  const [savingObs, setSavingObs] = useState(false);
+  const [obsError, setObsError] = useState('');
+
   const env = attempt.environment || {};
   const build = attempt.build || {};
+
+  const saveObservations = async () => {
+    setSavingObs(true);
+    setObsError('');
+    const toList = (s) =>
+      s
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
+    try {
+      const res = await fetch('/api/manifest/observations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          attemptId: attempt.id,
+          wentWell: toList(wentWell),
+          struggled: toList(struggled),
+          lessons: toList(lessonsText),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onChanged();
+      } else {
+        setObsError(data.error || 'Failed to save observations.');
+      }
+    } catch (e) {
+      setObsError('Network error saving observations.');
+    } finally {
+      setSavingObs(false);
+    }
+  };
 
   const saveEval = async () => {
     setSaving(true);
@@ -540,6 +582,70 @@ function AttemptRow({ id, attempt, acceptanceMode, onChanged }) {
                   <RunResult output={verifyOut} />
                 </div>
               )}
+              <div className="border-t border-slate-800" />
+              <div>
+                <div className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                  Observations — what should the next person know?
+                </div>
+                {obs ? (
+                  <div className="grid sm:grid-cols-3 gap-4 text-sm">
+                    {[
+                      ['Went well', obs.wentWell, 'text-green-300'],
+                      ['Struggled', obs.struggled, 'text-red-300'],
+                      ['Lessons', obs.lessons, 'text-amber-300'],
+                    ].map(([label, items, cls]) => (
+                      <div key={label}>
+                        <div className={`text-[11px] ${cls} mb-1`}>{label}</div>
+                        {items && items.length > 0 ? (
+                          <ul className="list-disc list-inside text-slate-300 space-y-0.5">
+                            {items.map((t, i) => (
+                              <li key={i}>{t}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-slate-600">—</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="grid sm:grid-cols-3 gap-3">
+                      <textarea
+                        value={wentWell}
+                        onChange={(e) => setWentWell(e.target.value)}
+                        rows={3}
+                        placeholder={'What went well?\n(one per line)'}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                      <textarea
+                        value={struggled}
+                        onChange={(e) => setStruggled(e.target.value)}
+                        rows={3}
+                        placeholder={'What did the model struggle with?\n(one per line)'}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                      <textarea
+                        value={lessonsText}
+                        onChange={(e) => setLessonsText(e.target.value)}
+                        rows={3}
+                        placeholder={'Lessons for the next person\n(one per line)'}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={saveObservations}
+                        disabled={savingObs}
+                        className="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 disabled:bg-amber-900 text-white text-sm font-medium rounded transition-colors"
+                      >
+                        {savingObs ? 'Saving…' : 'Save Observations (write-once)'}
+                      </button>
+                      {obsError && <span className="text-xs text-red-400">{obsError}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </td>
         </tr>
@@ -1135,6 +1241,16 @@ export default function DashboardClient({ initialItems, initialStats, initialSca
           >
             <span>Ideas Registry</span>
           </button>
+          <button
+            onClick={() => handleTabChange('insights')}
+            className={`flex items-center space-x-2 w-full text-left px-3 py-2 rounded transition-colors ${
+              activeTab === 'insights'
+                ? 'bg-blue-600 text-white font-medium'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+            }`}
+          >
+            <span>Insights</span>
+          </button>
         </nav>
 
         {/* Stats Section */}
@@ -1179,7 +1295,9 @@ export default function DashboardClient({ initialItems, initialStats, initialSca
           </div>
         )}
 
-        {activeTab === 'ideas' ? (
+        {activeTab === 'insights' ? (
+          <InsightsTab />
+        ) : activeTab === 'ideas' ? (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
               <div>
