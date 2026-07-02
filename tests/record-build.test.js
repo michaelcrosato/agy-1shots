@@ -99,6 +99,12 @@ function cleanup() {
   rm(dir);
   rm(fixture);
   rm(codexFixture);
+  // The CLI runs above regenerated LESSONS.md while the temp one-shot still
+  // existed; regenerate once more so the artifact never keeps fixture rows.
+  execFileSync(process.execPath, [path.join(repoRoot, 'scripts', 'generate-lessons.mjs')], {
+    cwd: repoRoot,
+    stdio: 'ignore',
+  });
 }
 
 // A Codex rollout reports a CUMULATIVE running token total (we must take the

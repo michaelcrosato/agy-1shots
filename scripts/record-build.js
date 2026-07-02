@@ -647,6 +647,18 @@ function main() {
   }
 
   appendAttempt(targetDir, manifestPath, attempt);
+
+  // Refresh the teaching artifact. Best-effort: the attempt is already safely
+  // recorded, so a regeneration failure must not fail the recording.
+  const gen = require('child_process').spawnSync(
+    process.execPath,
+    [path.join(__dirname, 'generate-lessons.mjs')],
+    { cwd: repoRoot, stdio: 'pipe' }
+  );
+  if (gen.status !== 0) {
+    console.error('warning: LESSONS.md regeneration failed (attempt was still recorded).');
+  }
+
   console.log(JSON.stringify(summary, null, 2));
 }
 
