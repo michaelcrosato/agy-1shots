@@ -9,16 +9,17 @@ plus a human evaluation of how close the result came to the vision. This file is
 digest: what the data says each model can and cannot do, regenerated from
 `one-shots/*/oneshot.json` after every recorded attempt.
 
-_Data as of 2026-07-02: 4 one-shot(s), 10 attempt(s), 5 model(s). 3 attempt(s) carry trusted (benchmark-eligible) telemetry._
+_Data as of 2026-07-02: 5 one-shot(s), 11 attempt(s), 6 model(s). 3 attempt(s) carry trusted (benchmark-eligible) telemetry._
 
 ## Scoreboard — one-shot × model
 
-| One-shot | Gemini 3.5 Flash (high) | gpt-5.4 | claude-opus-4-6 | claude-opus-4-8 | node |
-| --- | --- | --- | --- | --- | --- |
-| `cyberpunk-marble-physics` | ✅ verified | — | — | — | — |
-| `json-repair` | — | — | — | — | — |
-| `notion-scraper` | — | — | — | — | — |
-| `token-cost-estimator` | — | 🔸 attempted, not evaluated | 🔸 attempted, not evaluated | 🔸 attempted, not evaluated | 🔸 attempted, not evaluated |
+| One-shot | Gemini 3.5 Flash (high) | gpt-5.4 | claude-opus-4-6 | claude-opus-4-8 | m | node |
+| --- | --- | --- | --- | --- | --- | --- |
+| `cyberpunk-marble-physics` | ✅ verified | — | — | — | — | — |
+| `json-repair` | — | — | — | — | — | — |
+| `notion-scraper` | — | — | — | — | — | — |
+| `temp-f9-eval` | — | — | — | — | 87% fidelity | — |
+| `token-cost-estimator` | — | 🔸 attempted, not evaluated | 🔸 attempted, not evaluated | 🔸 attempted, not evaluated | — | 🔸 attempted, not evaluated |
 
 ## Model profiles
 
@@ -49,6 +50,13 @@ _Data as of 2026-07-02: 4 one-shot(s), 10 attempt(s), 5 model(s). 3 attempt(s) c
 - **One-shot rate:** unknown (no prompt-count data yet)
 - **Evaluations:** 0 — avg fidelity —, acceptance tests 0/0 passed
 - **Avg build (trusted telemetry only):** 36.9k tokens · 0 s · $0.22
+
+### m
+
+- **Attempts:** 1 (0 benchmark-eligible)
+- **One-shot rate:** unknown (no prompt-count data yet)
+- **Evaluations:** 1 — avg fidelity 87%, acceptance tests 0/0 passed
+- **Avg build (trusted telemetry only; 1 attempt(s) excluded):** — tokens · — · —
 
 ### node
 
