@@ -9,7 +9,15 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { readManifestSyncWithStatus, updateManifest, ManifestError } from './manifest.js';
+import {
+  readManifestSyncWithStatus,
+  updateManifest,
+  ManifestError,
+  validateStrategy,
+  validateInteraction,
+  validateObservationsInput,
+  validateAttemptInput,
+} from './manifest.js';
 
 const tmpBase = fs.mkdtempSync(path.join(os.tmpdir(), 'manifest-test-'));
 function rm(p) {
@@ -96,6 +104,78 @@ try {
       written.attempts.map((a) => a.id),
       ['old', 'new']
     );
+  });
+
+  // --- Learning-layer validators (strategy / interaction / observations) ---
+  check('validateStrategy trims and returns null for empty', () => {
+    assert.strictEqual(validateStrategy('  plan-first '), 'plan-first');
+    assert.strictEqual(validateStrategy(''), null);
+    assert.strictEqual(validateStrategy(undefined), null);
+    assert.strictEqual(validateStrategy(null), null);
+  });
+  check('validateStrategy rejects non-strings and oversized values', () => {
+    assert.throws(() => validateStrategy(42), ManifestError);
+    assert.throws(() => validateStrategy('x'.repeat(201)), ManifestError);
+  });
+  check('validateInteraction derives oneShot from userPrompts', () => {
+    assert.deepStrictEqual(validateInteraction({ userPrompts: 1 }), {
+      userPrompts: 1,
+      oneShot: true,
+      source: 'transcript',
+    });
+    assert.deepStrictEqual(validateInteraction({ userPrompts: 4, source: 'transcript' }), {
+      userPrompts: 4,
+      oneShot: false,
+      source: 'transcript',
+    });
+    assert.strictEqual(validateInteraction(undefined), null);
+    assert.strictEqual(validateInteraction({}), null);
+  });
+  check('validateInteraction rejects bad shapes', () => {
+    assert.throws(() => validateInteraction([]), ManifestError);
+    assert.throws(() => validateInteraction({ userPrompts: -2 }), ManifestError);
+    assert.throws(() => validateInteraction({ userPrompts: 1, oneShot: 'yes' }), ManifestError);
+  });
+  check('validateObservationsInput normalizes lists and nulls when empty', () => {
+    const obs = validateObservationsInput({
+      wentWell: [' scaffolding worked '],
+      struggled: [],
+      lessons: ['GLSL needed fixes', ''],
+    });
+    assert.deepStrictEqual(obs, {
+      wentWell: ['scaffolding worked'],
+      struggled: [],
+      lessons: ['GLSL needed fixes'],
+    });
+    assert.strictEqual(validateObservationsInput({ wentWell: [], lessons: [] }), null);
+    assert.strictEqual(validateObservationsInput(undefined), null);
+  });
+  check('validateObservationsInput rejects bad shapes', () => {
+    assert.throws(() => validateObservationsInput({ wentWell: 'not-a-list' }), ManifestError);
+    assert.throws(() => validateObservationsInput({ lessons: [42] }), ManifestError);
+    assert.throws(() => validateObservationsInput({ lessons: ['x'.repeat(501)] }), ManifestError);
+    assert.throws(
+      () => validateObservationsInput({ wentWell: Array.from({ length: 21 }, () => 'a') }),
+      ManifestError
+    );
+  });
+  check('validateAttemptInput passes learning fields through when present', () => {
+    const fields = validateAttemptInput({
+      model: 'test-model',
+      strategy: 'plan-first',
+      interaction: { userPrompts: 2 },
+      observations: { lessons: ['a lesson'] },
+    });
+    assert.strictEqual(fields.strategy, 'plan-first');
+    assert.deepStrictEqual(fields.interaction, {
+      userPrompts: 2,
+      oneShot: false,
+      source: 'transcript',
+    });
+    assert.deepStrictEqual(fields.observations.lessons, ['a lesson']);
+    assert.ok(typeof fields.observations.notedAt === 'string');
+    const bare = validateAttemptInput({ model: 'test-model' });
+    assert.ok(!('strategy' in bare) && !('interaction' in bare) && !('observations' in bare));
   });
 
   rm(tmpBase);

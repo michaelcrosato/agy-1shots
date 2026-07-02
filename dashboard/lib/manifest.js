@@ -20,6 +20,10 @@ const SCHEMA_VERSION = 1;
 const PROTO_KEYS = ['__proto__', 'constructor', 'prototype'];
 const ACCEPTANCE_MODES = ['human', 'program', 'none'];
 const EVAL_METHODS = ['human', 'program', 'none'];
+const OBSERVATION_KEYS = ['wentWell', 'struggled', 'lessons'];
+const MAX_OBS_ITEMS = 20;
+const MAX_OBS_ITEM_LENGTH = 500;
+const MAX_STRATEGY_LENGTH = 200;
 
 // Evidence provenance for attempt telemetry. The design review in
 // tools/llm-usage-reader/DESIGN-rationale.md is unanimous: the LLM must never be
@@ -443,11 +447,20 @@ export function validateAttemptInput(body) {
       ? validateEvaluationInput(body.evaluation)
       : emptyEvaluation();
 
+  const strategy = validateStrategy(body.strategy);
+  const interaction = validateInteraction(body.interaction);
+  const observations = validateObservationsInput(body.observations);
+
   return {
     model,
     environment,
     build: normalizeCost(body.build, 'build'),
     evaluation,
+    ...(strategy ? { strategy } : {}),
+    ...(interaction ? { interaction } : {}),
+    ...(observations
+      ? { observations: { ...observations, notedAt: new Date().toISOString() } }
+      : {}),
   };
 }
 
@@ -505,6 +518,90 @@ export function validateEvaluationInput(body) {
   }
 
   return { method, fidelityScore, passed, feedback };
+}
+
+// The prompting variable being tracked (e.g. "single-prompt", "plan-first").
+// Free-form by design; null when absent so old attempts stay untouched.
+export function validateStrategy(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value !== 'string') {
+    throw new ManifestError(400, 'strategy must be a string');
+  }
+  const s = value.trim();
+  if (!s) return null;
+  if (s.length > MAX_STRATEGY_LENGTH) {
+    throw new ManifestError(400, `strategy must be at most ${MAX_STRATEGY_LENGTH} characters`);
+  }
+  return s;
+}
+
+// Machine-observed interaction telemetry (how many human prompts the build
+// took). Only recorders that parse a transcript should send this — a human
+// never types it, the model never reports it.
+export function validateInteraction(value) {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new ManifestError(400, 'interaction must be an object');
+  }
+  assertNoProtoKeys(value, 'interaction');
+  const userPrompts = normalizeNonNegInt(value.userPrompts, 'interaction.userPrompts');
+  if (userPrompts === null) return null;
+  let oneShot = userPrompts <= 1;
+  if (value.oneShot !== undefined && value.oneShot !== null) {
+    if (typeof value.oneShot !== 'boolean') {
+      throw new ManifestError(400, 'interaction.oneShot must be a boolean');
+    }
+    oneShot = value.oneShot;
+  }
+  const source =
+    typeof value.source === 'string' && value.source.trim() ? value.source.trim() : 'transcript';
+  return { userPrompts, oneShot, source };
+}
+
+// Qualitative teaching record: what went well, what the model struggled with,
+// and portable lessons. Returns null when nothing was actually observed.
+export function validateObservationsInput(body) {
+  if (body === undefined || body === null) return null;
+  if (typeof body !== 'object' || Array.isArray(body)) {
+    throw new ManifestError(400, 'observations must be an object');
+  }
+  assertNoProtoKeys(body, 'observations');
+  const out = {};
+  let total = 0;
+  for (const key of OBSERVATION_KEYS) {
+    const raw = body[key];
+    if (raw === undefined || raw === null) {
+      out[key] = [];
+      continue;
+    }
+    if (!Array.isArray(raw)) {
+      throw new ManifestError(400, `observations.${key} must be an array of strings`);
+    }
+    if (raw.length > MAX_OBS_ITEMS) {
+      throw new ManifestError(
+        400,
+        `observations.${key} has too many entries (max ${MAX_OBS_ITEMS})`
+      );
+    }
+    const cleaned = [];
+    for (const item of raw) {
+      if (typeof item !== 'string') {
+        throw new ManifestError(400, `observations.${key} entries must be strings`);
+      }
+      const s = item.trim();
+      if (!s) continue;
+      if (s.length > MAX_OBS_ITEM_LENGTH) {
+        throw new ManifestError(
+          400,
+          `observations.${key} entries must be at most ${MAX_OBS_ITEM_LENGTH} characters`
+        );
+      }
+      cleaned.push(s);
+    }
+    out[key] = cleaned;
+    total += cleaned.length;
+  }
+  return total === 0 ? null : out;
 }
 
 export function generateAttemptId() {

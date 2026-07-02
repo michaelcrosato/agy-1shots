@@ -3,7 +3,7 @@
 > [!NOTE]
 > This project is currently in **Alpha (v0.01)**. Features, specifications, and architecture are under active development.
 
-OneShotForge is a developer-focused monorepo designed to house independent, self-contained "one-shot" scripts and applications under `/one-shots/`, and manage them via an intelligent, single-page dashboard application built in `/dashboard/`.
+OneShotForge is a lab for measuring — and teaching — what AI coding tools can actually build in one shot. It houses independent, self-contained "one-shot" projects under `/one-shots/`, records every build attempt's **measurables** (model, tool, tokens, time, cost, prompt count) to disk from machine-observed evidence, and turns the results into lessons: which models one-shot which kinds of tasks, and where they struggle. Browse the current findings in [`LESSONS.md`](LESSONS.md) or run the dashboard in `/dashboard/`.
 
 ---
 
@@ -14,6 +14,7 @@ This repository is organized as a monorepo with strict isolation between compone
 ```text
 / (root)
 ├── README.md               # Monorepo architecture & setup (this file)
+├── LESSONS.md              # Generated teaching digest — what models can/can't one-shot
 ├── AGENTS.md               # Agent guidelines, system prompt, and workflows
 ├── dashboard/              # Next.js 15 App Router dashboard application
 │   ├── app/                # Routes, layouts, pages, and API routes
@@ -32,6 +33,18 @@ This repository is organized as a monorepo with strict isolation between compone
 ├── tools/                  # Vendored tooling (llm-usage-reader — the evidence recorder)
 └── tests/                  # Unit suites + the e2e gate (tests/e2e/)
 ```
+
+### The learning loop
+
+Every one-shot is an experiment. One pass through the loop:
+
+1. **Pick an idea** from [`IDEAS.md`](IDEAS.md) and promote it: `python scripts/promote.py <ID>` (scaffolds the folder and seeds the vision), or write a new vision by hand.
+2. **Build it** — paste the idea's ready-to-copy prompt into any AI coding tool (Claude Code, Codex, …) and let it work. 15 minutes or a day, doesn't matter.
+3. **Record the attempt** with one command — telemetry is read from the tool's own session records, never typed by hand and never self-reported by the model:
+   `node scripts/record-build.js --id <one-shot> --strategy single-prompt --lesson "what you learned"`
+   This also machine-counts how many human prompts the build took, so "one-shot" is a measured fact, not a claim.
+4. **Evaluate** in the dashboard: score fidelity against the immutable vision, run the acceptance test, and add observations — what went well, what the model struggled with.
+5. **Learn** — the Insights tab and the generated [`LESSONS.md`](LESSONS.md) aggregate every attempt into per-model profiles and a one-shot × model scoreboard.
 
 ### Core Architecture Principles
 
@@ -103,6 +116,10 @@ To integrate seamlessly with the Dashboard, every folder in `/one-shots/` must i
   - Appends a build attempt to the append-only history.
 - **`POST /api/manifest/evaluation`** `{ id, attemptId, fidelityScore?, feedback? }`
   - Records a human fidelity evaluation for an existing attempt.
+- **`POST /api/manifest/observations`** `{ id, attemptId, wentWell?, struggled?, lessons? }`
+  - Adds the qualitative teaching record to an attempt. Write-once: returns **409** if observations already exist.
+- **`GET /api/insights`**
+  - Cross-one-shot aggregate: per-model profiles, one-shot × model scoreboard, lessons feed. Quantitative averages include benchmark-eligible attempts only.
 - **`POST /api/manifest/verify`** `{ id, attemptId? }`
   - Runs the one-shot's `verify` acceptance test and records the objective pass/fail.
 
@@ -135,6 +152,14 @@ Each one-shot can carry a `oneshot.json` that turns it into a longitudinal bench
         "osBuild": "xxxx"
       },
       "build": { "tokens": 123456, "durationMs": 845000 },
+      "strategy": "single-prompt",
+      "interaction": { "userPrompts": 1, "oneShot": true, "source": "transcript" },
+      "observations": {
+        "wentWell": ["Scaffolding compiled first try"],
+        "struggled": ["Shader math needed corrections"],
+        "lessons": ["This model one-shots WebGL scaffolding, not shader math"],
+        "notedAt": "2026-06-17T01:00:00.000Z"
+      },
       "evaluation": {
         "method": "human",
         "fidelityScore": 87,
@@ -210,6 +235,12 @@ tags a setting the transcript doesn't carry; `--transcript <file.jsonl>` or
 `--projects-dir <dir>` point at the session explicitly when you ran the tool
 from a different directory. The auto-reader currently understands Claude Code
 and Codex transcripts.
+
+Learning-layer flags: `--strategy <s>` tags how you prompted (`single-prompt`,
+`plan-first`, …); `--went-well "..."`, `--struggled "..."`, and `--lesson "..."`
+(each repeatable) record qualitative observations alongside the telemetry. The
+number of human prompts is counted from the transcript automatically and stored
+as `interaction.userPrompts` / `interaction.oneShot`.
 
 **Ledger path — `record-evidence.js` (from the llm-usage-reader ledger):**
 

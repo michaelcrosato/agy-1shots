@@ -7,6 +7,7 @@ import {
   ManifestError,
 } from '../../../../lib/manifest';
 import { runScript, detectCommandEscape } from '../../../../lib/exec';
+import { regenerateLessonsFile } from '../../../../lib/lessons-file';
 
 export const dynamic = 'force-dynamic';
 
@@ -120,6 +121,7 @@ export async function POST(request) {
       }
       return jsonError(500, 'Internal Server Error');
     }
+    regenerateLessonsFile();
   }
 
   const payload = {

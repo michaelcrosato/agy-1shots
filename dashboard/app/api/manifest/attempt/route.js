@@ -7,6 +7,7 @@ import {
   decorateAttempt,
   ManifestError,
 } from '../../../../lib/manifest';
+import { regenerateLessonsFile } from '../../../../lib/lessons-file';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,5 +60,6 @@ export async function POST(request) {
     return jsonError(500, 'Internal Server Error');
   }
 
+  regenerateLessonsFile();
   return NextResponse.json({ success: true, attempt: decorateAttempt(attempt) });
 }

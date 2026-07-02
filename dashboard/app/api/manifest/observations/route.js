@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import {
   resolveOneShot,
   updateManifest,
-  validateEvaluationInput,
+  validateObservationsInput,
   ManifestError,
 } from '../../../../lib/manifest';
 import { regenerateLessonsFile } from '../../../../lib/lessons-file';
@@ -20,9 +20,10 @@ function jsonError(status, message) {
   });
 }
 
-// POST /api/manifest/evaluation  { id, attemptId, method?, fidelityScore?, passed?, feedback? }
-// Records the evaluation ("how close to the vision?") for an existing attempt.
-// Only the evaluation sub-object is touched; cost fields are never altered.
+// POST /api/manifest/observations  { id, attemptId, wentWell?, struggled?, lessons? }
+// Adds the qualitative teaching record to an existing attempt. Write-once:
+// observations may be ADDED to an attempt that has none, never edited or
+// removed — telemetry and history stay immutable (409 on conflict).
 export async function POST(request) {
   let body;
   try {
@@ -42,16 +43,26 @@ export async function POST(request) {
     return jsonError(resolved.status, 'Not Found');
   }
 
-  let evaluation;
+  let observations;
   try {
-    const validated = validateEvaluationInput(body);
-    evaluation = { ...validated, evaluatedAt: new Date().toISOString() };
+    const validated = validateObservationsInput({
+      wentWell: body.wentWell,
+      struggled: body.struggled,
+      lessons: body.lessons,
+    });
+    if (!validated) {
+      return jsonError(400, 'At least one observation entry is required');
+    }
+    observations = { ...validated, notedAt: new Date().toISOString() };
     await updateManifest(resolved.targetDir, resolved.manifestPath, (current) => {
       const attempt = current.attempts.find((a) => a.id === body.attemptId);
       if (!attempt) {
         throw new ManifestError(404, 'Attempt not found');
       }
-      attempt.evaluation = evaluation;
+      if (attempt.observations && typeof attempt.observations === 'object') {
+        throw new ManifestError(409, 'Observations already recorded for this attempt (write-once)');
+      }
+      attempt.observations = observations;
       return current;
     });
   } catch (e) {
@@ -62,5 +73,5 @@ export async function POST(request) {
   }
 
   regenerateLessonsFile();
-  return NextResponse.json({ success: true, evaluation });
+  return NextResponse.json({ success: true, observations });
 }

@@ -11,7 +11,11 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { execFileSync } = require('child_process');
-const { aggregateTranscript, parseCodexRollout } = require('../scripts/record-build.js');
+const {
+  aggregateTranscript,
+  buildAttempt,
+  parseCodexRollout,
+} = require('../scripts/record-build.js');
 
 const repoRoot = path.resolve(__dirname, '..');
 const id = 'tmp-record-build-test';
@@ -57,13 +61,34 @@ function setup() {
     path.join(dir, 'oneshot.json'),
     JSON.stringify({ schemaVersion: 1, spec: null, attempts: [] }, null, 2)
   );
-  // Two assistant messages 5s apart + one user line that must be ignored.
+  // Two assistant messages 5s apart + user lines that exercise prompt counting:
+  // one real human prompt (counted), one tool_result (ignored), one sidechain
+  // user message (ignored), one command message (ignored).
   const lines = [
+    JSON.stringify({
+      type: 'user',
+      timestamp: '2026-06-20T09:59:59.000Z',
+      message: { role: 'user', content: 'Build the thing per the vision.' },
+    }),
     assistant('2026-06-20T10:00:00.000Z', 'claude-opus-4-8', 100, 50, 10, 'standard'),
     JSON.stringify({
       type: 'user',
       timestamp: '2026-06-20T10:00:02.000Z',
-      message: { role: 'user' },
+      message: {
+        role: 'user',
+        content: [{ type: 'tool_result', tool_use_id: 'tu_1', content: 'ok' }],
+      },
+    }),
+    JSON.stringify({
+      type: 'user',
+      isSidechain: true,
+      timestamp: '2026-06-20T10:00:03.000Z',
+      message: { role: 'user', content: 'subagent task prompt' },
+    }),
+    JSON.stringify({
+      type: 'user',
+      timestamp: '2026-06-20T10:00:04.000Z',
+      message: { role: 'user', content: '<command-name>/goal</command-name>' },
     }),
     assistant('2026-06-20T10:00:05.000Z', 'claude-opus-4-8', 200, 80, 20, 'standard'),
   ];
@@ -74,6 +99,12 @@ function cleanup() {
   rm(dir);
   rm(fixture);
   rm(codexFixture);
+  // The CLI runs above regenerated LESSONS.md while the temp one-shot still
+  // existed; regenerate once more so the artifact never keeps fixture rows.
+  execFileSync(process.execPath, [path.join(repoRoot, 'scripts', 'generate-lessons.mjs')], {
+    cwd: repoRoot,
+    stdio: 'ignore',
+  });
 }
 
 // A Codex rollout reports a CUMULATIVE running token total (we must take the
@@ -97,6 +128,15 @@ function writeCodexFixture() {
       payload: { model: 'gpt-5.5' },
     }),
     JSON.stringify({ type: 'response_item', timestamp: '2026-06-20T10:00:02.000Z' }),
+    JSON.stringify({
+      type: 'response_item',
+      timestamp: '2026-06-20T10:00:02.500Z',
+      payload: {
+        type: 'message',
+        role: 'user',
+        content: [{ type: 'input_text', text: 'build it' }],
+      },
+    }),
     // First cumulative snapshot — must be SUPERSEDED by the next one.
     JSON.stringify({
       type: 'event_msg',
@@ -148,8 +188,69 @@ try {
     assert.strictEqual(agg.cacheRead, 30); // 10 + 20
     assert.strictEqual(agg.tokensConsumed, 430); // 300 + 130
     assert.strictEqual(agg.durationMs, 5000); // 10:00:05 - 10:00:00
-    assert.strictEqual(agg.messages, 2); // user line ignored
+    assert.strictEqual(agg.messages, 2); // user lines ignored
     assert.strictEqual(agg.provider, 'anthropic');
+  });
+
+  // 1b. Prompt counting: only real human prompts count — tool results,
+  // sidechain (subagent) prompts, and injected command messages do not.
+  check('aggregateTranscript counts only real human prompts', () => {
+    const agg = aggregateTranscript(fixture);
+    assert.strictEqual(agg.userPrompts, 1);
+  });
+
+  check('buildAttempt records interaction + strategy + observations', () => {
+    const agg = aggregateTranscript(fixture);
+    const attempt = buildAttempt(agg, {
+      tool: 'claude-code',
+      strategy: 'single-prompt',
+      observations: { wentWell: ['w'], struggled: [], lessons: ['l'] },
+    });
+    assert.deepStrictEqual(attempt.interaction, {
+      userPrompts: 1,
+      oneShot: true,
+      source: 'transcript',
+    });
+    assert.strictEqual(attempt.strategy, 'single-prompt');
+    assert.deepStrictEqual(attempt.observations.lessons, ['l']);
+    assert.ok(typeof attempt.observations.notedAt === 'string');
+  });
+
+  check('buildAttempt omits learning fields when absent', () => {
+    const agg = aggregateTranscript(fixture);
+    const attempt = buildAttempt({ ...agg, userPrompts: null }, { tool: 'claude-code' });
+    assert.ok(!('interaction' in attempt));
+    assert.ok(!('strategy' in attempt));
+    assert.ok(!('observations' in attempt));
+  });
+
+  check('CLI --dry-run carries strategy and observation flags', () => {
+    const out = execFileSync(
+      process.execPath,
+      [
+        path.join(repoRoot, 'scripts', 'record-build.js'),
+        '--id',
+        id,
+        '--transcript',
+        fixture,
+        '--dry-run',
+        '--strategy',
+        'single-prompt',
+        '--went-well',
+        'scaffolding',
+        '--lesson',
+        'lesson one',
+        '--lesson',
+        'lesson two',
+      ],
+      { cwd: repoRoot, encoding: 'utf8' }
+    );
+    const parsed = JSON.parse(out);
+    assert.strictEqual(parsed.dryRun, true);
+    assert.strictEqual(parsed.attempt.strategy, 'single-prompt');
+    assert.deepStrictEqual(parsed.attempt.observations.wentWell, ['scaffolding']);
+    assert.deepStrictEqual(parsed.attempt.observations.lessons, ['lesson one', 'lesson two']);
+    assert.strictEqual(parsed.attempt.interaction.userPrompts, 1);
   });
 
   // 2. CLI writes a fully-populated, benchmark-eligible attempt.
@@ -221,6 +322,11 @@ try {
     assert.strictEqual(agg.cacheRead, 1000);
     assert.strictEqual(agg.tokensConsumed, 4800); // 4000 non-cached input + 800 output
     assert.strictEqual(agg.durationMs, 10000); // 10:00:10 - 10:00:00
+  });
+
+  check('parseCodexRollout counts user input messages', () => {
+    const agg = parseCodexRollout(codexFixture);
+    assert.strictEqual(agg.userPrompts, 1);
   });
 
   // 5. CLI --tool codex writes an attempt stamped with the codex tool.

@@ -78,6 +78,26 @@ function newestTranscript(projectsDir) {
   return jsonl[0].p;
 }
 
+// A "human prompt" is a real user turn: type user, not a subagent sidechain,
+// not tool_result plumbing, not an injected command/system message. This is a
+// heuristic over Claude Code's transcript format, pinned by the fixture test.
+function isHumanPrompt(o) {
+  if (!o || o.type !== 'user' || !o.message) return false;
+  if (o.isSidechain || o.isMeta || o.isCompactSummary) return false;
+  const c = o.message.content;
+  if (typeof c === 'string') {
+    const s = c.trim();
+    return s.length > 0 && !s.startsWith('<');
+  }
+  if (Array.isArray(c)) {
+    if (c.some((p) => p && p.type === 'tool_result')) return false;
+    return c.some(
+      (p) => p && p.type === 'text' && typeof p.text === 'string' && !p.text.trim().startsWith('<')
+    );
+  }
+  return false;
+}
+
 // Aggregate one transcript (one build session) into the fields the dashboard
 // shows. Returns null if the transcript carries no usable assistant telemetry.
 function aggregateTranscript(transcriptPath) {
@@ -88,6 +108,7 @@ function aggregateTranscript(transcriptPath) {
   let output = 0;
   let cacheRead = 0;
   let messages = 0;
+  let userPrompts = 0;
   let minTs = null;
   let maxTs = null;
   let version = '';
@@ -122,6 +143,8 @@ function aggregateTranscript(transcriptPath) {
     if (o.version && !version) version = String(o.version);
     if (o.sessionId && !sessionId) sessionId = String(o.sessionId);
     if (o.cwd && !cwd) cwd = String(o.cwd);
+
+    if (isHumanPrompt(o)) userPrompts += 1;
 
     const msg = o.message;
     const usage = msg && msg.usage;
@@ -174,6 +197,7 @@ function aggregateTranscript(transcriptPath) {
     sessionId,
     cwd,
     messages,
+    userPrompts: userPrompts > 0 ? userPrompts : null,
     input,
     output,
     cacheRead,
@@ -184,6 +208,9 @@ function aggregateTranscript(transcriptPath) {
 
 function buildAttempt(agg, opts) {
   const attemptId = `att_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  const obs = opts.observations;
+  const hasObs =
+    obs && ['wentWell', 'struggled', 'lessons'].some((k) => Array.isArray(obs[k]) && obs[k].length);
   return {
     id: attemptId,
     timestamp: new Date().toISOString(),
@@ -235,6 +262,28 @@ function buildAttempt(agg, opts) {
       feedback: '',
       evaluatedAt: null,
     },
+    // Learning-layer fields (all optional). interaction is machine-counted
+    // from the transcript; strategy/observations are the operator's notes.
+    ...(typeof agg.userPrompts === 'number' && agg.userPrompts > 0
+      ? {
+          interaction: {
+            userPrompts: agg.userPrompts,
+            oneShot: agg.userPrompts <= 1,
+            source: 'transcript',
+          },
+        }
+      : {}),
+    ...(opts.strategy ? { strategy: String(opts.strategy).trim() } : {}),
+    ...(hasObs
+      ? {
+          observations: {
+            wentWell: obs.wentWell || [],
+            struggled: obs.struggled || [],
+            lessons: obs.lessons || [],
+            notedAt: new Date().toISOString(),
+          },
+        }
+      : {}),
   };
 }
 
@@ -454,6 +503,14 @@ function parseCodexRollout(p) {
 
   if (!model && rawInput === 0 && output === 0) return null;
 
+  const userPrompts = recs.filter(
+    (r) =>
+      r.type === 'response_item' &&
+      r.payload &&
+      r.payload.type === 'message' &&
+      r.payload.role === 'user'
+  ).length;
+
   return {
     model,
     speed: null, // Codex rollouts don't record a speed/effort tier.
@@ -462,6 +519,7 @@ function parseCodexRollout(p) {
     sessionId: meta.id || '',
     cwd: meta.cwd || '',
     messages: recs.filter((r) => r.type === 'response_item').length,
+    userPrompts: userPrompts > 0 ? userPrompts : null,
     input,
     output,
     cacheRead: cached,
@@ -495,6 +553,10 @@ function main() {
         transcript: { type: 'string' },
         'projects-dir': { type: 'string' },
         effort: { type: 'string' },
+        strategy: { type: 'string' },
+        'went-well': { type: 'string', multiple: true },
+        struggled: { type: 'string', multiple: true },
+        lesson: { type: 'string', multiple: true },
         'dry-run': { type: 'boolean' },
         'list-tools': { type: 'boolean' },
         help: { type: 'boolean' },
@@ -513,7 +575,9 @@ function main() {
   if (values.help) {
     console.log(
       'Usage: node scripts/record-build.js --id <one-shot> [--tool <claude-code|codex>] ' +
-        '[--transcript <file.jsonl>] [--projects-dir <dir>] [--effort <val>] [--dry-run] [--list-tools]'
+        '[--transcript <file.jsonl>] [--projects-dir <dir>] [--effort <val>] ' +
+        '[--strategy <s>] [--went-well <t>]... [--struggled <t>]... [--lesson <t>]... ' +
+        '[--dry-run] [--list-tools]'
     );
     process.exit(0);
   }
@@ -550,7 +614,16 @@ function main() {
   const agg = adapter.parse(transcriptPath);
   if (!agg) fail(`no usable build telemetry found in ${transcriptPath}.`);
 
-  const attempt = buildAttempt(agg, { effort: values.effort, tool: adapter.label });
+  const attempt = buildAttempt(agg, {
+    effort: values.effort,
+    tool: adapter.label,
+    strategy: values.strategy,
+    observations: {
+      wentWell: values['went-well'] || [],
+      struggled: values.struggled || [],
+      lessons: values.lesson || [],
+    },
+  });
 
   const summary = {
     ok: true,
@@ -565,6 +638,7 @@ function main() {
     buildTimeMs: attempt.build.durationMs,
     benchmarkEligible: attempt.benchmarkEligible,
     fromMessages: agg.messages,
+    userPrompts: attempt.interaction ? attempt.interaction.userPrompts : null,
   };
 
   if (values['dry-run']) {
@@ -573,6 +647,18 @@ function main() {
   }
 
   appendAttempt(targetDir, manifestPath, attempt);
+
+  // Refresh the teaching artifact. Best-effort: the attempt is already safely
+  // recorded, so a regeneration failure must not fail the recording.
+  const gen = require('child_process').spawnSync(
+    process.execPath,
+    [path.join(__dirname, 'generate-lessons.mjs')],
+    { cwd: repoRoot, stdio: 'pipe' }
+  );
+  if (gen.status !== 0) {
+    console.error('warning: LESSONS.md regeneration failed (attempt was still recorded).');
+  }
+
   console.log(JSON.stringify(summary, null, 2));
 }
 
